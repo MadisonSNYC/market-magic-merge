@@ -11,16 +11,16 @@ import { useKalshi } from '@/utils/kalshi/KalshiProvider';
 import { toast } from '@/components/ui/use-toast';
 
 export function KalshiApiSettings() {
-  const { isConnected, isDemo, connect, disconnect } = useKalshi();
+  const { isConnected, isDemo, apiKey, setApiKey, clearApiKey } = useKalshi();
   
   const [authMethod, setAuthMethod] = useState<'bearer' | 'rsa'>('bearer');
-  const [apiKey, setApiKey] = useState('');
+  const [newApiKey, setNewApiKey] = useState('');
   const [keyId, setKeyId] = useState('');
   const [privateKey, setPrivateKey] = useState('');
   const [demoMode, setDemoMode] = useState(true);
   
   const handleConnect = () => {
-    if (authMethod === 'bearer' && !apiKey) {
+    if (authMethod === 'bearer' && !newApiKey) {
       toast({
         title: "API Key Required",
         description: "Please enter your Kalshi API key",
@@ -39,12 +39,20 @@ export function KalshiApiSettings() {
     }
     
     try {
-      connect({
-        apiKey: authMethod === 'bearer' ? apiKey : undefined,
-        keyId: authMethod === 'rsa' ? keyId : undefined,
-        privateKey: authMethod === 'rsa' ? privateKey : undefined,
-        demoMode
-      });
+      // Currently only supporting API key auth in our simplified client
+      if (authMethod === 'bearer') {
+        setApiKey(newApiKey);
+        toast({
+          title: "Connected",
+          description: "Successfully connected to Kalshi API",
+        });
+      } else {
+        toast({
+          title: "RSA Authentication Not Supported",
+          description: "This version only supports API key authentication. RSA support coming soon.",
+          variant: "destructive"
+        });
+      }
     } catch (error) {
       console.error("Failed to connect to Kalshi API:", error);
       toast({
@@ -53,6 +61,14 @@ export function KalshiApiSettings() {
         variant: "destructive"
       });
     }
+  };
+  
+  const handleDisconnect = () => {
+    clearApiKey();
+    toast({
+      title: "Disconnected",
+      description: "Successfully disconnected from Kalshi API",
+    });
   };
   
   const handlePrivateKeyFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -106,8 +122,8 @@ export function KalshiApiSettings() {
                 <Input
                   id="api-key"
                   placeholder="Your Kalshi API key"
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
+                  value={newApiKey}
+                  onChange={(e) => setNewApiKey(e.target.value)}
                 />
                 <p className="text-sm text-muted-foreground">
                   This is being replaced by RSA authentication. Consider using RSA instead.
@@ -152,7 +168,7 @@ export function KalshiApiSettings() {
       </CardContent>
       <CardFooter>
         {isConnected ? (
-          <Button onClick={disconnect} variant="destructive" className="w-full">
+          <Button onClick={handleDisconnect} variant="destructive" className="w-full">
             Disconnect
           </Button>
         ) : (

@@ -1,7 +1,13 @@
 
 import axios, { AxiosRequestConfig } from 'axios';
 import { KALSHI_API_URL, KALSHI_DEMO_API_URL, DEMO_MODE } from './config';
-import type { KalshiApiMarket, KalshiMarketResponse } from './types';
+import type { 
+  KalshiApiMarket, 
+  KalshiMarketResponse,
+  KalshiOrderbook,
+  KalshiApiResponse,
+  KalshiBalanceResponse
+} from './types';
 
 /**
  * Simplified Kalshi API client
@@ -14,7 +20,7 @@ export class KalshiApiClient {
   constructor(options: { apiKey?: string; mockMode?: boolean; baseUrl?: string } = {}) {
     this.apiKey = options.apiKey;
     this.mockMode = options.mockMode || !options.apiKey || false;
-    this.baseUrl = options.baseUrl || (DEMO_MODE ? KALSHI_DEMO_API_URL : KALSHI_API_URL);
+    this.baseUrl = options.baseUrl || (options.mockMode || DEMO_MODE ? KALSHI_DEMO_API_URL : KALSHI_API_URL);
   }
 
   /**
@@ -76,6 +82,92 @@ export class KalshiApiClient {
     } catch (error) {
       console.error(`Error fetching market ${ticker} from Kalshi API:`, error);
       return null;
+    }
+  }
+
+  /**
+   * Get market orderbook
+   */
+  async getOrderbook(ticker: string): Promise<KalshiOrderbook | null> {
+    if (this.mockMode) {
+      return this.getMockOrderbook(ticker);
+    }
+
+    try {
+      const response = await this.makeRequest<KalshiOrderbook>(`/markets/${ticker}/orderbook`, { 
+        method: 'GET' 
+      });
+      return response;
+    } catch (error) {
+      console.error(`Error fetching orderbook for ${ticker} from Kalshi API:`, error);
+      return null;
+    }
+  }
+
+  /**
+   * Get user's balance
+   */
+  async getBalance(): Promise<KalshiBalanceResponse | null> {
+    if (this.mockMode) {
+      return {
+        balance: 1000.00,
+        portfolio_value: 0.00,
+        available_balance: 1000.00,
+        reserved_fees: 0.00,
+        bonus_balance: 0.00,
+        reserved_margin: 0.00
+      };
+    }
+
+    try {
+      const response = await this.makeRequest<KalshiBalanceResponse>('/portfolio/balance', { 
+        method: 'GET' 
+      });
+      return response;
+    } catch (error) {
+      console.error('Error fetching balance from Kalshi API:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Get user's positions
+   */
+  async getPositions(): Promise<any[]> {
+    if (this.mockMode) {
+      return [];
+    }
+
+    try {
+      const response = await this.makeRequest<{ positions: any[] }>('/portfolio/positions', { 
+        method: 'GET' 
+      });
+      return response.positions || [];
+    } catch (error) {
+      console.error('Error fetching positions from Kalshi API:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get exchange status
+   */
+  async getExchangeStatus(): Promise<any> {
+    if (this.mockMode) {
+      return {
+        status: 'operational',
+        message: 'All systems operational'
+      };
+    }
+
+    try {
+      const response = await this.makeRequest<any>('/exchange/status', { 
+        method: 'GET' 
+      });
+      return response;
+    } catch (error) {
+      console.error('Error fetching exchange status from Kalshi API:', error);
+      return { status: 'unknown', message: 'Unable to fetch status' };
     }
   }
 
@@ -164,6 +256,35 @@ export class KalshiApiClient {
   }
 
   /**
+   * Generate mock orderbook data for testing
+   */
+  private getMockOrderbook(ticker: string): KalshiOrderbook {
+    return {
+      ticker: ticker,
+      yes_bids: [
+        { price: 45, count: 100 },
+        { price: 44, count: 200 },
+        { price: 43, count: 300 }
+      ],
+      yes_asks: [
+        { price: 48, count: 100 },
+        { price: 49, count: 200 },
+        { price: 50, count: 300 }
+      ],
+      no_bids: [
+        { price: 52, count: 100 },
+        { price: 51, count: 200 },
+        { price: 50, count: 300 }
+      ],
+      no_asks: [
+        { price: 55, count: 100 },
+        { price: 56, count: 200 },
+        { price: 57, count: 300 }
+      ]
+    };
+  }
+
+  /**
    * Check if the client is in demo/mock mode
    */
   isDemoMode(): boolean {
@@ -177,3 +298,6 @@ export class KalshiApiClient {
     return !!this.apiKey;
   }
 }
+
+// Create an instance for export
+export const kalshiApi = new KalshiApiClient();

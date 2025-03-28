@@ -1,41 +1,33 @@
 
-import { KalshiAiRecommendation } from './types';
+import { KalshiAiRecommendation } from './types/recommendations';
 
-export const mockAiRecommendations: KalshiAiRecommendation[] = [
-  {
-    marketId: 'BTC-PRICE-40K',
-    recommendation: 'Buy YES',
-    reason: 'Strong technical indicators suggest upward momentum',
-    contractPrice: 0.65,
-    size: 10,
-    cost: 6.5,
-    potentialProfit: 3.5,
-    potentialPayout: 10,
-    confidence: 0.85,
-    category: 'Crypto'
-  },
-  {
-    marketId: 'ETH-MERGE-JUNE',
-    recommendation: 'Buy NO',
-    reason: 'Development timeline suggests likely delays',
-    contractPrice: 0.28,
-    size: 5,
-    cost: 1.4,
-    potentialProfit: 3.6,
-    potentialPayout: 5,
-    confidence: 0.78,
-    category: 'Crypto'
-  },
-  {
-    marketId: 'FED-RATE-HIKE',
-    recommendation: 'Buy YES',
-    reason: 'Recent inflation data supports rate hike thesis',
-    contractPrice: 0.52,
-    size: 8,
-    cost: 4.16,
-    potentialProfit: 3.84,
-    potentialPayout: 8,
-    confidence: 0.82,
-    category: 'Finance'
-  }
-];
+// Mock function to get AI recommendations
+export const getAiRecommendations = async (): Promise<KalshiAiRecommendation[]> => {
+  // This would normally fetch from the API
+  return [
+    {
+      marketId: 'DEM-PRES-24',
+      recommendation: 'BUY',
+      reason: 'Polling data suggests high probability of Democratic nominee being confirmed',
+      contractPrice: 70,
+      size: 10,
+      cost: 700,
+      potentialProfit: 300,
+      potentialPayout: 1000,
+      confidence: 0.85,
+      category: 'Politics'
+    },
+    {
+      marketId: 'BTC-40K-END-AUG',
+      recommendation: 'SELL',
+      reason: 'Technical analysis indicates resistance at $40K level',
+      contractPrice: 45,
+      size: 5,
+      cost: 225,
+      potentialProfit: 225,
+      potentialPayout: 500,
+      confidence: 0.65,
+      category: 'Crypto'
+    }
+  ];
+};
