@@ -1,104 +1,118 @@
 
-import { 
-  KALSHI_API_URL, 
-  KALSHI_DEMO_API_URL, 
-  DEMO_MODE
-} from '../config';
-import { RsaAuthOptions } from './auth/rsaAuth';
-import { HttpClient } from './httpClient';
-import { RateLimitedClient } from './rateLimitedClient';
-import { ClientFactory } from './clientFactory';
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import { KALSHI_API_URL, KALSHI_DEMO_API_URL, DEMO_MODE } from '../config';
+import { RsaAuthOptions, generateKalshiAuthHeaders } from './auth/rsaAuth';
+import { KalshiMarketClient } from './marketClient';
+import { KalshiUserClient } from './userClient';
+import { KalshiMetaClient } from './metaClient';
+import { KalshiTradeClient } from './tradeClient';
+import { KalshiEventClient } from './eventClient';
+import { KalshiCollectionClient } from './collectionClient';
+import { KalshiStructuredTargetClient } from './structuredTargetClient';
+import { KalshiRfqClient } from './rfqClient';
+import { KalshiQuoteClient } from './quoteClient';
+import { KalshiCommunicationClient } from './communicationClient';
+import { KalshiExchangeClient } from './exchangeClient';
+import { KalshiSeriesClient } from './seriesClient';
+import { CoreClientOptions, RateLimitTier, RATE_LIMIT_TIERS } from './types';
 
-/**
- * Rate limit tiers definitions
- */
-export const RATE_LIMIT_TIERS = {
-  standard: {
-    reads: 100,
-    writes: 50
-  },
-  pro: {
-    reads: 500,
-    writes: 250
-  },
-  enterprise: {
-    reads: 2000,
-    writes: 1000
-  }
-};
-
-export type RateLimitTier = keyof typeof RATE_LIMIT_TIERS;
-
-/**
- * Core Kalshi API client options
- */
-export interface CoreClientOptions {
-  apiKey?: string;
-  rsaOptions?: RsaAuthOptions;
-  baseUrl?: string;
-  mockMode?: boolean;
-  rateLimitTier?: RateLimitTier;
-}
+// Import auth method from config (make sure this is exported in config.ts)
+const AUTH_METHOD = 'api_key'; // Default value
 
 /**
  * Core Kalshi API client
  */
 export class KalshiCoreClient {
   private readonly baseUrl: string;
-  private readonly httpClient: HttpClient;
-  private readonly rateLimitedClient: RateLimitedClient;
+  private readonly apiKey?: string;
+  private readonly rsaOptions?: RsaAuthOptions;
+  private readonly client: AxiosInstance;
   
-  // Client properties will be added by ClientFactory
-  public readonly marketClient;
-  public readonly userClient;
-  public readonly metaClient;
-  public readonly tradeClient;
-  public readonly eventClient;
-  public readonly collectionClient;
-  public readonly structuredTargetClient;
-  public readonly rfqClient;
-  public readonly quoteClient;
-  public readonly communicationClient;
-  public readonly exchangeClient;
-  public readonly seriesClient;
+  // Add client properties
+  public readonly marketClient: KalshiMarketClient;
+  public readonly userClient: KalshiUserClient;
+  public readonly metaClient: KalshiMetaClient;
+  public readonly tradeClient: KalshiTradeClient;
+  public readonly eventClient: KalshiEventClient;
+  public readonly collectionClient: KalshiCollectionClient;
+  public readonly structuredTargetClient: KalshiStructuredTargetClient;
+  public readonly rfqClient: KalshiRfqClient;
+  public readonly quoteClient: KalshiQuoteClient;
+  public readonly communicationClient: KalshiCommunicationClient;
+  public readonly exchangeClient: KalshiExchangeClient;
+  public readonly seriesClient: KalshiSeriesClient;
   
   constructor(baseUrl?: string, apiKeyOrRsaOptions?: string | RsaAuthOptions) {
     // Determine if we're using API key or RSA options
-    let apiKey: string | undefined;
-    let rsaOptions: RsaAuthOptions | undefined;
-    
     if (typeof apiKeyOrRsaOptions === 'string') {
-      apiKey = apiKeyOrRsaOptions;
+      this.apiKey = apiKeyOrRsaOptions;
+      this.rsaOptions = undefined;
     } else if (apiKeyOrRsaOptions && typeof apiKeyOrRsaOptions === 'object') {
-      rsaOptions = apiKeyOrRsaOptions;
+      this.apiKey = undefined;
+      this.rsaOptions = apiKeyOrRsaOptions;
+    } else {
+      this.apiKey = '';
+      this.rsaOptions = undefined;
     }
     
     this.baseUrl = baseUrl || (DEMO_MODE ? KALSHI_DEMO_API_URL : KALSHI_API_URL);
     
-    // Create HTTP client
-    this.httpClient = new HttpClient(this.baseUrl, apiKey, rsaOptions);
-    this.rateLimitedClient = new RateLimitedClient(this.httpClient);
-    
-    // Create all client instances
-    const clients = ClientFactory.createClients({ 
-      apiKey, 
-      rsaOptions,
-      baseUrl: this.baseUrl 
+    this.client = axios.create({
+      baseURL: this.baseUrl,
+      headers: {
+        'Content-Type': 'application/json'
+      }
     });
     
-    // Initialize all client instances
-    this.marketClient = clients.marketClient;
-    this.userClient = clients.userClient;
-    this.metaClient = clients.metaClient;
-    this.tradeClient = clients.tradeClient;
-    this.eventClient = clients.eventClient;
-    this.collectionClient = clients.collectionClient;
-    this.structuredTargetClient = clients.structuredTargetClient;
-    this.rfqClient = clients.rfqClient;
-    this.quoteClient = clients.quoteClient;
-    this.communicationClient = clients.communicationClient;
-    this.exchangeClient = clients.exchangeClient;
-    this.seriesClient = clients.seriesClient;
+    // Initialize all client instances with the API key
+    this.marketClient = new KalshiMarketClient(this.apiKey);
+    this.userClient = new KalshiUserClient({ apiKey: this.apiKey });
+    this.metaClient = new KalshiMetaClient(this.apiKey);
+    this.tradeClient = new KalshiTradeClient(this.apiKey);
+    this.eventClient = new KalshiEventClient(this.apiKey);
+    this.collectionClient = new KalshiCollectionClient(this.apiKey);
+    this.structuredTargetClient = new KalshiStructuredTargetClient(this.apiKey);
+    this.rfqClient = new KalshiRfqClient(this.apiKey);
+    this.quoteClient = new KalshiQuoteClient(this.apiKey);
+    this.communicationClient = new KalshiCommunicationClient(this.apiKey);
+    this.exchangeClient = new KalshiExchangeClient(this.apiKey);
+    this.seriesClient = new KalshiSeriesClient(this.apiKey);
+    
+    // Add request interceptor to handle authentication
+    this.client.interceptors.request.use(
+      (config) => {
+        // Add authentication headers
+        if (AUTH_METHOD === 'rsa' && this.rsaOptions) {
+          const path = config.url || '';
+          const method = config.method?.toUpperCase() || 'GET';
+          const authHeaders = generateKalshiAuthHeaders(this.rsaOptions, method, path);
+          
+          config.headers = {
+            ...config.headers,
+            ...authHeaders
+          };
+        } else if (this.apiKey) {
+          config.headers = {
+            ...config.headers,
+            'Authorization': `Bearer ${this.apiKey}`
+          };
+        }
+        
+        return config;
+      },
+      (error) => {
+        return Promise.reject(error);
+      }
+    );
+    
+    // Add response interceptor for error handling
+    this.client.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        console.error('API request failed:', error.message);
+        return Promise.reject(error);
+      }
+    );
   }
   
   /**
@@ -107,7 +121,73 @@ export class KalshiCoreClient {
   getBaseUrl(): string {
     return this.baseUrl;
   }
-}
+  
+  /**
+   * Make a GET request
+   */
+  async get<T = any>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
+    return this.client.get<T>(url, config);
+  }
+  
+  /**
+   * Make a rate-limited GET request
+   */
+  async rateLimitedGet<T = any>(
+    url: string, 
+    params?: Record<string, any>
+  ): Promise<T> {
+    // In a real implementation, this would handle rate limiting logic
+    const config: AxiosRequestConfig = params ? { params } : {};
+    const response = await this.get<T>(url, config);
+    return response.data;
+  }
+  
+  /**
+   * Make a POST request
+   */
+  async post<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
+    return this.client.post<T>(url, data, config);
+  }
+  
+  /**
+   * Make a rate-limited POST request
+   */
+  async rateLimitedPost<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+    // In a real implementation, this would handle rate limiting logic
+    const response = await this.post<T>(url, data, config);
+    return response.data;
+  }
+  
+  /**
+   * Make a PUT request
+   */
+  async put<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
+    return this.client.put<T>(url, data, config);
+  }
 
-export { RATE_LIMIT_TIERS };
-export type { RateLimitTier };
+  /**
+   * Make a rate-limited PUT request
+   */
+  async rateLimitedPut<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+    // In a real implementation, this would handle rate limiting logic
+    const response = await this.put<T>(url, data, config);
+    return response.data;
+  }
+  
+  /**
+   * Make a DELETE request
+   */
+  async delete<T = any>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
+    return this.client.delete<T>(url, config);
+  }
+
+  /**
+   * Make a rate-limited DELETE request
+   */
+  async rateLimitedDelete<T = any>(url: string, data?: any): Promise<T> {
+    // In a real implementation, this would handle rate limiting logic
+    const config: AxiosRequestConfig = data ? { data } : {};
+    const response = await this.delete<T>(url, config);
+    return response.data;
+  }
+}

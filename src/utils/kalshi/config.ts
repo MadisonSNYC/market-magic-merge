@@ -13,6 +13,10 @@ export const DEMO_MODE = false;
 // Authentication method (rsa or api_key)
 export const AUTH_METHOD = 'api_key';
 
+// RSA Authentication settings (if using RSA auth)
+export const RSA_KEY_ID = '';
+export const RSA_PRIVATE_KEY = '';
+
 // Rate limiting configuration
 export const RATE_LIMIT = {
   maxRequestsPerMinute: 120,

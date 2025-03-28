@@ -5,6 +5,8 @@ declare global {
   function beforeEach(fn: () => void): void;
   function afterAll(fn: () => void): void;
   function it(name: string, fn: () => void | Promise<void>): void;
+  
+  // Extended expect interface with proper matchers
   function expect(actual: any): {
     toBe(expected: any): void;
     toEqual(expected: any): void;
@@ -20,12 +22,14 @@ declare global {
     objectContaining(expected: object): any;
     stringContaining(expected: string): any;
   };
+  
   namespace jest {
     function resetAllMocks(): void;
     function clearAllMocks(): void;
     function restoreAllMocks(): void;
     function mock(moduleName: string): any;
     function fn<T = any>(): jest.Mock<T>;
+    
     function spyOn(object: any, methodName: string): {
       mockReturnValue(value: any): any;
       mockResolvedValue(value: any): any;
@@ -33,6 +37,7 @@ declare global {
       mockRejectedValue(error: any): any;
       mockResolvedValueOnce(value: any): any;
     };
+    
     type Mock<T = any> = {
       (...args: any[]): any;
       mockReturnValue(value: any): Mock<T>;
@@ -41,8 +46,15 @@ declare global {
       mockRejectedValue(error: any): Mock<T>;
       mockResolvedValueOnce(value: any): Mock<T>;
     };
-    type SpyInstance = ReturnType<typeof spyOn>;
-    // Add missing matchers for expect
+    
+    // Fix Mocked type
+    type Mocked<T> = {
+      [P in keyof T]: T[P] extends (...args: any[]) => any
+        ? jest.Mock<ReturnType<T[P]>, Parameters<T[P]>>
+        : T[P];
+    } & T;
+    
+    // Add missing matchers
     const objectContaining: (expected: object) => any;
     const stringContaining: (expected: string) => any;
   }

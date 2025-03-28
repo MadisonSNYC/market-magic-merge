@@ -1,5 +1,6 @@
 
 import { BaseKalshiClient } from './baseClient';
+import { CoreClientOptions } from './types';
 
 /**
  * Kalshi position interface
@@ -46,8 +47,9 @@ export interface KalshiAiRecommendation {
  * Kalshi User API client for accessing user data like balance and positions
  */
 export class KalshiUserClient extends BaseKalshiClient {
-  constructor(options: { apiKey?: string; mockMode?: boolean; baseUrl?: string } = {}) {
-    super(options.baseUrl || '', options.apiKey);
+  constructor(options: CoreClientOptions | { apiKey?: string; mockMode?: boolean; baseUrl?: string } = {}) {
+    const apiKey = 'apiKey' in options ? options.apiKey : undefined;
+    super('', apiKey);
     // We're ignoring mockMode for now as the base client doesn't support it directly
   }
   

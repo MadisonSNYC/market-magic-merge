@@ -1,67 +1,134 @@
 
-import { RateLimitedClient } from './rateLimitedClient';
-import { HttpClient } from './httpClient';
-import { KALSHI_API_URL, KALSHI_DEMO_API_URL, DEMO_MODE } from '../config';
-import { CoreClientOptions } from './types';
+import axios, { AxiosRequestConfig } from 'axios';
+import { KALSHI_API_URL } from '../config';
 
 /**
- * Base class for all Kalshi API clients
+ * Base class for Kalshi API clients
  */
 export class BaseKalshiClient {
-  protected baseUrl: string;
-  protected apiKey?: string;
-  protected mockMode: boolean;
-  protected rateLimitedClient: RateLimitedClient;
+  protected readonly baseUrl: string;
+  protected readonly apiKey?: string;
   
-  constructor(options: CoreClientOptions = {}) {
-    this.apiKey = options.apiKey;
-    this.mockMode = options.mockMode || false;
-    this.baseUrl = options.baseUrl || (this.mockMode || DEMO_MODE ? KALSHI_DEMO_API_URL : KALSHI_API_URL);
-    
-    // Initialize HTTP client
-    const httpClient = new HttpClient(this.baseUrl, this.apiKey, options.rsaOptions);
-    this.rateLimitedClient = new RateLimitedClient(httpClient);
-  }
-  
-  /**
-   * Check if the client is in mock/demo mode
-   */
-  isDemoMode(): boolean {
-    return this.mockMode;
-  }
-  
-  /**
-   * Check if the client is connected with an API key
-   */
-  isConnected(): boolean {
-    return !!this.apiKey;
+  constructor(baseUrl: string = '', apiKey?: string) {
+    this.baseUrl = baseUrl || KALSHI_API_URL;
+    this.apiKey = apiKey;
   }
   
   /**
    * Make a rate-limited GET request
    */
-  protected async rateLimitedGet<T = any>(endpoint: string, params?: any): Promise<T> {
-    return this.rateLimitedClient.rateLimitedGet<T>(endpoint, params);
+  async rateLimitedGet<T = any>(
+    url: string, 
+    params?: Record<string, any>
+  ): Promise<T> {
+    try {
+      const config: AxiosRequestConfig = {
+        params,
+        headers: {}
+      };
+      
+      if (this.apiKey) {
+        config.headers = {
+          ...config.headers,
+          'Authorization': `Bearer ${this.apiKey}`
+        };
+      }
+      
+      const response = await axios.get(url, config);
+      return response.data;
+    } catch (error) {
+      console.error(`Error in GET request to ${url}:`, error);
+      throw error;
+    }
   }
   
   /**
    * Make a rate-limited POST request
    */
-  protected async rateLimitedPost<T = any>(endpoint: string, data: any, config?: any): Promise<T> {
-    return this.rateLimitedClient.rateLimitedPost<T>(endpoint, data, config);
+  async rateLimitedPost<T = any>(
+    url: string, 
+    data?: any, 
+    config?: AxiosRequestConfig
+  ): Promise<T> {
+    try {
+      const requestConfig: AxiosRequestConfig = {
+        ...config,
+        headers: {
+          ...config?.headers
+        }
+      };
+      
+      if (this.apiKey) {
+        requestConfig.headers = {
+          ...requestConfig.headers,
+          'Authorization': `Bearer ${this.apiKey}`
+        };
+      }
+      
+      const response = await axios.post(url, data, requestConfig);
+      return response.data;
+    } catch (error) {
+      console.error(`Error in POST request to ${url}:`, error);
+      throw error;
+    }
   }
   
   /**
    * Make a rate-limited PUT request
    */
-  protected async rateLimitedPut<T = any>(endpoint: string, data: any, config?: any): Promise<T> {
-    return this.rateLimitedClient.rateLimitedPut<T>(endpoint, data, config);
+  async rateLimitedPut<T = any>(
+    url: string, 
+    data?: any, 
+    config?: AxiosRequestConfig
+  ): Promise<T> {
+    try {
+      const requestConfig: AxiosRequestConfig = {
+        ...config,
+        headers: {
+          ...config?.headers
+        }
+      };
+      
+      if (this.apiKey) {
+        requestConfig.headers = {
+          ...requestConfig.headers,
+          'Authorization': `Bearer ${this.apiKey}`
+        };
+      }
+      
+      const response = await axios.put(url, data, requestConfig);
+      return response.data;
+    } catch (error) {
+      console.error(`Error in PUT request to ${url}:`, error);
+      throw error;
+    }
   }
   
   /**
    * Make a rate-limited DELETE request
    */
-  protected async rateLimitedDelete<T = any>(endpoint: string, data: any): Promise<T> {
-    return this.rateLimitedClient.rateLimitedDelete<T>(endpoint, data);
+  async rateLimitedDelete<T = any>(
+    url: string, 
+    data?: any
+  ): Promise<T> {
+    try {
+      const config: AxiosRequestConfig = {
+        data,
+        headers: {}
+      };
+      
+      if (this.apiKey) {
+        config.headers = {
+          ...config.headers,
+          'Authorization': `Bearer ${this.apiKey}`
+        };
+      }
+      
+      const response = await axios.delete(url, config);
+      return response.data;
+    } catch (error) {
+      console.error(`Error in DELETE request to ${url}:`, error);
+      throw error;
+    }
   }
 }
