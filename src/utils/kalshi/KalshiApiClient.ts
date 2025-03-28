@@ -1,6 +1,5 @@
 
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
-import { createHash, createPrivateKey, sign } from 'crypto';
 import { toast } from '@/components/ui/use-toast';
 
 // Constants for API endpoints
@@ -13,16 +12,8 @@ export interface KalshiApiConfig {
   keyId?: string;
   privateKey?: string;
   demoMode?: boolean;
-  rateLimitTier?: 'standard' | 'pro' | 'enterprise';
 }
 
-export interface RateLimitStats {
-  limit: number;
-  remaining: number;
-  reset: number;
-}
-
-// Market types
 export interface KalshiMarket {
   ticker: string;
   title: string;
@@ -30,23 +21,15 @@ export interface KalshiMarket {
   category?: string;
   status: string;
   close_time: string;
-  yes_bid?: number;
   yes_ask?: number;
-  no_bid?: number;
+  yes_bid?: number;
   no_ask?: number;
+  no_bid?: number;
   last_price?: number;
   volume?: number;
   open_interest?: number;
   event_ticker: string;
   series_ticker?: string;
-}
-
-export interface KalshiOrderbook {
-  ticker: string;
-  yes_bids: { price: number; count: number }[];
-  yes_asks: { price: number; count: number }[];
-  no_bids: { price: number; count: number }[];
-  no_asks: { price: number; count: number }[];
 }
 
 export interface KalshiPosition {
@@ -75,11 +58,6 @@ export class KalshiApiClient {
   private readonly keyId?: string;
   private readonly privateKey?: string;
   private readonly client: AxiosInstance;
-  private rateLimitStats: RateLimitStats = {
-    limit: 0,
-    remaining: 0,
-    reset: 0
-  };
 
   constructor(config: KalshiApiConfig = {}) {
     this.apiKey = config.apiKey;
@@ -95,166 +73,107 @@ export class KalshiApiClient {
       }
     });
 
-    // Add interceptor to track rate limits
-    this.client.interceptors.response.use(
-      (response) => {
-        // Update rate limit stats from headers if available
-        if (response.headers['x-ratelimit-limit']) {
-          this.rateLimitStats = {
-            limit: parseInt(response.headers['x-ratelimit-limit']),
-            remaining: parseInt(response.headers['x-ratelimit-remaining']),
-            reset: parseInt(response.headers['x-ratelimit-reset'])
-          };
+    // Add request interceptor to include auth headers when available
+    this.client.interceptors.request.use(
+      (config) => {
+        if (this.apiKey) {
+          config.headers['Authorization'] = `Bearer ${this.apiKey}`;
         }
-        return response;
+        // We'll implement RSA signature auth in the future when needed
+        return config;
       },
       (error) => {
-        if (error.response) {
-          if (error.response.status === 429) {
-            // Handle rate limiting
-            const retryAfter = error.response.headers['retry-after'] || 5;
-            toast({
-              title: 'Rate limit exceeded',
-              description: `Too many requests. Please try again in ${retryAfter} seconds.`,
-              variant: 'destructive'
-            });
-          } else if (error.response.status === 401) {
-            // Handle authentication errors
-            toast({
-              title: 'Authentication failed',
-              description: 'Please check your API credentials',
-              variant: 'destructive'
-            });
-          }
+        return Promise.reject(error);
+      }
+    );
+
+    // Add response interceptor for error handling
+    this.client.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        const errorMessage = error.response?.data?.message || error.message;
+        console.error('Kalshi API error:', errorMessage);
+        
+        if (error.response?.status === 429) {
+          toast({
+            title: "Rate limit exceeded",
+            description: "Too many API requests. Please try again later.",
+            variant: "destructive"
+          });
+        } else if (error.response?.status === 401) {
+          toast({
+            title: "Authentication failed",
+            description: "Please check your API credentials",
+            variant: "destructive"
+          });
         }
+        
         return Promise.reject(error);
       }
     );
   }
 
   /**
-   * Generate authentication headers for Kalshi API
-   */
-  private generateAuthHeaders(method: string, path: string): Record<string, string> {
-    const timestamp = Date.now().toString();
-    
-    // If using RSA authentication
-    if (this.keyId && this.privateKey) {
-      const message = timestamp + method + path;
-      
-      try {
-        const privateKeyObj = createPrivateKey({
-          key: this.privateKey,
-          format: 'pem'
-        });
-        
-        const signatureBuffer = sign(
-          'sha256',
-          Buffer.from(message, 'utf8'),
-          {
-            key: privateKeyObj,
-            padding: 0x40, // RSA_PKCS1_PSS_PADDING
-            saltLength: 32  // SHA256 digest length
-          }
-        );
-        
-        const signatureBase64 = signatureBuffer.toString('base64');
-        
-        return {
-          'KALSHI-ACCESS-KEY': this.keyId,
-          'KALSHI-ACCESS-TIMESTAMP': timestamp,
-          'KALSHI-ACCESS-SIGNATURE': signatureBase64
-        };
-      } catch (error) {
-        console.error('Error generating signature:', error);
-        toast({
-          title: 'Authentication error',
-          description: 'Failed to generate request signature',
-          variant: 'destructive'
-        });
-        return {};
-      }
-    }
-    
-    // If using Bearer token/API key
-    if (this.apiKey) {
-      return {
-        'Authorization': `Bearer ${this.apiKey}`
-      };
-    }
-    
-    return {};
-  }
-
-  /**
-   * Make an authenticated API request
-   */
-  private async request<T>(method: string, path: string, data?: any): Promise<T> {
-    const headers = this.generateAuthHeaders(method, path);
-    const config: AxiosRequestConfig = { headers };
-    
-    try {
-      let response;
-      
-      switch (method.toUpperCase()) {
-        case 'GET':
-          response = await this.client.get<T>(path, config);
-          break;
-        case 'POST':
-          response = await this.client.post<T>(path, data, config);
-          break;
-        case 'PUT':
-          response = await this.client.put<T>(path, data, config);
-          break;
-        case 'DELETE':
-          response = await this.client.delete<T>(path, config);
-          break;
-        default:
-          throw new Error(`Unsupported method: ${method}`);
-      }
-      
-      return response.data;
-    } catch (error: any) {
-      console.error(`API ${method} ${path} failed:`, error.response?.data || error.message);
-      throw error;
-    }
-  }
-
-  /**
-   * Market data methods
+   * Market methods
    */
   
   // Get all markets
-  async getMarkets(params?: Record<string, string | number>): Promise<KalshiMarket[]> {
-    const queryString = params ? 
-      '?' + new URLSearchParams(params as Record<string, string>).toString() : '';
-    
+  async getMarkets(params?: Record<string, any>): Promise<KalshiMarket[]> {
     try {
-      const response = await this.request<{ markets: KalshiMarket[] }>('GET', `/markets${queryString}`);
-      return response.markets || [];
+      const response = await this.client.get('/markets', { params });
+      return response.data.markets || [];
     } catch (error) {
       console.error('Error fetching markets:', error);
       return [];
     }
   }
-
-  // Get a specific market by ticker
+  
+  // Get a market by its ticker
   async getMarketByTicker(ticker: string): Promise<KalshiMarket | null> {
     try {
-      const response = await this.request<{ market: KalshiMarket }>('GET', `/markets/${ticker}`);
-      return response.market;
+      const response = await this.client.get(`/markets/${ticker}`);
+      return response.data.market;
     } catch (error) {
       console.error(`Error fetching market ${ticker}:`, error);
       return null;
     }
   }
-
-  // Get a market's orderbook
-  async getMarketOrderbook(ticker: string, depth: number = 10): Promise<KalshiOrderbook | null> {
+  
+  // Get markets for a specific event
+  async getMarketsByEvent(eventTicker: string): Promise<KalshiMarket[]> {
     try {
-      return await this.request<KalshiOrderbook>('GET', `/markets/${ticker}/orderbook?depth=${depth}`);
+      const response = await this.client.get('/markets', { 
+        params: { event_ticker: eventTicker } 
+      });
+      return response.data.markets || [];
     } catch (error) {
-      console.error(`Error fetching orderbook for ${ticker}:`, error);
+      console.error(`Error fetching markets for event ${eventTicker}:`, error);
+      return [];
+    }
+  }
+  
+  // Get markets for a specific series
+  async getMarketsBySeries(seriesTicker: string): Promise<KalshiMarket[]> {
+    try {
+      const response = await this.client.get('/markets', { 
+        params: { series_ticker: seriesTicker } 
+      });
+      return response.data.markets || [];
+    } catch (error) {
+      console.error(`Error fetching markets for series ${seriesTicker}:`, error);
+      return [];
+    }
+  }
+  
+  // Get a market's orderbook
+  async getMarketOrderbook(ticker: string, depth: number = 10): Promise<any> {
+    try {
+      const response = await this.client.get(`/markets/${ticker}/orderbook`, {
+        params: { depth }
+      });
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching orderbook for market ${ticker}:`, error);
       return null;
     }
   }
@@ -266,8 +185,8 @@ export class KalshiApiClient {
   // Get user positions
   async getPositions(): Promise<KalshiPosition[]> {
     try {
-      const response = await this.request<{ positions: KalshiPosition[] }>('GET', '/portfolio/positions');
-      return response.positions || [];
+      const response = await this.client.get('/portfolio/positions');
+      return response.data.positions || [];
     } catch (error) {
       console.error('Error fetching positions:', error);
       return [];
@@ -275,42 +194,59 @@ export class KalshiApiClient {
   }
 
   // Get portfolio summary
-  async getPortfolio(): Promise<{
-    available_balance_cents: number;
-    portfolio_value_cents: number;
-    total_value_cents: number;
-  } | null> {
+  async getPortfolio(): Promise<any> {
     try {
-      return await this.request<any>('GET', '/portfolio');
+      const response = await this.client.get('/portfolio');
+      return response.data;
     } catch (error) {
       console.error('Error fetching portfolio:', error);
-      return null;
+      return {
+        available_balance_cents: 0,
+        portfolio_value_cents: 0,
+        total_value_cents: 0
+      };
+    }
+  }
+
+  // Get user balance
+  async getBalance(): Promise<any> {
+    try {
+      const response = await this.client.get('/portfolio/balance');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching balance:', error);
+      return { available_balance_cents: 0 };
     }
   }
 
   // Place an order
-  async placeOrder(order: KalshiOrder): Promise<{ success: boolean; order_id?: string; message?: string }> {
+  async placeOrder(order: KalshiOrder): Promise<any> {
     try {
-      const response = await this.request<any>('POST', '/portfolio/orders', order);
-      return { 
-        success: true, 
-        order_id: response.order?.order_id,
-        message: 'Order placed successfully'
+      const response = await this.client.post('/portfolio/orders', order);
+      toast({
+        title: "Order placed",
+        description: `Successfully placed ${order.action} ${order.side} order for ${order.count} contracts`,
+      });
+      return {
+        success: true,
+        order_id: response.data.order?.order_id
       };
     } catch (error: any) {
       console.error('Error placing order:', error);
-      return { 
-        success: false, 
-        message: error.response?.data?.message || 'Failed to place order'
-      };
+      toast({
+        title: "Order failed",
+        description: error.response?.data?.message || "Could not place order",
+        variant: "destructive"
+      });
+      return { success: false };
     }
   }
 
-  // Get open orders
+  // Get user orders
   async getOrders(params?: any): Promise<any[]> {
     try {
-      const response = await this.request<{ orders: any[] }>('GET', '/portfolio/orders', params);
-      return response.orders || [];
+      const response = await this.client.get('/portfolio/orders', { params });
+      return response.data.orders || [];
     } catch (error) {
       console.error('Error fetching orders:', error);
       return [];
@@ -320,29 +256,73 @@ export class KalshiApiClient {
   // Cancel an order
   async cancelOrder(orderId: string): Promise<boolean> {
     try {
-      await this.request('DELETE', `/portfolio/orders/${orderId}`);
+      await this.client.delete(`/portfolio/orders/${orderId}`);
+      toast({
+        title: "Order canceled",
+        description: "Successfully canceled order",
+      });
       return true;
     } catch (error) {
+      toast({
+        title: "Cancel failed",
+        description: "Failed to cancel order",
+        variant: "destructive"
+      });
       console.error(`Error canceling order ${orderId}:`, error);
       return false;
+    }
+  }
+
+  // Get user trades
+  async getTrades(params?: any): Promise<any[]> {
+    try {
+      const response = await this.client.get('/portfolio/fills', { params });
+      return response.data.fills || [];
+    } catch (error) {
+      console.error('Error fetching trades:', error);
+      return [];
     }
   }
 
   // Get exchange status
   async getExchangeStatus(): Promise<any> {
     try {
-      return await this.request<any>('GET', '/exchange/status');
+      const response = await this.client.get('/exchange/status');
+      return response.data;
     } catch (error) {
       console.error('Error fetching exchange status:', error);
-      return null;
+      throw error;
     }
   }
 
-  // Get API rate limit information
-  getRateLimitStats(): RateLimitStats {
-    return this.rateLimitStats;
+  // Mock implementation for AI recommendations (since the actual endpoint may not exist)
+  async getAiRecommendations(): Promise<any[]> {
+    return [
+      {
+        marketId: 'DEM-NOM-2024',
+        recommendation: 'Buy YES',
+        confidence: 0.75,
+        reason: 'Based on current polling trends and historical patterns',
+        expectedValue: 0.23
+      },
+      {
+        marketId: 'GOP-WINS-PRES-2024',
+        recommendation: 'Buy NO',
+        confidence: 0.68,
+        reason: 'Recent economic indicators favor the incumbent party',
+        expectedValue: 0.15
+      }
+    ];
+  }
+
+  // Get API version
+  async getApiVersion(): Promise<string> {
+    try {
+      const response = await this.client.get('/version');
+      return response.data.version;
+    } catch (error) {
+      console.error('Error fetching API version:', error);
+      return 'unknown';
+    }
   }
 }
-
-// Default export an instance with mock enabled
-export default new KalshiApiClient({ demoMode: true });

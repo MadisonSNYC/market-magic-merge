@@ -20,7 +20,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { useKalshi, KalshiMarket } from '@/utils/kalshi';
+import { useKalshi } from '@/utils/kalshi';
 import { Search, RefreshCw } from 'lucide-react';
 
 export function MarketsList() {
