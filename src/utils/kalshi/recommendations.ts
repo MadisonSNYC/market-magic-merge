@@ -1,5 +1,5 @@
 
-import { KalshiAiRecommendation } from '../types';
+import { KalshiAiRecommendation } from './types';
 
 export const mockAiRecommendations: KalshiAiRecommendation[] = [
   {
