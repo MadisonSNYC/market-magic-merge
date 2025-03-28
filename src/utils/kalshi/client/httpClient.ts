@@ -1,5 +1,5 @@
 
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosHeaders } from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { generateKalshiAuthHeaders } from './auth/rsaAuth';
 import { AUTH_METHOD } from '../config';
 
@@ -26,23 +26,23 @@ export class HttpClient {
           const method = config.method?.toUpperCase() || 'GET';
           const authHeaders = generateKalshiAuthHeaders(rsaOptions, method, path);
           
-          // Create a new AxiosHeaders instance
+          // Set each auth header
           if (!config.headers) {
-            config.headers = new AxiosHeaders();
+            config.headers = {};
           }
           
           // Set each auth header
           Object.entries(authHeaders).forEach(([key, value]) => {
-            if (config.headers) {
-              config.headers.set(key, value);
+            if (config.headers && typeof value === 'string') {
+              config.headers[key] = value;
             }
           });
         } else if (apiKey) {
           // Set authorization header
           if (!config.headers) {
-            config.headers = new AxiosHeaders();
+            config.headers = {};
           }
-          config.headers.set('Authorization', `Bearer ${apiKey}`);
+          config.headers['Authorization'] = `Bearer ${apiKey}`;
         }
         
         return config;
@@ -65,28 +65,52 @@ export class HttpClient {
   /**
    * Make a GET request
    */
-  async get<T = any>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
-    return this.client.get<T>(url, config);
+  async get<T = any>(url: string, config?: AxiosRequestConfig): Promise<T> {
+    try {
+      const response = await this.client.get<T>(url, config);
+      return response.data;
+    } catch (error) {
+      console.error(`GET request to ${url} failed:`, error);
+      throw error;
+    }
   }
   
   /**
    * Make a POST request
    */
-  async post<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
-    return this.client.post<T>(url, data, config);
+  async post<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+    try {
+      const response = await this.client.post<T>(url, data, config);
+      return response.data;
+    } catch (error) {
+      console.error(`POST request to ${url} failed:`, error);
+      throw error;
+    }
   }
   
   /**
    * Make a PUT request
    */
-  async put<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
-    return this.client.put<T>(url, data, config);
+  async put<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+    try {
+      const response = await this.client.put<T>(url, data, config);
+      return response.data;
+    } catch (error) {
+      console.error(`PUT request to ${url} failed:`, error);
+      throw error;
+    }
   }
   
   /**
    * Make a DELETE request
    */
-  async delete<T = any>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
-    return this.client.delete<T>(url, config);
+  async delete<T = any>(url: string, config?: AxiosRequestConfig): Promise<T> {
+    try {
+      const response = await this.client.delete<T>(url, config);
+      return response.data;
+    } catch (error) {
+      console.error(`DELETE request to ${url} failed:`, error);
+      throw error;
+    }
   }
 }

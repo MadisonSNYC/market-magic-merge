@@ -17,7 +17,7 @@ export const mockAxios = (mockData: any, status: number = 200): jest.SpyInstance
     config: { headers: {} } as any
   };
 
-  return jest.spyOn(axios, 'request').mockResolvedValueOnce(mockedResponse);
+  return jest.spyOn(axios, 'request').mockResolvedValue(mockedResponse);
 };
 
 /**

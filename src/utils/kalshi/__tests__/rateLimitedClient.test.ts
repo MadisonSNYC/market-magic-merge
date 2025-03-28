@@ -25,7 +25,7 @@ describe('RateLimitedClient', () => {
   let httpClient: HttpClient;
 
   beforeEach(() => {
-    httpClient = new HttpClient({});
+    httpClient = new HttpClient('https://api.example.com');
     client = new RateLimitedClient(httpClient);
   });
 
