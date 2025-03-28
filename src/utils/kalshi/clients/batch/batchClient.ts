@@ -23,7 +23,7 @@ export class BatchClient extends BaseBatchClient {
         '/portfolio/orders/batch',
         {
           method: 'POST',
-          body: JSON.stringify(batchRequest)
+          data: JSON.stringify(batchRequest)
         }
       );
       return response;
@@ -42,7 +42,7 @@ export class BatchClient extends BaseBatchClient {
         '/portfolio/orders/batch/cancel',
         {
           method: 'POST',
-          body: JSON.stringify(batchRequest)
+          data: JSON.stringify(batchRequest)
         }
       );
       return response;
@@ -73,7 +73,7 @@ export class BatchOrderCreationClient extends BaseBatchClient {
         '/portfolio/orders/batch',
         {
           method: 'POST',
-          body: JSON.stringify(batchRequest)
+          data: JSON.stringify(batchRequest)
         }
       );
       return response;
@@ -96,7 +96,7 @@ export class BatchOrderCancellationClient extends BaseBatchClient {
         '/portfolio/orders/batch/cancel',
         {
           method: 'POST',
-          body: JSON.stringify(batchRequest)
+          data: JSON.stringify(batchRequest)
         }
       );
       return response;

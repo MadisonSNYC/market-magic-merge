@@ -1,117 +1,115 @@
 
-import React, { useMemo, useCallback } from 'react';
+import React, { useState } from 'react';
+import { useKalshi } from '@/utils/kalshi/KalshiProvider';
 import { usePortfolio } from '@/contexts/portfolio/PortfolioContext';
-import { Card, CardContent } from '@/components/ui/card';
 import { EmptyPortfolioState } from './EmptyPortfolioState';
 import { PortfolioLoadingState } from './PortfolioLoadingState';
 import { PortfolioAuthError } from './PortfolioAuthError';
 import { PortfolioOverview } from './PortfolioOverview';
-import { PortfolioPositions, Position } from './PortfolioPositions';
+import { PortfolioPositions } from './PortfolioPositions';
 import { PortfolioBalanceCard } from './PortfolioBalanceCard';
 import { PortfolioHelp } from './PortfolioHelp';
 import { PortfolioHistory } from './PortfolioHistory';
-import { KalshiPosition } from '@/utils/kalshi/types/portfolio';
+import { useToast } from '@/hooks/use-toast';
 
-const PortfolioContent: React.FC = () => {
-  const { kalshiPositions, portfolioData, loading, error, authError } = usePortfolio();
+export function PortfolioContent() {
+  const { toast } = useToast();
+  const { isConnected } = useKalshi();
+  const {
+    isLoading,
+    hasError,
+    positions,
+    portfolioValue,
+    availableBalance,
+    lastUpdated,
+    refresh
+  } = usePortfolio();
 
-  const transformedPositions = useMemo(() => {
-    if (!kalshiPositions || !Array.isArray(kalshiPositions)) return [];
-
-    return kalshiPositions.map((pos: KalshiPosition): Position => {
-      // Extract the side from yes/no values
-      let side = 'UNKNOWN';
-      let contracts = 0;
-      if (pos.yes > 0) {
-        side = 'YES';
-        contracts = pos.yes;
-      } else if (pos.no > 0) {
-        side = 'NO';
-        contracts = pos.no;
-      }
-      
-      // Calculate time remaining - this is a simplification
-      const expiresAt = pos.expires_at || pos.expiration;
-      const timeRemaining = expiresAt ? 
-        new Date(expiresAt).toLocaleDateString() : 
-        'Unknown expiration';
-      
-      // Return the transformed position
-      return {
-        marketId: pos.market_id,
-        marketTitle: pos.title || pos.market_title || pos.market_id, // Ensure this is not undefined
-        contracts,
-        avgPrice: (pos.price || 0),
-        cost: (pos.cost || 0),
-        currentValue: (pos.value || 0),
-        potentialPayout: (pos.payout || 0),
-        positionType: side as 'YES' | 'NO',
-        timeRemaining,
-        yes: pos.yes,
-        no: pos.no,
-        value: pos.value,
-        icon: "" // Add empty icon property to match the Position interface
-      };
+  const handleDeposit = () => {
+    toast({
+      title: 'Deposit Funds',
+      description: 'This feature is coming soon. You will be able to deposit funds to your Kalshi account.',
     });
-  }, [kalshiPositions]);
+  };
 
-  const handleClosePosition = useCallback((position: Position) => {
-    console.log('Closing position:', position);
-    // Implement position closing logic here
-  }, []);
+  const handleWithdraw = () => {
+    toast({
+      title: 'Withdraw Funds',
+      description: 'This feature is coming soon. You will be able to withdraw funds from your Kalshi account.',
+    });
+  };
 
-  if (loading) {
+  // If not authenticated
+  if (!isConnected) {
+    return <PortfolioAuthError onRetry={refresh} />;
+  }
+
+  // Loading state
+  if (isLoading) {
     return <PortfolioLoadingState />;
   }
 
-  if (authError) {
-    return <PortfolioAuthError onRetry={() => {}} />;
-  }
-
-  if (error) {
+  // Error state
+  if (hasError) {
     return (
-      <Card>
-        <CardContent className="pt-6">
-          <div className="text-center">
-            <h3 className="text-lg font-medium text-red-600">Error Loading Portfolio</h3>
-            <p className="mt-2 text-sm text-gray-600">{error}</p>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="container mx-auto px-4">
+        <div className="text-center py-12">
+          <h2 className="text-xl font-semibold mb-2">Error Loading Portfolio</h2>
+          <p className="text-muted-foreground mb-4">
+            There was an error loading your portfolio data. Please try again.
+          </p>
+          <button 
+            onClick={refresh}
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
     );
   }
 
-  if (!transformedPositions.length) {
-    return <EmptyPortfolioState onDepositClick={() => {}} isAuthError={false} />;
+  // Empty portfolio
+  if (positions.length === 0 && portfolioValue <= 0) {
+    return <EmptyPortfolioState onDepositClick={handleDeposit} />;
   }
 
+  // Render portfolio content
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <PortfolioBalanceCard data={portfolioData!} />
-        <div className="col-span-1">
-          <Card className="h-full">
-            <CardContent className="p-4">
-              <h3 className="text-lg font-medium">Daily P&L</h3>
-              <p className="text-2xl font-bold mt-2">$0.00</p>
-              <p className="text-xs text-muted-foreground mt-1">No trading activity today</p>
-            </CardContent>
-          </Card>
+    <div className="container mx-auto px-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div className="md:col-span-2">
+          <PortfolioOverview
+            portfolioValue={portfolioValue}
+            availableBalance={availableBalance}
+            positionsCount={positions.length}
+            lastUpdated={lastUpdated}
+          />
         </div>
-        <PortfolioOverview positions={transformedPositions} portfolioData={portfolioData} />
-        <PortfolioHelp />
+        <div>
+          <PortfolioBalanceCard
+            availableBalance={availableBalance}
+            portfolioValue={portfolioValue}
+            onDeposit={handleDeposit}
+            onWithdraw={handleWithdraw}
+            onRefresh={refresh}
+            lastUpdated={lastUpdated}
+          />
+        </div>
       </div>
-      
-      <PortfolioPositions 
-        positions={transformedPositions} 
-        loading={false}
-        activeTab="active"
-        onClosePosition={handleClosePosition} 
-      />
-      
-      <PortfolioHistory activeTab="history" />
+
+      <div className="grid grid-cols-1 gap-6 mb-6">
+        <PortfolioPositions positions={positions} />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div className="md:col-span-2">
+          <PortfolioHistory />
+        </div>
+        <div>
+          <PortfolioHelp />
+        </div>
+      </div>
     </div>
   );
 }
-
-export default PortfolioContent;
