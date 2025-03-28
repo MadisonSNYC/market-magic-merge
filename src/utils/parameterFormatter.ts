@@ -1,17 +1,18 @@
 
 /**
- * Formats API parameters for URL query strings
+ * Formats API parameters object to match the API's expected format
+ * Converts camelCase keys to snake_case for API compatibility
  */
-export function formatApiParameters(params?: Record<string, any>): Record<string, string> {
-  if (!params) return {};
+export function formatApiParameters(params: Record<string, any>): Record<string, any> {
+  const formatted: Record<string, any> = {};
   
-  const formattedParams: Record<string, string> = {};
-  
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== null) {
-      formattedParams[key] = String(value);
+  for (const key in params) {
+    if (params.hasOwnProperty(key)) {
+      // Convert camelCase to snake_case
+      const formattedKey = key.replace(/([A-Z])/g, "_$1").toLowerCase();
+      formatted[formattedKey] = params[key];
     }
-  });
+  }
   
-  return formattedParams;
+  return formatted;
 }
