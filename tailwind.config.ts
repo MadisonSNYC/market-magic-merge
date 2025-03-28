@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -84,11 +85,50 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'slide-up': {
+					'0%': {
+						opacity: '0',
+						transform: 'translateY(20px)'
+					},
+					'100%': {
+						opacity: '1',
+						transform: 'translateY(0)'
+					}
+				},
+				'fade-in': {
+					'0%': {
+						opacity: '0'
+					},
+					'100%': {
+						opacity: '1'
+					}
+				},
+				'pulse-gentle': {
+					'0%, 100%': {
+						opacity: '1'
+					},
+					'50%': {
+						opacity: '0.7'
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'slide-up': 'slide-up 0.3s ease-out forwards',
+				'fade-in': 'fade-in 0.5s ease-out forwards',
+				'pulse-gentle': 'pulse-gentle 2s infinite'
+			},
+			boxShadow: {
+				'feminine': '0 4px 20px -2px rgba(192, 132, 252, 0.2)',
+				'glass': '0 8px 32px rgba(0, 0, 0, 0.04)',
+				'premium': '0 10px 25px -3px rgba(184, 105, 245, 0.15), 0 4px 6px -2px rgba(184, 105, 245, 0.05)'
+			},
+			backgroundImage: {
+				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+				'gradient-premium': 'linear-gradient(135deg, #f3e7f9 0%, #e9d5ff 100%)',
+				'gradient-button': 'linear-gradient(90deg, #c084fc 0%, #e879f9 100%)'
 			}
 		}
 	},

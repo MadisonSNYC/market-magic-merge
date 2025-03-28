@@ -1,4 +1,6 @@
+
 import { BaseKalshiClient } from './baseClient';
+import { formatApiParameters } from './parameterFormatter';
 import { 
   KalshiCollection, 
   KalshiCollectionResponse, 
@@ -9,15 +11,14 @@ import {
   CollectionLookupHistoryResponse,
   LookupMarketInCollectionRequest,
   LookupMarketInCollectionResponse
-} from '../types';
-import { formatApiParameters } from './utils/parameterFormatter';
+} from './kalshi/types';
 
 /**
  * Client for interacting with Kalshi multivariate event collections
  */
 export class KalshiCollectionClient extends BaseKalshiClient {
-  constructor(apiKey?: string) {
-    super(apiKey);
+  constructor(baseUrl: string, apiKey?: string) {
+    super(baseUrl, apiKey);
   }
 
   /**
