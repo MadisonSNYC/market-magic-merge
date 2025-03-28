@@ -1,4 +1,3 @@
-
 // Basic types for Kalshi API responses
 
 // Market-related types
@@ -213,4 +212,14 @@ export interface KalshiConfirmQuoteResponse {
   status: string;
   message?: string;
   quote?: KalshiQuote;
+}
+
+// Add the missing KalshiBalanceResponse type
+export interface KalshiBalanceResponse {
+  balance: number;
+  portfolio_value: number;
+  available_balance: number;
+  reserved_fees: number;
+  bonus_balance: number;
+  reserved_margin: number;
 }
