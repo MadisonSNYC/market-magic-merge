@@ -11,8 +11,10 @@ export class MarketDataClient extends BaseMarketClient {
    */
   async getMarketOrderbook(ticker: string, depth: number = 10): Promise<KalshiOrderbook | null> {
     try {
-      const url = `${this.baseUrl}/orderbooks/${ticker}?depth=${depth}`;
-      return this.rateLimitedGet<KalshiOrderbook>(url);
+      // Updated for v3 API endpoint
+      const url = `${this.baseUrl}/markets/${ticker}/orderbook`;
+      const params = depth ? { depth } : undefined;
+      return this.rateLimitedGet<KalshiOrderbook>(url, params);
     } catch (error) {
       console.error(`Error fetching orderbook for market ${ticker} from Kalshi API:`, error);
       return null;
@@ -28,6 +30,7 @@ export class MarketDataClient extends BaseMarketClient {
     params: CandlestickParams
   ): Promise<KalshiCandlesticksResponse | null> {
     try {
+      // Updated for v3 API endpoint
       const url = `${this.baseUrl}/series/${seriesTicker}/markets/${ticker}/candlesticks`;
       return this.rateLimitedGet<KalshiCandlesticksResponse>(url, params);
     } catch (error) {

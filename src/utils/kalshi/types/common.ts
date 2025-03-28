@@ -1,6 +1,4 @@
 
-import { KalshiOrder } from './markets';
-
 export interface KalshiApiResponse<T> {
   data: T;
   status: string;
@@ -13,11 +11,6 @@ export interface KalshiApiVersionResponse {
 
 export interface KalshiCommunicationsIdResponse {
   communications_id: string;
-}
-
-export interface KalshiOrdersResponse {
-  cursor: string;
-  orders: KalshiOrder[];  // Reference to KalshiOrder from markets.ts
 }
 
 export interface KalshiFillsResponse {
@@ -44,61 +37,6 @@ export interface FillsParams {
   cursor?: string;
 }
 
-export interface OrdersParams {
-  market_id?: string;
-  status?: string;
-  limit?: number;
-  cursor?: string;
-}
-
-export interface BatchCreateOrdersRequest {
-  orders: Array<{
-    ticker: string;
-    side: 'yes' | 'no';
-    type: string;
-    count: number;
-    price?: number;
-    client_order_id?: string;
-  }>;
-}
-
-export interface BatchCancelOrdersRequest {
-  order_ids: string[];
-}
-
-export interface AmendOrderRequest {
-  price: number;
-  count: number;
-}
-
-export interface DecreaseOrderRequest {
-  count: number;
-}
-
-export interface BatchCreateOrdersResponse {
-  order_ids: string[];
-}
-
-export interface BatchCancelOrdersResponse {
-  canceled_order_ids: string[];
-}
-
-export interface GetOrderResponse {
-  order: KalshiOrder;  // Reference to KalshiOrder from markets.ts
-}
-
-export interface CancelOrderResponse {
-  status: string;
-}
-
-export interface AmendOrderResponse {
-  order_id: string;
-}
-
-export interface DecreaseOrderResponse {
-  order_id: string;
-}
-
 export interface KalshiBalanceResponse {
   balance: number;
   portfolio_value?: number;
@@ -106,8 +44,4 @@ export interface KalshiBalanceResponse {
   reserved_fees?: number;
   bonus_balance?: number;
   reserved_margin?: number;
-}
-
-export interface CreateOrderResponse {
-  order_id: string;
 }

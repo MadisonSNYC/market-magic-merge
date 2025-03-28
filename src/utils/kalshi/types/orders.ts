@@ -1,20 +1,34 @@
 
-import { KalshiOrder } from './markets';
+// Order-related interfaces
 
-export interface FillsParams {
+export interface KalshiOrder {
+  id?: string;          // Optional for creation
+  order_id?: string;    // Alternative to id
   ticker?: string;
-  order_id?: string;
-  min_ts?: number;
-  max_ts?: number;
-  limit?: number;
-  cursor?: string;
+  status?: string;      // Optional for creation
+  createdAt?: string;   // Optional for creation
+  created_time?: string; // Alternative to createdAt
+  updated_time?: string;
+  side: 'yes' | 'no';
+  price?: number;
+  yes_price?: number;
+  no_price?: number;
+  type: string;
+  size?: number;        // For creation
+  count?: number;       // Alternative to size
+  filled_count?: number;
+  remaining_count?: number;
+  marketId?: string;    // For creation
+  client_order_id?: string;
+}
+
+export interface KalshiOrdersResponse {
+  cursor: string;
+  orders: KalshiOrder[];
 }
 
 export interface OrdersParams {
-  ticker?: string;
-  event_ticker?: string;
-  min_ts?: number;
-  max_ts?: number;
+  market_id?: string;
   status?: string;
   limit?: number;
   cursor?: string;
@@ -44,10 +58,6 @@ export interface DecreaseOrderRequest {
   count: number;
 }
 
-export interface CreateOrderResponse {
-  order_id: string;
-}
-
 export interface BatchCreateOrdersResponse {
   order_ids: string[];
 }
@@ -72,21 +82,6 @@ export interface DecreaseOrderResponse {
   order_id: string;
 }
 
-export interface KalshiBalanceResponse {
-  balance: number;
-  portfolio_value: number;
-  available_balance: number;
-  reserved_fees: number;
-  bonus_balance: number;
-  reserved_margin: number;
-}
-
-export interface KalshiFillsResponse {
-  cursor: string;
-  fills: any[];
-}
-
-export interface KalshiOrdersResponse {
-  cursor: string;
-  orders: KalshiOrder[];
+export interface CreateOrderResponse {
+  order_id: string;
 }
