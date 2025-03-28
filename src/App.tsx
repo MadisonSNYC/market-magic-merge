@@ -9,7 +9,7 @@ import Portfolio from "./pages/Portfolio";
 import Markets from "./pages/Markets";
 import Stocks from "./pages/Stocks";
 import Analysis from "./pages/Analysis";
-import Strategies from "./Strategies"; // Import the Strategies component
+import Strategies from "./pages/Strategies"; // Update import path
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,7 +26,7 @@ const App = () => (
           <Route path="/markets" element={<Markets />} />
           <Route path="/stocks" element={<Stocks />} />
           <Route path="/analysis" element={<Analysis />} />
-          <Route path="/strategies" element={<Strategies />} /> {/* Add Strategies route */}
+          <Route path="/strategies" element={<Strategies />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
