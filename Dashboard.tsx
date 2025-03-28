@@ -1,60 +1,74 @@
+import React from 'react';
+import { PageLayout } from '@/components/layout/PageLayout';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { RateLimitMonitor } from '@/components/kalshi/RateLimitMonitor';
 
-import React, { useState } from 'react';
-import { Navbar } from '@/components/layout/Navbar';
-import { Sidebar } from '@/components/layout/Sidebar';
-import { useKalshiPositionsQuery } from '@/hooks/useKalshiPositionsQuery';
-import { useAssetStats } from '@/hooks/useAssetStats';
-import { useMarketData } from '@/hooks/useMarketData';
-import { useActivePositions } from '@/hooks/useActivePositions';
-import { HeaderSection } from '@/components/dashboard/HeaderSection';
-import { DashboardContent } from '@/components/dashboard/DashboardContent';
-import { getTimeframeLabel } from '@/utils/formatters/timeframeFormatter';
-import { transformKalshiPositionsToPositions } from '@/utils/kalshi/transformers';
-
-export function Dashboard() {
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [activeTab, setActiveTab] = useState("overview");
-  const [timeframe, setTimeframe] = useState("hourly");
-  
-  // Use custom hooks for data fetching
-  const { data: positionsData, isLoading: positionsLoading } = useKalshiPositionsQuery();
-  const { assets } = useAssetStats();
-  const { indices } = useMarketData();
-  
-  // Transform Kalshi positions to active positions format
-  const activePositions = positionsData 
-    ? transformKalshiPositionsToPositions(positionsData) 
-    : [];
-  
-  const toggleSidebar = () => {
-    setIsSidebarCollapsed(prev => !prev);
-  };
-  
+const Dashboard = () => {
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
+    <PageLayout title="Dashboard">
+      <RateLimitMonitor />
       
-      <div className="flex-1 flex">
-        <Sidebar isCollapsed={isSidebarCollapsed} onToggle={toggleSidebar} />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Portfolio Value</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">$1,245.89</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              <span className="text-green-500">↑ 12.5%</span> from last week
+            </p>
+          </CardContent>
+        </Card>
         
-        <main className={`flex-1 transition-all duration-300 ${isSidebarCollapsed ? 'ml-[70px]' : 'ml-[260px]'}`}>
-          <div className="container max-w-full p-4 lg:p-6 animate-fade-in">
-            <HeaderSection 
-              timeframe={timeframe}
-              onTimeframeChange={setTimeframe}
-            />
-            
-            <DashboardContent
-              assets={assets}
-              timeframeLabel={getTimeframeLabel(timeframe)}
-              activePositions={activePositions}
-              activeTab={activeTab}
-              onTabChange={setActiveTab}
-              isLoading={positionsLoading}
-            />
-          </div>
-        </main>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Active Positions</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">8</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Across 5 different markets
+            </p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Available Balance</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">$750.00</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Ready to invest
+            </p>
+          </CardContent>
+        </Card>
       </div>
-    </div>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle>Welcome to Madison's Market Mosaic</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">
+              This dashboard provides an overview of your trading activity and portfolio performance.
+              Navigate to the Markets page to explore available markets and place trades.
+            </p>
+            <div className="mt-4 p-4 bg-muted rounded-md">
+              <h3 className="font-medium mb-2">Getting Started</h3>
+              <ul className="space-y-2 text-sm">
+                <li>• Explore markets in the Markets tab</li>
+                <li>• View your positions in the Portfolio tab</li>
+                <li>• Adjust your preferences in the Settings tab</li>
+              </ul>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </PageLayout>
   );
-}
+};
+
+export default Dashboard;

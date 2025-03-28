@@ -1,206 +1,136 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { PageLayout } from '@/components/layout/PageLayout';
+import { MarketDetail as MarketDetailComponent } from '@/components/kalshi/MarketDetail';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { KalshiMarket, KalshiOrder } from '@/utils/kalshi/types';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { ArrowLeft, InfoIcon } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
+import { KalshiMarket } from '@/utils/kalshi/types';
 import { kalshiApi } from '@/utils/kalshi';
+import { MarketInfo } from '@/components/kalshi/marketDetail/MarketInfo';
+import { RelatedMarkets } from '@/components/kalshi/marketDetail/RelatedMarkets';
+import { MarketAnalysis } from '@/components/kalshi/marketDetail/MarketAnalysis';
+import { TradesTab } from '@/components/kalshi/marketDetail/TradesTab';
 
-interface MarketDetailProps {
-  market: KalshiMarket;
-}
-
-export function MarketDetail({ market }: MarketDetailProps) {
+const MarketDetailPage = () => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { toast } = useToast();
-  const [orderSize, setOrderSize] = useState(1);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [tab, setTab] = useState('details');
+  const [market, setMarket] = useState<KalshiMarket | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [relatedMarkets, setRelatedMarkets] = useState<KalshiMarket[]>([]);
   
-  // Calculate probabilities based on prices
-  const yesProbability = Math.min(100, Math.max(0, (market.yes_price || 0) * 100));
-  const noProbability = Math.min(100, Math.max(0, (market.no_price || 0) * 100));
-  
-  // Calculate potential payout
-  const costYes = (market.yes_price || 0) * orderSize;
-  const payoutYes = orderSize - costYes;
-  const costNo = (market.no_price || 0) * orderSize;
-  const payoutNo = orderSize - costNo;
-  
-  const formatDate = (dateString: string) => {
-    if (!dateString) return 'Unknown';
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
-      hour12: true
-    }).format(date);
-  };
-  
-  const handlePlaceOrder = async (side: 'yes' | 'no') => {
-    if (orderSize <= 0) {
-      toast({
-        title: "Invalid order size",
-        description: "Order size must be greater than 0",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    setIsSubmitting(true);
-    
-    try {
-      // Use only the properties that the updated KalshiOrder interface accepts
-      const order: KalshiOrder = {
-        marketId: market.id,
-        side: side,
-        type: 'limit',
-        price: side === 'yes' ? (market.yes_price || 0) : (market.no_price || 0),
-        size: orderSize
-      };
-      
-      // Place the order
-      const response = await kalshiApi.placeOrder(order);
-      
-      if (response && response.success) {
+  useEffect(() => {
+    const fetchMarket = async () => {
+      try {
+        setLoading(true);
+        if (id) {
+          const marketData = await kalshiApi.getMarketById(id);
+          setMarket(marketData);
+          
+          // Fetch related markets
+          const allMarkets = await kalshiApi.getMarkets();
+          const related = allMarkets.filter(m => 
+            m.id !== id && 
+            (m.category === marketData?.category || m.title.includes(marketData?.title.split(' ')[0] || ''))
+          ).slice(0, 3);
+          
+          setRelatedMarkets(related);
+        }
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching market:", error);
         toast({
-          title: "Order placed successfully",
-          description: `Placed ${orderSize} contract(s) of ${side.toUpperCase()} at ${order.price}`,
-          variant: "default"
+          title: "Error loading market",
+          description: "Could not load market details. Please try again.",
+          variant: "destructive"
         });
-      } else {
-        throw new Error((response && response.message) || 'Failed to place order');
+        setLoading(false);
       }
-    } catch (error: any) {
-      toast({
-        title: "Error placing order",
-        description: error.message || "An unknown error occurred",
-        variant: "destructive"
-      });
-    } finally {
-      setIsSubmitting(false);
+    };
+    
+    if (id) {
+      fetchMarket();
     }
+  }, [id, toast]);
+  
+  const handleBack = () => {
+    navigate('/markets');
   };
   
   return (
-    <Card className="h-full">
-      <CardHeader className="pb-2">
-        <div className="flex justify-between items-start">
-          <div>
-            <CardTitle>{market.title}</CardTitle>
-            {market.subtitle && <p className="text-sm text-muted-foreground mt-1">{market.subtitle}</p>}
-          </div>
-          <Badge className={market.status === 'open' ? 'bg-green-600' : 'bg-amber-600'}>
-            {market.status}
-          </Badge>
-        </div>
-      </CardHeader>
+    <PageLayout title={market ? market.title : "Market Detail"}>
+      <Button 
+        variant="ghost" 
+        className="mb-4 text-muted-foreground hover:text-foreground"
+        onClick={handleBack}
+      >
+        <ArrowLeft className="mr-2 h-4 w-4" />
+        Back to Markets
+      </Button>
       
-      <CardContent>
-        <Tabs value={tab} onValueChange={setTab}>
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="details">Details</TabsTrigger>
-            <TabsTrigger value="trade">Trade</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="details" className="space-y-4">
-            <div className="mt-4">
-              <h3 className="text-sm font-semibold mb-2">Probability</h3>
-              <div className="space-y-3">
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>YES: {yesProbability.toFixed(1)}%</span>
-                    <span>${(market.yes_price || 0).toFixed(2)}</span>
+      {/* Alert for related active trades */}
+      {!loading && market && (
+        <Alert className="mb-6 border-blue-500/50 bg-blue-500/10">
+          <InfoIcon className="h-4 w-4 text-blue-500" />
+          <AlertDescription>
+            You have active positions related to this market. Check your portfolio for details.
+          </AlertDescription>
+        </Alert>
+      )}
+      
+      <Tabs defaultValue="overview">
+        <TabsList className="mb-4">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="trades">Related Trades</TabsTrigger>
+          <TabsTrigger value="analysis">Analysis</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="overview">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              {loading ? (
+                <div className="card-feminine animate-pulse min-h-[400px]">
+                  <div className="p-6">
+                    <div className="h-6 w-2/3 bg-muted rounded mb-4"></div>
+                    <div className="h-4 w-1/2 bg-muted rounded mb-6"></div>
+                    <div className="space-y-4">
+                      <div className="h-20 bg-muted rounded"></div>
+                      <div className="h-40 bg-muted rounded"></div>
+                    </div>
                   </div>
-                  <Progress value={yesProbability} className="h-2 bg-gray-200" />
                 </div>
-                
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>NO: {noProbability.toFixed(1)}%</span>
-                    <span>${(market.no_price || 0).toFixed(2)}</span>
+              ) : market ? (
+                <MarketDetailComponent market={market} />
+              ) : (
+                <div className="card-feminine min-h-[400px] flex items-center justify-center">
+                  <div className="text-center text-muted-foreground">
+                    <p>Market not found</p>
                   </div>
-                  <Progress value={noProbability} className="h-2 bg-gray-200" />
                 </div>
-              </div>
+              )}
             </div>
             
-            <div>
-              <h3 className="text-sm font-semibold mb-1">Market Information</h3>
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <div>
-                  <p className="text-muted-foreground">ID</p>
-                  <p className="truncate">{market.id}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Category</p>
-                  <p>{market.category}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Closing Time</p>
-                  <p>{formatDate(market.closingTime)}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Volume</p>
-                  <p>${market.volume.toLocaleString()}</p>
-                </div>
-              </div>
+            <div className="space-y-6">
+              <MarketInfo market={market} loading={loading} />
+              <RelatedMarkets relatedMarkets={relatedMarkets} loading={loading} />
             </div>
-          </TabsContent>
-          
-          <TabsContent value="trade">
-            <div className="space-y-4 mt-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Order Size</label>
-                <input 
-                  type="number" 
-                  value={orderSize}
-                  onChange={(e) => setOrderSize(Math.max(1, parseInt(e.target.value) || 0))}
-                  className="w-full p-2 border rounded"
-                  min="1"
-                />
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <h4 className="text-sm font-semibold">YES</h4>
-                  <p className="text-sm">Cost: ${costYes.toFixed(2)}</p>
-                  <p className="text-sm">Potential Profit: ${payoutYes.toFixed(2)}</p>
-                  <Button 
-                    className="w-full bg-green-600 hover:bg-green-700" 
-                    onClick={() => handlePlaceOrder('yes')}
-                    disabled={isSubmitting}
-                  >
-                    Buy YES
-                  </Button>
-                </div>
-                
-                <div className="space-y-2">
-                  <h4 className="text-sm font-semibold">NO</h4>
-                  <p className="text-sm">Cost: ${costNo.toFixed(2)}</p>
-                  <p className="text-sm">Potential Profit: ${payoutNo.toFixed(2)}</p>
-                  <Button 
-                    className="w-full bg-red-600 hover:bg-red-700" 
-                    onClick={() => handlePlaceOrder('no')}
-                    disabled={isSubmitting}
-                  >
-                    Buy NO
-                  </Button>
-                </div>
-              </div>
-              
-              <p className="text-xs text-muted-foreground mt-2">
-                Note: These are simulated trades. No real money will be spent.
-              </p>
-            </div>
-          </TabsContent>
-        </Tabs>
-      </CardContent>
-    </Card>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="trades">
+          <TradesTab />
+        </TabsContent>
+        
+        <TabsContent value="analysis">
+          <MarketAnalysis market={market} />
+        </TabsContent>
+      </Tabs>
+    </PageLayout>
   );
-}
+};
+
+export default MarketDetailPage;
