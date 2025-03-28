@@ -23,8 +23,14 @@ export class OrderModificationClient extends BaseOrderClient {
         throw new Error("Order ID is required");
       }
       
-      const url = `${this.baseUrl}/portfolio/orders/${orderId}/amend`;
-      const response = await this.rateLimitedPost<AmendOrderResponse>(url, amendRequest);
+      const path = `/portfolio/orders/${orderId}/amend`;
+      const response = await this.makeRequest<AmendOrderResponse>(
+        path, 
+        { 
+          method: 'POST',
+          data: amendRequest
+        }
+      );
       
       return response;
     } catch (error) {
@@ -45,8 +51,14 @@ export class OrderModificationClient extends BaseOrderClient {
         throw new Error("Order ID is required");
       }
       
-      const url = `${this.baseUrl}/portfolio/orders/${orderId}/decrease`;
-      const response = await this.rateLimitedPost<DecreaseOrderResponse>(url, decreaseRequest);
+      const path = `/portfolio/orders/${orderId}/decrease`;
+      const response = await this.makeRequest<DecreaseOrderResponse>(
+        path, 
+        { 
+          method: 'POST',
+          data: decreaseRequest
+        }
+      );
       
       return response;
     } catch (error) {

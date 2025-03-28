@@ -1,42 +1,34 @@
 
 import { BaseBatchClient } from './baseBatchClient';
-import { 
-  BatchCancelOrdersRequest, 
-  BatchCancelOrdersResponse 
-} from '../../types/orders';
+import { BatchCancelOrdersRequest, BatchCancelOrdersResponse } from '../../types/orders';
 
 /**
  * Client for batch order cancellation operations
  */
 export class BatchOrderCancellationClient extends BaseBatchClient {
   /**
-   * Batch cancel multiple orders in a single request
-   * @param batchRequest Object containing array of order IDs to cancel
-   * @returns Response with array of canceled order IDs
+   * Cancel multiple orders in a single request
+   * @param batchCancelRequest Array of order IDs to cancel
+   * @returns Response with successful and failed cancellations
    */
-  async batchCancelOrders(batchRequest: BatchCancelOrdersRequest): Promise<BatchCancelOrdersResponse> {
+  async batchCancelOrders(batchCancelRequest: BatchCancelOrdersRequest): Promise<BatchCancelOrdersResponse> {
     try {
-      if (!batchRequest || !Array.isArray(batchRequest.order_ids) || batchRequest.order_ids.length === 0) {
-        throw new Error("Batch cancel request must contain a non-empty array of order IDs");
+      if (!batchCancelRequest.order_ids || !batchCancelRequest.order_ids.length) {
+        throw new Error("No order IDs provided for batch cancellation");
       }
       
-      // Validate that we have valid order IDs
-      batchRequest.order_ids.forEach((orderId, index) => {
-        if (!orderId) {
-          throw new Error(`Invalid order ID at index ${index}`);
+      const url = `${this.baseUrl}/portfolio/orders/batch-cancel`;
+      const response = await this.makeRequest<BatchCancelOrdersResponse>(
+        '/portfolio/orders/batch-cancel', 
+        { 
+          method: 'DELETE',
+          data: batchCancelRequest 
         }
-      });
-      
-      console.log(`Attempting to batch cancel ${batchRequest.order_ids.length} orders`);
-      
-      const url = `${this.baseUrl}/portfolio/orders/batched`;
-      const response = await this.rateLimitedDelete<BatchCancelOrdersResponse>(url, batchRequest);
-      
-      console.log(`Successfully canceled ${response.canceled_order_ids.length} orders in batch`);
+      );
       
       return response;
     } catch (error) {
-      console.error("Error batch canceling orders in Kalshi API:", error);
+      console.error("Error cancelling batch orders in Kalshi API:", error);
       throw error;
     }
   }

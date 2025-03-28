@@ -1,8 +1,8 @@
-
 import { BaseBatchClient } from './baseBatchClient';
 import { 
   BatchCreateOrdersRequest, 
-  BatchCreateOrdersResponse 
+  BatchCreateOrdersResponse,
+  KalshiOrder
 } from '../../types/orders';
 
 /**
@@ -10,45 +10,50 @@ import {
  */
 export class BatchOrderCreationClient extends BaseBatchClient {
   /**
-   * Create multiple orders in a single batch request
-   * @param batchRequest Object containing array of orders to create
-   * @returns Response with array of created order IDs
+   * Create multiple orders in a single request
+   * @param batchRequest Array of orders to create
+   * @returns Response with created orders and any failures
    */
   async batchCreateOrders(batchRequest: BatchCreateOrdersRequest): Promise<BatchCreateOrdersResponse> {
     try {
-      if (!batchRequest || !Array.isArray(batchRequest.orders) || batchRequest.orders.length === 0) {
-        throw new Error("Batch create request must contain a non-empty array of orders");
+      if (!batchRequest.orders || !batchRequest.orders.length) {
+        throw new Error("No orders provided for batch creation");
       }
       
-      // Validate each order has required fields
-      batchRequest.orders.forEach((order, index) => {
-        if (!order.ticker) {
-          throw new Error(`Missing ticker for order at index ${index}`);
+      // Convert from yes/no to buy/sell if needed
+      const processedOrders = batchRequest.orders.map(order => {
+        // If order already has buy/sell, leave as is
+        if (order.side === 'buy' || order.side === 'sell') {
+          return order;
         }
-        if (!order.side) {
-          throw new Error(`Missing side for order at index ${index}`);
-        }
-        if (!order.type) {
-          throw new Error(`Missing type for order at index ${index}`);
-        }
-        if (!order.count || order.count <= 0) {
-          throw new Error(`Invalid count for order at index ${index}`);
-        }
-        if (order.type === 'limit' && (order.price === undefined || order.price <= 0)) {
-          throw new Error(`Invalid price for limit order at index ${index}`);
-        }
+        
+        // Otherwise assume it's using the old format and convert
+        const oldOrder = order as any;
+        const newOrder: KalshiOrder = {
+          market_id: oldOrder.market_id || oldOrder.marketId,
+          // Convert yes/no to buy/sell
+          side: oldOrder.side === 'yes' ? 'buy' : 'sell',
+          order_type: oldOrder.order_type || oldOrder.type || 'limit',
+          quantity: oldOrder.quantity || oldOrder.count,
+          price: oldOrder.price,
+          client_order_id: oldOrder.client_order_id
+        };
+        
+        return newOrder;
       });
       
-      console.log(`Attempting to batch create ${batchRequest.orders.length} orders`);
-      
-      const url = `${this.baseUrl}/portfolio/orders/batched`;
-      const response = await this.rateLimitedPost<BatchCreateOrdersResponse>(url, batchRequest);
-      
-      console.log(`Successfully created ${response.order_ids.length} orders in batch`);
+      const url = `${this.baseUrl}/portfolio/orders/batch`;
+      const response = await this.makeRequest<BatchCreateOrdersResponse>(
+        '/portfolio/orders/batch', 
+        { 
+          method: 'POST',
+          data: { orders: processedOrders } 
+        }
+      );
       
       return response;
     } catch (error) {
-      console.error("Error batch creating orders in Kalshi API:", error);
+      console.error("Error creating batch orders in Kalshi API:", error);
       throw error;
     }
   }

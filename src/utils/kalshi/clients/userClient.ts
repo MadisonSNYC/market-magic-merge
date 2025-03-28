@@ -3,6 +3,7 @@ import { BaseClient } from './BaseClient';
 import { OrderClient } from './orders/orderClient';
 import { BatchClient } from './batch/batchClient';
 import { FillsClient } from './user/fillsClient';
+import { KalshiPosition, KalshiAiRecommendation, KalshiBalanceResponse } from '../types/portfolio';
 
 /**
  * Kalshi User-related API client (portfolio, positions, orders)
@@ -13,35 +14,45 @@ export class KalshiUserClient extends BaseClient {
   private batchClient: BatchClient;
   private fillsClient: FillsClient;
 
-  constructor(apiKey?: string) {
-    super(apiKey);
-    this.orderClient = new OrderClient(apiKey);
-    this.batchClient = new BatchClient(apiKey);
-    this.fillsClient = new FillsClient(apiKey);
+  constructor(options: { apiKey?: string; mockMode?: boolean; baseUrl?: string } = {}) {
+    super(options);
+    this.orderClient = new OrderClient(options);
+    this.batchClient = new BatchClient(options);
+    this.fillsClient = new FillsClient(options);
   }
 
   // Base User methods
-  async getPositions() {
+  async getPositions(): Promise<KalshiPosition[]> {
     try {
-      const url = `${this.baseUrl}/portfolio/positions`;
-      return this.rateLimitedGet(url);
+      const path = `/portfolio/positions`;
+      const response = await this.makeRequest<{ positions: KalshiPosition[] }>(
+        path, 
+        { method: 'GET' }
+      );
+      
+      return response.positions || [];
     } catch (error) {
       console.error("Error fetching positions:", error);
-      throw error;
+      return [];
     }
   }
 
   async getPortfolio() {
     try {
-      const url = `${this.baseUrl}/portfolio`;
-      return this.rateLimitedGet(url);
+      const path = `/portfolio`;
+      const response = await this.makeRequest(
+        path, 
+        { method: 'GET' }
+      );
+      
+      return response;
     } catch (error) {
       console.error("Error fetching portfolio:", error);
       throw error;
     }
   }
 
-  async getAiRecommendations() {
+  async getAiRecommendations(): Promise<KalshiAiRecommendation[]> {
     try {
       // This is a mock endpoint - in production, you'd have a real API endpoint
       return Promise.resolve([
@@ -49,28 +60,45 @@ export class KalshiUserClient extends BaseClient {
           marketId: 'BTC-PRICE-7PM',
           recommendation: 'Buy YES',
           reason: 'Bitcoin momentum indicators suggest upward movement',
-          confidence: 0.75
+          contractPrice: 0.65,
+          size: 10,
+          cost: 6.50,
+          potentialProfit: 3.50,
+          potentialPayout: 10.00,
+          confidence: 0.75,
+          category: 'Crypto'
         },
         {
           marketId: 'ETH-PRICE-EOD',
           recommendation: 'Buy NO',
           reason: 'Ethereum facing resistance levels',
-          confidence: 0.65
+          contractPrice: 0.35,
+          size: 15,
+          cost: 5.25,
+          potentialProfit: 9.75,
+          potentialPayout: 15.00,
+          confidence: 0.65,
+          category: 'Crypto'
         }
       ]);
     } catch (error) {
       console.error("Error fetching AI recommendations:", error);
-      throw error;
+      return [];
     }
   }
 
-  async getBalance() {
+  async getBalance(): Promise<KalshiBalanceResponse | null> {
     try {
-      const url = `${this.baseUrl}/portfolio/balance`;
-      return this.rateLimitedGet(url);
+      const path = `/portfolio/balance`;
+      const response = await this.makeRequest<KalshiBalanceResponse>(
+        path, 
+        { method: 'GET' }
+      );
+      
+      return response;
     } catch (error) {
       console.error("Error fetching balance:", error);
-      throw error;
+      return null;
     }
   }
 

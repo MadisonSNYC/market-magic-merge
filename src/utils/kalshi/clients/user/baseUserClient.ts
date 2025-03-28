@@ -2,9 +2,9 @@
 import { BaseClient } from '../BaseClient';
 
 /**
- * Base client for batch operations
+ * Base client for user-related operations
  */
-export class BaseBatchClient extends BaseClient {
+export class BaseUserClient extends BaseClient {
   constructor(options: { apiKey?: string; mockMode?: boolean; baseUrl?: string } = {}) {
     super(options);
   }

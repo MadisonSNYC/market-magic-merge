@@ -12,7 +12,10 @@ export class AccountSummaryClient extends BaseBatchClient {
   async getTotalRestingOrderValue(): Promise<number> {
     try {
       const url = `${this.baseUrl}/portfolio/orders/resting-value`;
-      const response = await this.rateLimitedGet<{ total_value_cents: number }>(url);
+      const response = await this.makeRequest<{ total_value_cents: number }>(
+        '/portfolio/orders/resting-value', 
+        { method: 'GET' }
+      );
       
       return response.total_value_cents;
     } catch (error) {

@@ -1,65 +1,55 @@
-
 import { BaseOrderClient } from './baseOrderClient';
 import {
   KalshiOrder,
   CreateOrderResponse,
   GetOrderResponse,
   CancelOrderResponse
-} from '../../types/common';
+} from '../../types/orders';
 
 /**
  * Client for single order operations
  */
 export class SingleOrderClient extends BaseOrderClient {
   /**
-   * Format order for v3 API
-   * This handles the conversion between v2 and v3 order formats
+   * Utility to convert between yes/no and buy/sell
+   * @param order Order with potential yes/no side
+   * @returns Order with buy/sell side
    */
-  private formatOrderForV3(order: KalshiOrder): any {
-    // V3 format with explicit side
-    const formattedOrder: any = {
-      market_id: order.marketId || order.ticker,
-      side: this.convertToV3Side(order.side),
-      type: order.type || 'limit',
-      count: order.count,
+  private convertOrderFormat(order: any): KalshiOrder {
+    // If order already has buy/sell, leave as is
+    if (order.side === 'buy' || order.side === 'sell') {
+      return order as KalshiOrder;
+    }
+    
+    // Otherwise assume it's using the old format and convert
+    return {
+      market_id: order.market_id || order.marketId,
+      // Convert yes/no to buy/sell
+      side: order.side === 'yes' ? 'buy' : (order.side === 'no' ? 'sell' : order.side),
+      order_type: order.order_type || order.type || 'limit',
+      quantity: order.quantity || order.count,
+      price: order.price,
+      client_order_id: order.client_order_id
     };
-
-    // Add price for limit orders
-    if (order.type === 'limit' && order.price !== undefined) {
-      formattedOrder.price = order.price;
-    }
-
-    // Add client_order_id if provided
-    if (order.client_order_id) {
-      formattedOrder.client_order_id = order.client_order_id;
-    }
-
-    return formattedOrder;
-  }
-
-  /**
-   * Convert v2 side to v3 side format
-   */
-  private convertToV3Side(side: string): 'buy' | 'sell' {
-    // In v3, buy = yes, sell = no
-    return side === 'yes' ? 'buy' : 'sell';
   }
 
   /**
    * Create a new order
-   * @param order Order to create
+   * @param order Order details
    * @returns Created order response
    */
-  async createOrder(order: KalshiOrder): Promise<CreateOrderResponse> {
+  async createOrder(order: any): Promise<CreateOrderResponse> {
     try {
-      const v3Order = this.formatOrderForV3(order);
+      const v3Order = this.convertOrderFormat(order);
       
-      console.log("Creating new order:", v3Order);
-      
-      const url = `${this.baseUrl}/portfolio/orders`;
-      const response = await this.rateLimitedPost<CreateOrderResponse>(url, v3Order);
-      
-      console.log("Order created successfully:", response);
+      const path = `/portfolio/orders`;
+      const response = await this.makeRequest<CreateOrderResponse>(
+        path, 
+        { 
+          method: 'POST',
+          data: v3Order
+        }
+      );
       
       return response;
     } catch (error) {
@@ -67,11 +57,11 @@ export class SingleOrderClient extends BaseOrderClient {
       throw error;
     }
   }
-  
+
   /**
-   * Get a specific order by ID
+   * Get a single order by ID
    * @param orderId Order ID to retrieve
-   * @returns Order response
+   * @returns Order details
    */
   async getOrder(orderId: string): Promise<GetOrderResponse> {
     try {
@@ -79,8 +69,11 @@ export class SingleOrderClient extends BaseOrderClient {
         throw new Error("Order ID is required");
       }
       
-      const url = `${this.baseUrl}/portfolio/orders/${orderId}`;
-      const response = await this.rateLimitedGet<GetOrderResponse>(url);
+      const path = `/portfolio/orders/${orderId}`;
+      const response = await this.makeRequest<GetOrderResponse>(
+        path, 
+        { method: 'GET' }
+      );
       
       return response;
     } catch (error) {
@@ -88,9 +81,9 @@ export class SingleOrderClient extends BaseOrderClient {
       throw error;
     }
   }
-  
+
   /**
-   * Cancel an existing order
+   * Cancel an order by ID
    * @param orderId Order ID to cancel
    * @returns Cancellation response
    */
@@ -100,13 +93,25 @@ export class SingleOrderClient extends BaseOrderClient {
         throw new Error("Order ID is required");
       }
       
-      const url = `${this.baseUrl}/portfolio/orders/${orderId}`;
-      const response = await this.rateLimitedDelete<CancelOrderResponse>(url);
+      const path = `/portfolio/orders/${orderId}`;
+      const response = await this.makeRequest<CancelOrderResponse>(
+        path, 
+        { method: 'DELETE' }
+      );
       
       return response;
     } catch (error) {
-      console.error(`Error canceling order ${orderId} in Kalshi API:`, error);
+      console.error(`Error cancelling order ${orderId} in Kalshi API:`, error);
       throw error;
     }
+  }
+  
+  /**
+   * Convenience method to place an order using create
+   * @param order Order details
+   * @returns Created order response
+   */
+  async placeOrder(order: any): Promise<CreateOrderResponse> {
+    return this.createOrder(order);
   }
 }
