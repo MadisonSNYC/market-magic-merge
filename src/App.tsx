@@ -10,6 +10,7 @@ import Markets from "./pages/Markets";
 import Stocks from "./pages/Stocks";
 import Analysis from "./pages/Analysis";
 import Strategies from "./pages/Strategies"; // Update import path
+import Performance from "./pages/Performance"; // Add Performance import
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/stocks" element={<Stocks />} />
           <Route path="/analysis" element={<Analysis />} />
           <Route path="/strategies" element={<Strategies />} />
+          <Route path="/performance" element={<Performance />} /> {/* Add Performance route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
