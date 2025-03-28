@@ -1,4 +1,3 @@
-
 import { KalshiUserClient } from '../client/userClient';
 import { KalshiPosition, KalshiAiRecommendation } from '../types';
 
@@ -74,6 +73,6 @@ export class KalshiUserFacade {
   }
 
   async decreaseOrder(orderId: string, decreaseRequest: any) {
-    return this.client.amendOrder(orderId, decreaseRequest);
+    return this.client.decreaseOrder(orderId, decreaseRequest);
   }
 }
