@@ -144,8 +144,20 @@ export class OrderClient extends BaseUserClient {
    */
   async cancelOrder(orderId: string): Promise<CancelOrderResponse> {
     try {
+      if (!orderId) {
+        throw new Error("Order ID is required for cancellation");
+      }
+      
+      console.log(`Attempting to cancel order: ${orderId}`);
       const url = `${this.baseUrl}/portfolio/orders/${orderId}`;
-      return this.rateLimitedDelete<CancelOrderResponse>(url);
+      
+      // DELETE request to the v3 cancel endpoint
+      const response = await this.rateLimitedDelete<CancelOrderResponse>(url);
+      
+      // Log successful cancellation
+      console.log(`Successfully cancelled order ${orderId}, status: ${response.status}`);
+      
+      return response;
     } catch (error) {
       console.error(`Error canceling order ${orderId} from Kalshi API:`, error);
       throw error;
