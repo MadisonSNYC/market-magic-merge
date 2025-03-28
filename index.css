@@ -1,0 +1,201 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 300 20% 98%;
+    --foreground: 280 14% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 280 14% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 280 14% 10%;
+
+    --primary: 287 70% 62%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 290 14% 96%;
+    --secondary-foreground: 280 14% 14%;
+
+    --muted: 290 14% 96%;
+    --muted-foreground: 280 8% 46%;
+
+    --accent: 287 70% 96%;
+    --accent-foreground: 287 70% 26%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 72% 52%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --danger: 0 84% 60%;
+    --danger-foreground: 0 0% 100%;
+
+    --border: 290 13% 91%;
+    --input: 290 31.8% 91.4%;
+    --ring: 287 70% 62%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 287 40% 16%;
+    --sidebar-foreground: 290 14% 96%;
+    --sidebar-primary: 287 70% 62%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 287 30% 25%;
+    --sidebar-accent-foreground: 290 14% 96%;
+    --sidebar-border: 287 30% 25%;
+    --sidebar-ring: 287 70% 62%;
+  }
+
+  .dark {
+    --background: 280 14% 10%;
+    --foreground: 290 14% 96%;
+
+    --card: 280 14% 13%;
+    --card-foreground: 290 14% 96%;
+
+    --popover: 280 14% 13%;
+    --popover-foreground: 290 14% 96%;
+
+    --primary: 287 70% 62%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 280 14% 18%;
+    --secondary-foreground: 290 14% 96%;
+
+    --muted: 280 14% 18%;
+    --muted-foreground: 280 14% 72%;
+
+    --accent: 287 70% 26%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 72% 52%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --danger: 0 84% 60%;
+    --danger-foreground: 0 0% 100%;
+
+    --border: 280 3.7% 15.9%;
+    --input: 280 32.6% 17.5%;
+    --ring: 287 70% 62%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html,
+  body {
+    @apply h-full overflow-x-hidden antialiased;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    background-image: 
+      radial-gradient(circle at 1px 1px, rgba(224, 162, 255, 0.15) 2px, transparent 0),
+      linear-gradient(to right bottom, rgba(255, 182, 245, 0.2), rgba(224, 162, 255, 0.1));
+    background-size: 20px 20px, 100% 100%;
+  }
+
+  /* Glass morphism */
+  .glass {
+    @apply bg-white/10 backdrop-blur-lg border border-white/20 shadow-glass;
+  }
+
+  .glass-dark {
+    @apply bg-black/20 backdrop-blur-lg border border-white/10 shadow-glass;
+  }
+
+  /* Card transitions */
+  .card-hover-effect {
+    @apply transition-all duration-300 ease-in-out;
+  }
+  
+  /* Custom scrollbar for webkit browsers */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted rounded-full;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/50;
+  }
+
+  /* Chart & data visualization styles */
+  .chart-container {
+    @apply w-full h-full min-h-[200px] rounded-lg overflow-hidden;
+  }
+
+  .animate-enter {
+    @apply animate-slide-up;
+  }
+
+  /* Stock price trends */
+  .trend-up {
+    @apply text-success;
+  }
+  
+  .trend-down {
+    @apply text-danger;
+  }
+
+  /* Loading states */
+  .loading-pulse {
+    @apply animate-pulse-gentle;
+  }
+
+  /* Gradient backgrounds */
+  .bg-gradient-pink-purple {
+    @apply bg-gradient-to-r from-purple-400 via-pink-500 to-purple-600;
+  }
+  
+  .bg-gradient-soft {
+    @apply bg-gradient-to-br from-pink-50 to-purple-100;
+  }
+  
+  .bg-gradient-card {
+    @apply bg-gradient-to-br from-white to-purple-50;
+  }
+  
+  /* Portfolio privacy glass overlay */
+  .privacy-glass {
+    @apply backdrop-blur-md bg-pink-100/30 border border-pink-200/50 rounded-lg;
+    background-image: radial-gradient(circle at 1px 1px, rgba(236, 72, 153, 0.15) 1px, transparent 0);
+    background-size: 15px 15px;
+  }
+
+  /* Kanban cards */
+  .kanban-card {
+    @apply p-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 bg-white border border-purple-100/50 h-full flex flex-col;
+  }
+
+  .kanban-container {
+    @apply grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-x-auto pb-2;
+  }
+}
