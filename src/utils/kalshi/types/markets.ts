@@ -37,54 +37,37 @@ export interface KalshiApiMarket {
   yes_sub_title?: string;
 }
 
-export interface KalshiOrder {
-  id?: string;          // Optional for creation
-  order_id?: string;    // Alternative to id
-  ticker?: string;
-  status?: string;      // Optional for creation
-  createdAt?: string;   // Optional for creation
-  created_time?: string; // Alternative to createdAt
-  updated_time?: string;
-  side: 'yes' | 'no';
-  price?: number;
-  yes_price?: number;
-  no_price?: number;
-  type: string;
-  size?: number;        // For creation
-  count?: number;       // Alternative to size
-  filled_count?: number;
-  remaining_count?: number;
-  marketId?: string;    // For creation
-  client_order_id?: string;
-}
+// Moved KalshiOrder to orders.ts to avoid duplicate exports
 
 export interface OrderbookLevel {
-  price: number;
-  count: number;
+  price: number;  // In cents (0-100 range typically)
+  count: number;  // Size/quantity at this price level
 }
 
 export interface KalshiOrderbook {
   ticker: string;
-  market_ticker?: string;
-  yes_bids?: OrderbookLevel[];
-  yes_asks?: OrderbookLevel[];
-  no_bids?: OrderbookLevel[];
-  no_asks?: OrderbookLevel[];
+  market_ticker?: string;  // Alternative field name in v3
+  yes_bids?: OrderbookLevel[];  // Bids for YES contracts
+  yes_asks?: OrderbookLevel[];  // Asks for YES contracts
+  no_bids?: OrderbookLevel[];   // Bids for NO contracts
+  no_asks?: OrderbookLevel[];   // Asks for NO contracts
+  timestamp?: number;           // Optional timestamp field in v3
+  last_trade_price?: number;    // Optional last trade price in v3
 }
 
 export interface Candlestick {
-  ts: number;
-  open: number;
-  high: number;
-  low: number;
-  close: number;
-  volume: number;
+  ts: number;         // Unix timestamp
+  open: number;       // Opening price in cents
+  high: number;       // Highest price in cents
+  low: number;        // Lowest price in cents
+  close: number;      // Closing price in cents
+  volume: number;     // Trading volume
 }
 
 export interface CandlestickParams {
-  resolution: string;
-  from: number;
-  to: number;
+  resolution: string;  // Timeframe (e.g., '1m', '5m', '1h', '1d')
+  from: number;        // Start timestamp
+  to: number;          // End timestamp
 }
 
 export interface KalshiCandlesticksResponse {
