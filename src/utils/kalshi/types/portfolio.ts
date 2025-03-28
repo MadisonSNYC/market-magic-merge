@@ -1,3 +1,12 @@
+
+/**
+ * Kalshi API portfolio-related types
+ * These types represent the data structures used in the Kalshi API v3
+ */
+
+/**
+ * Position in a market as returned by the Kalshi API
+ */
 export interface KalshiPosition {
   market_id: string;
   ticker?: string;
@@ -18,6 +27,9 @@ export interface KalshiPosition {
   price?: number;  // Price field
 }
 
+/**
+ * Normalized position format for UI components
+ */
 export interface Position {
   marketId: string;
   marketTitle: string;
@@ -33,6 +45,7 @@ export interface Position {
   no: number;
   value: number;
   icon?: string;
+  // Include API fields for compatibility
   expires_at?: string;
   expiration?: string;
   price?: number;
@@ -42,23 +55,17 @@ export interface Position {
   unrealized_pnl?: number;
 }
 
+/**
+ * Portfolio data structure for UI components
+ */
 export interface KalshiPortfolioData {
   availableBalance: number;
   totalPortfolioValue: number;
   lastUpdated: string;
 }
 
-export interface KalshiBalance {
-  cash: number;  // Cash balance in cents
-  available_cash: number;  // Cash available for new trades
-  total_value: number;  // Total portfolio value
-  reserved_fees?: number;  // Fees reserved for open orders
-  bonus_balance?: number;  // Any bonus balance available
-  reserved_margin?: number;  // Margin reserved for open positions
-}
-
 /**
- * Balance response model for the Kalshi API
+ * Balance response model from Kalshi API v3
  */
 export interface KalshiBalanceResponse {
   // Available balance in cents
@@ -69,8 +76,17 @@ export interface KalshiBalanceResponse {
   
   // Timestamp of the balance snapshot
   timestamp?: string;
+  
+  // Legacy v2 fields
+  balance?: number;  
+  reserved_fees?: number;
+  bonus_balance?: number;
+  reserved_margin?: number;
 }
 
+/**
+ * Trade model for Kalshi API
+ */
 export interface KalshiTrade {
   id: string;
   market_id?: string;
@@ -83,7 +99,9 @@ export interface KalshiTrade {
   strikePrice?: number;
 }
 
-// V3 Settlement types
+/**
+ * Settlement model for Kalshi API v3
+ */
 export interface KalshiSettlement {
   market_id: string;
   ticker: string;
@@ -96,12 +114,17 @@ export interface KalshiSettlement {
   pnl: number;  // Profit/loss in cents
 }
 
+/**
+ * Settlements response from Kalshi API
+ */
 export interface KalshiSettlementsResponse {
   settlements: KalshiSettlement[];
   cursor?: string;
 }
 
-// Add KalshiAiRecommendation interface
+/**
+ * AI-generated recommendation model
+ */
 export interface KalshiAiRecommendation {
   marketId: string;
   recommendation: string;

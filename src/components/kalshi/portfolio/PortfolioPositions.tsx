@@ -18,23 +18,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/utils/format';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
-// Export the Position interface so it can be imported elsewhere
-export interface Position {
-  marketId: string;
-  marketTitle: string;
-  contracts?: number;
-  avgPrice?: number;
-  cost?: number;
-  currentValue?: number;
-  potentialPayout?: number;
-  positionType?: string;
-  timeRemaining?: string;
-  yes: number;
-  no: number;
-  value: number;
-  icon?: string;
-}
+import { Position } from '@/utils/kalshi/types/portfolio';
 
 interface PortfolioPositionsProps {
   positions: Position[];
