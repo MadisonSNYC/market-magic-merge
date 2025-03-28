@@ -72,6 +72,65 @@ export const mockKalshiData = {
     reserved_fees: 0,
     bonus_balance: 0,
     reserved_margin: 0
+  }),
+
+  /**
+   * Create mock event data
+   */
+  events: () => ({
+    events: [
+      {
+        ticker: 'US-ELECTION-2024',
+        title: 'US Presidential Election 2024',
+        subtitle: 'Markets related to the US presidential election',
+        category: 'Politics',
+        status: 'active'
+      }
+    ],
+    cursor: 'next_page_token'
+  }),
+
+  /**
+   * Create mock series data
+   */
+  series: () => ({
+    series: [
+      {
+        ticker: 'US-POLITICS',
+        title: 'US Politics',
+        subtitle: 'Markets related to US political events',
+        category: 'Politics'
+      }
+    ]
+  }),
+
+  /**
+   * Create mock orderbook data
+   */
+  orderbook: () => ({
+    yes_bids: [{ price: 65, count: 100 }],
+    yes_asks: [{ price: 68, count: 50 }],
+    no_bids: [{ price: 32, count: 75 }],
+    no_asks: [{ price: 35, count: 60 }]
+  }),
+
+  /**
+   * Create mock trade data
+   */
+  trades: () => ({
+    trades: [
+      {
+        trade_id: '12345',
+        ticker: 'BTC-PRICE-24H',
+        ts: new Date().toISOString(),
+        price: 6500, // cents
+        count: 10,
+        side: 'YES',
+        type: 'fill',
+        strike_price: 6800
+      }
+    ],
+    cursor: 'next_page_token'
   })
 };
 

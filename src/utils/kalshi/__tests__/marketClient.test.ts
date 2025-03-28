@@ -78,4 +78,22 @@ describe('MarketClient', () => {
       expect(result).toBeNull();
     });
   });
+  
+  describe('getOrderbook', () => {
+    it('should return orderbook data for a market', async () => {
+      // Mock the API response
+      const mockData = mockKalshiData.orderbook();
+      mockAxios(mockData);
+      
+      // Call the method
+      const result = await client.getOrderbook('BTC-PRICE-24H');
+      
+      // Assert the orderbook structure
+      expect(result).toBeDefined();
+      expect(result).toHaveProperty('yes_bids');
+      expect(result).toHaveProperty('yes_asks');
+      expect(result).toHaveProperty('no_bids');
+      expect(result).toHaveProperty('no_asks');
+    });
+  });
 });

@@ -1,16 +1,4 @@
 
-import { KalshiMarketClient } from './marketClient';
-import { KalshiUserClient } from './userClient';
-import { KalshiMetaClient } from './metaClient';
-import { KalshiTradeClient } from './tradeClient';
-import { KalshiEventClient } from './eventClient';
-import { KalshiCollectionClient } from './collectionClient';
-import { KalshiStructuredTargetClient } from './structuredTargetClient';
-import { KalshiRfqClient } from './rfqClient';
-import { KalshiQuoteClient } from './quoteClient';
-import { KalshiCommunicationClient } from './communicationClient';
-import { KalshiExchangeClient } from './exchangeClient';
-import { KalshiSeriesClient } from './seriesClient';
 import { CoreClientOptions } from './types';
 
 /**
@@ -22,6 +10,21 @@ export class ClientFactory {
    */
   static createClients(options: CoreClientOptions) {
     const { apiKey } = options;
+    
+    // These imports would typically be at the top of the file
+    // They are dynamically imported here to avoid circular dependencies
+    const { KalshiMarketClient } = require('./marketClient');
+    const { KalshiUserClient } = require('./userClient');
+    const { KalshiMetaClient } = require('./metaClient');
+    const { KalshiTradeClient } = require('./tradeClient');
+    const { KalshiEventClient } = require('./eventClient');
+    const { KalshiCollectionClient } = require('./collectionClient');
+    const { KalshiStructuredTargetClient } = require('./structuredTargetClient');
+    const { KalshiRfqClient } = require('./rfqClient');
+    const { KalshiQuoteClient } = require('./quoteClient');
+    const { KalshiCommunicationClient } = require('./communicationClient');
+    const { KalshiExchangeClient } = require('./exchangeClient');
+    const { KalshiSeriesClient } = require('./seriesClient');
     
     return {
       marketClient: new KalshiMarketClient(apiKey),
