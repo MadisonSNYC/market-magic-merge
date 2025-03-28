@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, TrendingUp, Trophy } from 'lucide-react';
-import { mockAiRecommendations } from '@/utils/kalshi/recommendations';
+import { mockAiRecommendations } from '@/utils/kalshi/mockData';
 
 export function AiRecommendations() {
   return (
@@ -30,13 +30,13 @@ export function AiRecommendations() {
                 <div className="flex items-center mt-1 gap-2">
                   <Badge 
                     variant="outline" 
-                    className={rec.recommendation === 'Buy YES' 
+                    className={rec.recommendation === 'BUY YES' 
                       ? "bg-green-500/10 text-green-500 border-green-500/20" 
                       : "bg-red-500/10 text-red-500 border-red-500/20"}
                   >
                     {rec.recommendation}
                   </Badge>
-                  <span className="text-xs text-muted-foreground">{rec.confidence * 100}% Confidence</span>
+                  <span className="text-xs text-muted-foreground">{rec.confidence}% Confidence</span>
                 </div>
               </div>
               <div className="text-right">

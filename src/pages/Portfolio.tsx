@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -6,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { KalshiPosition } from '@/utils/kalshi/types';
+import { KalshiPosition } from '@/utils/kalshi/types/portfolio';
 
 const Portfolio = () => {
   const [loading, setLoading] = useState(true);
