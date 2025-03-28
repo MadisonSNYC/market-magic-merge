@@ -10,7 +10,7 @@ import {
  */
 export class BatchOrderCreationClient extends BaseBatchClient {
   /**
-   * Batch create multiple orders in a single request
+   * Create multiple orders in a single batch request
    * @param batchRequest Object containing array of orders to create
    * @returns Response with array of created order IDs
    */
@@ -20,19 +20,22 @@ export class BatchOrderCreationClient extends BaseBatchClient {
         throw new Error("Batch create request must contain a non-empty array of orders");
       }
       
-      // Validate each order in the batch
+      // Validate each order has required fields
       batchRequest.orders.forEach((order, index) => {
         if (!order.ticker) {
-          throw new Error(`Order at index ${index} missing required ticker field`);
+          throw new Error(`Missing ticker for order at index ${index}`);
         }
-        if (!order.side || (order.side !== 'yes' && order.side !== 'no')) {
-          throw new Error(`Order at index ${index} missing or invalid side (must be 'yes' or 'no')`);
+        if (!order.side) {
+          throw new Error(`Missing side for order at index ${index}`);
+        }
+        if (!order.type) {
+          throw new Error(`Missing type for order at index ${index}`);
         }
         if (!order.count || order.count <= 0) {
-          throw new Error(`Order at index ${index} missing or invalid count (must be positive)`);
+          throw new Error(`Invalid count for order at index ${index}`);
         }
-        if (order.type === 'limit' && order.price === undefined) {
-          throw new Error(`Limit order at index ${index} missing required price field`);
+        if (order.type === 'limit' && (order.price === undefined || order.price <= 0)) {
+          throw new Error(`Invalid price for limit order at index ${index}`);
         }
       });
       

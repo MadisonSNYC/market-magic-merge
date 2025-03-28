@@ -1,68 +1,64 @@
 
-// Order-related interfaces
+// Order types for v3 API compatibility
 
 export interface KalshiOrder {
-  id?: string;          // Optional for creation
-  order_id?: string;    // Alternative to id
-  ticker?: string;      // Market ticker
-  status?: string;      // Optional for creation
-  createdAt?: string;   // Optional for creation
-  created_time?: string; // Alternative to createdAt
-  updated_time?: string;
-  side: 'yes' | 'no';   // Side of the order (yes/no for binary markets)
-  price?: number;       // Price in cents (0-100 range typically)
-  yes_price?: number;   // Alternative price representation
-  no_price?: number;    // Alternative price representation
-  type: string;         // 'limit' or 'market'
-  size?: number;        // For creation (synonym for count)
-  count?: number;       // Number of contracts
-  filled_count?: number;
-  remaining_count?: number;
-  marketId?: string;    // For creation
-  client_order_id?: string; // Optional client-side order identifier
-  action?: string;      // 'buy' or 'sell' (if needed)
+  marketId?: string;
+  ticker?: string;
+  side: 'yes' | 'no';
+  type: 'limit' | 'market';
+  count: number;
+  price?: number;
+  client_order_id?: string;
+}
+
+export interface OrdersParams {
+  market_id?: string;
+  ticker?: string;
+  status?: string;
+  limit?: number;
+  cursor?: string;
+  min_ts?: number;
+  max_ts?: number;
 }
 
 export interface KalshiOrdersResponse {
   cursor: string;
-  orders: KalshiOrder[];
+  orders: any[];
 }
 
-export interface OrdersParams {
-  market_id?: string;   // Filter by specific market
-  ticker?: string;      // Alternative to market_id
-  status?: string;      // Filter by status (open, filled, canceled)
-  limit?: number;       // Pagination limit
-  cursor?: string;      // Pagination cursor
-  min_ts?: number;      // Minimum timestamp
-  max_ts?: number;      // Maximum timestamp
+export interface AmendOrderRequest {
+  price: number;
+  count: number;
+}
+
+export interface AmendOrderResponse {
+  order_id: string;
+}
+
+export interface DecreaseOrderRequest {
+  count: number;
+}
+
+export interface DecreaseOrderResponse {
+  order_id: string;
 }
 
 export interface BatchCreateOrdersRequest {
   orders: Array<{
-    ticker: string;     // Market ticker
-    side: 'yes' | 'no'; // Side (binary markets)
-    type: string;       // 'limit' or 'market'
-    count: number;      // Number of contracts
-    price?: number;     // Price in cents (required for limit orders)
-    client_order_id?: string; // Optional client tracking ID
+    ticker: string;
+    side: 'yes' | 'no';
+    type: string;
+    count: number;
+    price?: number;
+    client_order_id?: string;
   }>;
 }
 
-export interface BatchCancelOrdersRequest {
+export interface BatchCreateOrdersResponse {
   order_ids: string[];
 }
 
-export interface AmendOrderRequest {
-  price: number;        // New price in cents
-  count: number;        // New quantity
-}
-
-export interface DecreaseOrderRequest {
-  count: number;        // Amount to decrease by
-}
-
-export interface BatchCreateOrdersResponse {
+export interface BatchCancelOrdersRequest {
   order_ids: string[];
 }
 
@@ -70,22 +66,40 @@ export interface BatchCancelOrdersResponse {
   canceled_order_ids: string[];
 }
 
-export interface GetOrderResponse {
-  order: KalshiOrder;
+// v3 API Order Types
+export interface V3OrderRequest {
+  market_id: string;
+  side: "buy" | "sell";
+  order_type: "limit" | "market";
+  quantity: number;
+  price: number;  // in cents for limit orders; ignored for market orders
 }
 
-export interface CancelOrderResponse {
+export interface V3OrderResponse {
+  order_id: string;
   status: string;
+  filled_quantity: number;
+  remaining_quantity: number;
+  average_fill_price?: number;
 }
 
-export interface AmendOrderResponse {
-  order_id: string;
+// Helper conversion functions
+export function convertToV3Order(order: KalshiOrder): V3OrderRequest {
+  return {
+    market_id: order.marketId || order.ticker || '',
+    side: order.side === 'yes' ? 'buy' : 'sell',
+    order_type: order.type,
+    quantity: order.count,
+    price: order.price || 0
+  };
 }
 
-export interface DecreaseOrderResponse {
-  order_id: string;
-}
-
-export interface CreateOrderResponse {
-  order_id: string;
+export function convertFromV3Order(v3Order: V3OrderResponse): any {
+  return {
+    order_id: v3Order.order_id,
+    status: v3Order.status,
+    filled_count: v3Order.filled_quantity,
+    remaining_count: v3Order.remaining_quantity,
+    average_price: v3Order.average_fill_price
+  };
 }

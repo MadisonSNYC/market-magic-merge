@@ -1,23 +1,20 @@
 
-import { BaseClient } from '../../baseClient';
+import { BaseClient } from '../BaseClient';
+import { FillsParams, KalshiFillsResponse } from '../../types/common';
 
 /**
- * Client for user fills (trade executions)
+ * Client for user trade fills operations
  */
 export class FillsClient extends BaseClient {
-  constructor(apiKey?: string) {
-    super(apiKey);
-  }
-
   /**
-   * Get fills with optional filtering
+   * Get user's trade fills with optional filtering
    * @param params Optional filter parameters
    * @returns Fills response
    */
-  async getFills(params?: any) {
+  async getFills(params?: FillsParams): Promise<KalshiFillsResponse> {
     try {
       const url = `${this.baseUrl}/portfolio/fills`;
-      return this.rateLimitedGet(url, params);
+      return await this.rateLimitedGet<KalshiFillsResponse>(url, params);
     } catch (error) {
       console.error("Error getting fills from Kalshi API:", error);
       throw error;

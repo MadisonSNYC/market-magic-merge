@@ -1,8 +1,8 @@
 
-import { BaseClient } from '../../baseClient';
+import { BaseClient } from '../BaseClient';
 
 /**
- * Base class for batch operation clients
+ * Base client for batch operations
  */
 export class BaseBatchClient extends BaseClient {
   constructor(apiKey?: string) {

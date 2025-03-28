@@ -1,5 +1,5 @@
 
-import { BaseClient } from '../baseClient';
+import { BaseClient } from './BaseClient';
 import { OrderClient } from './orders/orderClient';
 import { BatchClient } from './batch/batchClient';
 import { FillsClient } from './user/fillsClient';

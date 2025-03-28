@@ -6,16 +6,18 @@ import { BaseBatchClient } from './baseBatchClient';
  */
 export class AccountSummaryClient extends BaseBatchClient {
   /**
-   * Get total value of resting orders (FCM members only)
-   * @returns Total resting order value in cents
+   * Get total value of all resting orders
+   * @returns Total value of resting orders in cents
    */
-  async getTotalRestingOrderValue() {
+  async getTotalRestingOrderValue(): Promise<number> {
     try {
-      const url = `${this.baseUrl}/portfolio/summary/total_resting_order_value`;
-      return this.rateLimitedGet(url);
+      const url = `${this.baseUrl}/portfolio/orders/resting-value`;
+      const response = await this.rateLimitedGet<{ total_value_cents: number }>(url);
+      
+      return response.total_value_cents;
     } catch (error) {
-      console.error("Error fetching total resting order value from Kalshi API:", error);
-      throw error;
+      console.error("Error getting total resting order value from Kalshi API:", error);
+      return 0;
     }
   }
 }
