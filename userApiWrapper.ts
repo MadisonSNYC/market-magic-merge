@@ -1,16 +1,24 @@
+
 import { UserApiClient } from '../../clients';
 import { 
-  FillsParams, 
   KalshiOrder, 
   OrdersParams, 
   BatchCreateOrdersRequest, 
   BatchCancelOrdersRequest,
   AmendOrderRequest,
-  DecreaseOrderRequest
+  DecreaseOrderRequest,
+  CreateOrderResponse,
+  GetOrderResponse,
+  CancelOrderResponse,
+  AmendOrderResponse,
+  DecreaseOrderResponse,
+  BatchCreateOrdersResponse,
+  BatchCancelOrdersResponse,
+  KalshiOrdersResponse
 } from '../../types';
 
 /**
- * User API wrapper methods
+ * User API wrapper methods for v3 API
  */
 export class UserApiWrapper {
   private client: UserApiClient;
@@ -24,7 +32,7 @@ export class UserApiWrapper {
     return this.client.getPositions();
   }
   
-  placeOrder(order: any) {
+  placeOrder(order: KalshiOrder) {
     return this.client.placeOrder(order);
   }
   
@@ -40,39 +48,39 @@ export class UserApiWrapper {
     return this.client.getBalance();
   }
 
-  getFills(params?: FillsParams) {
+  getFills(params?: any) {
     return this.client.getFills(params);
   }
   
-  getOrders(params?: OrdersParams) {
+  getOrders(params?: OrdersParams): Promise<KalshiOrdersResponse> {
     return this.client.getOrders(params);
   }
   
-  createOrder(order: KalshiOrder) {
+  createOrder(order: KalshiOrder): Promise<CreateOrderResponse> {
     return this.client.createOrder(order);
   }
   
-  batchCreateOrders(batchRequest: BatchCreateOrdersRequest) {
+  batchCreateOrders(batchRequest: BatchCreateOrdersRequest): Promise<BatchCreateOrdersResponse> {
     return this.client.batchCreateOrders(batchRequest);
   }
   
-  batchCancelOrders(batchRequest: BatchCancelOrdersRequest) {
+  batchCancelOrders(batchRequest: BatchCancelOrdersRequest): Promise<BatchCancelOrdersResponse> {
     return this.client.batchCancelOrders(batchRequest);
   }
   
-  getOrder(orderId: string) {
+  getOrder(orderId: string): Promise<GetOrderResponse> {
     return this.client.getOrder(orderId);
   }
   
-  cancelOrder(orderId: string) {
+  cancelOrder(orderId: string): Promise<CancelOrderResponse> {
     return this.client.cancelOrder(orderId);
   }
   
-  amendOrder(orderId: string, amendRequest: AmendOrderRequest) {
+  amendOrder(orderId: string, amendRequest: AmendOrderRequest): Promise<AmendOrderResponse> {
     return this.client.amendOrder(orderId, amendRequest);
   }
   
-  decreaseOrder(orderId: string, decreaseRequest: DecreaseOrderRequest) {
+  decreaseOrder(orderId: string, decreaseRequest: DecreaseOrderRequest): Promise<DecreaseOrderResponse> {
     return this.client.decreaseOrder(orderId, decreaseRequest);
   }
   
