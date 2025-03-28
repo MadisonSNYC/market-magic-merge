@@ -1,100 +1,75 @@
 
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
+import { KALSHI_API_URL, KALSHI_DEMO_API_URL, DEMO_MODE } from '../config';
 
 /**
- * Base Kalshi client that provides common rate-limited API request methods
+ * Base client for all Kalshi API clients 
  */
 export class BaseKalshiClient {
-  protected baseUrl: string;
-  protected apiKey?: string;
+  protected readonly baseUrl: string;
+  protected readonly mockMode: boolean;
+  protected readonly apiKey?: string;
   
   constructor(baseUrl: string, apiKey?: string) {
-    this.baseUrl = baseUrl || 'https://trading-api.kalshi.com/v1';
+    this.mockMode = false; // By default, mock mode is disabled
     this.apiKey = apiKey;
+    this.baseUrl = baseUrl || (DEMO_MODE ? KALSHI_DEMO_API_URL : KALSHI_API_URL);
   }
   
   /**
-   * Makes a rate-limited GET request to the Kalshi API
+   * Make a GET request with rate limiting
    */
-  protected async rateLimitedGet<T>(endpoint: string, params?: any): Promise<T> {
-    const config: AxiosRequestConfig = {
-      params,
-      headers: this.getHeaders()
-    };
-    
-    try {
-      const response = await axios.get<T>(`${endpoint}`, config);
-      return response.data;
-    } catch (error) {
-      console.error(`Error in GET request to ${endpoint}:`, error);
-      throw error;
+  protected async rateLimitedGet<T>(url: string, params?: any): Promise<T> {
+    return this.makeRequest<T>('GET', url, { params });
+  }
+  
+  /**
+   * Make a POST request with rate limiting
+   */
+  protected async rateLimitedPost<T>(url: string, data?: any): Promise<T> {
+    return this.makeRequest<T>('POST', url, { data });
+  }
+  
+  /**
+   * Make a PUT request with rate limiting
+   */
+  protected async rateLimitedPut<T>(url: string, data?: any): Promise<T> {
+    return this.makeRequest<T>('PUT', url, { data });
+  }
+  
+  /**
+   * Make a DELETE request with rate limiting
+   */
+  protected async rateLimitedDelete<T>(url: string): Promise<T> {
+    return this.makeRequest<T>('DELETE', url);
+  }
+  
+  /**
+   * Make a request with rate limiting
+   */
+  private async makeRequest<T>(method: string, url: string, options: AxiosRequestConfig = {}): Promise<T> {
+    if (!options.headers) {
+      options.headers = {};
     }
-  }
-  
-  /**
-   * Makes a rate-limited POST request to the Kalshi API
-   */
-  protected async rateLimitedPost<T>(endpoint: string, data?: any): Promise<T> {
-    const config: AxiosRequestConfig = {
-      headers: this.getHeaders()
-    };
-    
-    try {
-      const response = await axios.post<T>(`${endpoint}`, data, config);
-      return response.data;
-    } catch (error) {
-      console.error(`Error in POST request to ${endpoint}:`, error);
-      throw error;
-    }
-  }
-  
-  /**
-   * Makes a rate-limited PUT request to the Kalshi API
-   */
-  protected async rateLimitedPut<T>(endpoint: string, data?: any): Promise<T> {
-    const config: AxiosRequestConfig = {
-      headers: this.getHeaders()
-    };
-    
-    try {
-      const response = await axios.put<T>(`${endpoint}`, data, config);
-      return response.data;
-    } catch (error) {
-      console.error(`Error in PUT request to ${endpoint}:`, error);
-      throw error;
-    }
-  }
-  
-  /**
-   * Makes a rate-limited DELETE request to the Kalshi API
-   */
-  protected async rateLimitedDelete<T>(endpoint: string): Promise<T> {
-    const config: AxiosRequestConfig = {
-      headers: this.getHeaders()
-    };
-    
-    try {
-      const response = await axios.delete<T>(`${endpoint}`, config);
-      return response.data;
-    } catch (error) {
-      console.error(`Error in DELETE request to ${endpoint}:`, error);
-      throw error;
-    }
-  }
-  
-  /**
-   * Get headers for API requests
-   */
-  private getHeaders() {
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    };
     
     if (this.apiKey) {
-      headers['Authorization'] = `Bearer ${this.apiKey}`;
+      options.headers['Authorization'] = `Bearer ${this.apiKey}`;
     }
     
-    return headers;
+    try {
+      const response = await axios.request<T>({
+        method,
+        url,
+        ...options,
+      });
+      
+      return response.data;
+    } catch (error) {
+      console.error(`Error making ${method} request to ${url}:`, error);
+      throw error;
+    }
   }
 }
+
+// For backward compatibility
+export { BaseKalshiClient as BaseClient };
