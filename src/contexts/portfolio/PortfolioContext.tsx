@@ -47,11 +47,11 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
       }
       
       // Get user positions
-      const userPositions = await client.userClient.getPositions();
+      const userPositions = await client.getPositions();
       setPositions(userPositions);
       
       // Get balance information
-      const balanceData = await client.userClient.getBalance();
+      const balanceData = await client.getBalance();
       if (balanceData) {
         setAvailableBalance(balanceData.available_balance_cents / 100); // Convert cents to dollars
         

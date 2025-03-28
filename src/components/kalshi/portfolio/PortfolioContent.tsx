@@ -11,19 +11,42 @@ import { PortfolioBalanceCard } from './PortfolioBalanceCard';
 import { PortfolioHelp } from './PortfolioHelp';
 import { PortfolioHistory } from './PortfolioHistory';
 import { useToast } from '@/hooks/use-toast';
+import { Position } from './PortfolioPositions';
+import { KalshiPosition } from '@/utils/kalshi/types/portfolio';
 
 export function PortfolioContent() {
   const { toast } = useToast();
   const { isConnected } = useKalshi();
   const {
     isLoading,
-    hasError,
+    error,
     positions,
-    portfolioValue,
+    totalPortfolioValue,
     availableBalance,
     lastUpdated,
-    refresh
+    refreshPortfolio
   } = usePortfolio();
+
+  // Transform KalshiPositions to Positions for the PortfolioPositions component
+  const transformedPositions: Position[] = positions.map((pos: KalshiPosition) => {
+    const side = pos.yes > 0 ? 'YES' : 'NO';
+    const contracts = pos.yes > 0 ? pos.yes : pos.no;
+    
+    return {
+      marketId: pos.market_id || '',
+      marketTitle: pos.market_title || pos.title || 'Unknown Market',
+      contracts: contracts,
+      positionType: side,
+      yes: pos.yes,
+      no: pos.no,
+      value: pos.value,
+      avgPrice: pos.price || pos.average_price || 0,
+      cost: pos.cost || 0,
+      currentValue: pos.value || 0,
+      potentialPayout: pos.payout || 0,
+      timeRemaining: pos.expires_at || pos.expiration || 'Unknown'
+    };
+  });
 
   const handleDeposit = () => {
     toast({
@@ -41,7 +64,7 @@ export function PortfolioContent() {
 
   // If not authenticated
   if (!isConnected) {
-    return <PortfolioAuthError onRetry={refresh} />;
+    return <PortfolioAuthError onRetry={refreshPortfolio} />;
   }
 
   // Loading state
@@ -50,16 +73,16 @@ export function PortfolioContent() {
   }
 
   // Error state
-  if (hasError) {
+  if (error) {
     return (
       <div className="container mx-auto px-4">
         <div className="text-center py-12">
           <h2 className="text-xl font-semibold mb-2">Error Loading Portfolio</h2>
           <p className="text-muted-foreground mb-4">
-            There was an error loading your portfolio data. Please try again.
+            {error}
           </p>
           <button 
-            onClick={refresh}
+            onClick={refreshPortfolio}
             className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
           >
             Retry
@@ -70,7 +93,7 @@ export function PortfolioContent() {
   }
 
   // Empty portfolio
-  if (positions.length === 0 && portfolioValue <= 0) {
+  if (positions.length === 0 && totalPortfolioValue <= 0) {
     return <EmptyPortfolioState onDepositClick={handleDeposit} />;
   }
 
@@ -80,7 +103,7 @@ export function PortfolioContent() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         <div className="md:col-span-2">
           <PortfolioOverview
-            portfolioValue={portfolioValue}
+            portfolioValue={totalPortfolioValue}
             availableBalance={availableBalance}
             positionsCount={positions.length}
             lastUpdated={lastUpdated}
@@ -89,17 +112,17 @@ export function PortfolioContent() {
         <div>
           <PortfolioBalanceCard
             availableBalance={availableBalance}
-            portfolioValue={portfolioValue}
+            portfolioValue={totalPortfolioValue}
             onDeposit={handleDeposit}
             onWithdraw={handleWithdraw}
-            onRefresh={refresh}
+            onRefresh={refreshPortfolio}
             lastUpdated={lastUpdated}
           />
         </div>
       </div>
 
       <div className="grid grid-cols-1 gap-6 mb-6">
-        <PortfolioPositions positions={positions} />
+        <PortfolioPositions positions={transformedPositions} />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">

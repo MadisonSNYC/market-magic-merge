@@ -1,8 +1,9 @@
+
 export interface KalshiPosition {
   market_id: string;
   ticker?: string;
-  title?: string;
-  market_title?: string;
+  title?: string;  // Market title
+  market_title?: string; // Alternative market title
   side?: "yes" | "no";  // Position outcome
   contracts?: number;  // Positive number representing quantity
   average_price?: number;  // Average entry price in cents
