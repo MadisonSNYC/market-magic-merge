@@ -1,18 +1,54 @@
 
 import { BaseKalshiClient } from './baseClient';
-import { 
-  KalshiPosition, 
-  KalshiBalanceResponse, 
-  KalshiPortfolioResponse,
-  KalshiAiRecommendation
-} from '../types';
+
+/**
+ * Kalshi position interface
+ */
+export interface KalshiPosition {
+  market_id: string;
+  yes_amount: number;
+  no_amount: number;
+}
+
+/**
+ * Kalshi balance response interface
+ */
+export interface KalshiBalanceResponse {
+  available_balance: number;
+  portfolio_value: number;
+  total_value: number;
+}
+
+/**
+ * Kalshi portfolio response interface
+ */
+export interface KalshiPortfolioResponse {
+  positions: KalshiPosition[];
+  available_balance: number;
+  portfolio_value: number;
+  total_value: number;
+}
+
+/**
+ * Kalshi AI recommendation interface
+ */
+export interface KalshiAiRecommendation {
+  id: string;
+  marketId: string;
+  side: 'yes' | 'no';
+  confidence: number;
+  price: number;
+  reasoning: string;
+  marketTitle: string;
+}
 
 /**
  * Kalshi User API client for accessing user data like balance and positions
  */
 export class KalshiUserClient extends BaseKalshiClient {
   constructor(options: { apiKey?: string; mockMode?: boolean; baseUrl?: string } = {}) {
-    super(options);
+    super(options.baseUrl || '', options.apiKey);
+    // We're ignoring mockMode for now as the base client doesn't support it directly
   }
   
   /**

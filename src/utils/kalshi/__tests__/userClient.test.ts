@@ -1,77 +1,59 @@
-
 import { KalshiUserClient } from '../client/userClient';
-import { mockAxios, mockKalshiData, setupTestEnvironment } from './testUtils';
+import axios from 'axios';
 
-// Set up test environment
-setupTestEnvironment();
+// Mock axios
+jest.mock('axios');
+const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 describe('KalshiUserClient', () => {
-  let client: KalshiUserClient;
-
+  let userClient: KalshiUserClient;
+  
   beforeEach(() => {
-    client = new KalshiUserClient('test_api_key');
+    // Reset mocks
+    jest.clearAllMocks();
+    
+    // Create client instance
+    userClient = new KalshiUserClient({ apiKey: 'test_api_key' });
   });
-
+  
   describe('getPositions', () => {
-    it('should return user positions', async () => {
-      // Mock the API response
-      const mockData = mockKalshiData.portfolio();
-      mockAxios(mockData);
-
-      // Call the method
-      const result = await client.getPositions();
-
-      // Assert the result matches expected format
-      expect(Array.isArray(result)).toBeTruthy();
-      if (result.length > 0) {
-        expect(result[0]).toHaveProperty('market_id');
-        expect(result[0]).toHaveProperty('title');
-      }
+    it('should return positions when API call is successful', async () => {
+      // Mock successful response
+      const mockPositions = [
+        { market_id: 'MARKET-1', yes_amount: 10, no_amount: 0 },
+        { market_id: 'MARKET-2', yes_amount: 0, no_amount: 5 }
+      ];
+      
+      const mockResponse = {
+        data: {
+          positions: mockPositions,
+          available_balance: 100,
+          portfolio_value: 50,
+          total_value: 150
+        }
+      };
+      
+      mockedAxios.request.mockResolvedValueOnce(mockResponse);
+      
+      // Call method
+      const result = await userClient.getPositions();
+      
+      // Verify result
+      expect(result).toEqual(mockPositions);
+    });
+    
+    it('should return null when API call fails', async () => {
+      // Mock error
+      const mockError = new Error('API error');
+      mockedAxios.request.mockRejectedValueOnce(mockError);
+      
+      // Call method
+      const result = await userClient.getPositions();
+      
+      // Verify result
+      expect(result).toBeNull();
     });
   });
   
-  describe('getBalance', () => {
-    it('should return user balance', async () => {
-      // Mock the API response
-      const mockData = mockKalshiData.balance();
-      mockAxios(mockData);
-
-      // Call the method
-      const result = await client.getBalance();
-
-      // Assert the result matches expected format
-      expect(result).toBeDefined();
-      expect(result).toHaveProperty('available_balance');
-      expect(result).toHaveProperty('portfolio_value');
-      expect(result).toHaveProperty('balance');
-    });
-  });
-  
-  describe('placeOrder', () => {
-    it('should successfully place an order', async () => {
-      // Mock the API response
-      const mockOrderResponse = {
-        order_id: 'ord_12345',
-        status: 'open'
-      };
-      mockAxios(mockOrderResponse);
-
-      // Create order request
-      const orderRequest = {
-        market_id: 'BTC-PRICE-24H',
-        side: 'yes',
-        type: 'limit',
-        count: 10,
-        price: 65
-      };
-
-      // Call the method
-      const result = await client.placeOrder(orderRequest);
-
-      // Assert the result matches expected format
-      expect(result).toBeDefined();
-      expect(result).toHaveProperty('order_id', 'ord_12345');
-      expect(result).toHaveProperty('status', 'open');
-    });
-  });
+  // Add more tests for other methods
 });

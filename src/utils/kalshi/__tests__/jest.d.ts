@@ -42,6 +42,9 @@ declare global {
       mockResolvedValueOnce(value: any): Mock<T>;
     };
     type SpyInstance = ReturnType<typeof spyOn>;
+    // Add missing matchers for expect
+    const objectContaining: (expected: object) => any;
+    const stringContaining: (expected: string) => any;
   }
 }
 

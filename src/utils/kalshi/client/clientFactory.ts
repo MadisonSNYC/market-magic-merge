@@ -1,44 +1,50 @@
-
 import { CoreClientOptions } from './types';
+import { KalshiMarketClient } from '../marketClient';
+import { KalshiUserClient } from './userClient';
+import { KalshiMetaClient } from '../metaClient';
+import { KalshiTradeClient } from '../tradeClient';
+import { KalshiEventClient } from '../eventClient';
+import { KalshiCollectionClient } from '../collectionClient';
+import { KalshiStructuredTargetClient } from '../structuredTargetClient';
+import { KalshiRfqClient } from '../rfqClient';
+import { KalshiQuoteClient } from '../quoteClient';
+import { KalshiCommunicationClient } from '../communicationClient';
+import { KalshiExchangeClient } from '../exchangeClient';
+import { KalshiSeriesClient } from '../seriesClient';
 
 /**
- * Factory for creating all Kalshi API client instances
+ * Factory for creating Kalshi API client instances
  */
 export class ClientFactory {
   /**
    * Create all client instances
    */
   static createClients(options: CoreClientOptions) {
-    const { apiKey } = options;
+    const apiKey = options.apiKey;
+    const baseUrl = options.baseUrl;
+    const mockMode = options.mockMode || false;
     
-    // These imports would typically be at the top of the file
-    // They are dynamically imported here to avoid circular dependencies
-    const { KalshiMarketClient } = require('./marketClient');
-    const { KalshiUserClient } = require('./userClient');
-    const { KalshiMetaClient } = require('./metaClient');
-    const { KalshiTradeClient } = require('./tradeClient');
-    const { KalshiEventClient } = require('./eventClient');
-    const { KalshiCollectionClient } = require('./collectionClient');
-    const { KalshiStructuredTargetClient } = require('./structuredTargetClient');
-    const { KalshiRfqClient } = require('./rfqClient');
-    const { KalshiQuoteClient } = require('./quoteClient');
-    const { KalshiCommunicationClient } = require('./communicationClient');
-    const { KalshiExchangeClient } = require('./exchangeClient');
-    const { KalshiSeriesClient } = require('./seriesClient');
+    // Create client options
+    const clientOptions = {
+      apiKey,
+      baseUrl,
+      mockMode
+    };
     
+    // Create all client instances
     return {
-      marketClient: new KalshiMarketClient(apiKey),
-      userClient: new KalshiUserClient(apiKey ? { apiKey } : {}),
-      metaClient: new KalshiMetaClient(apiKey),
-      tradeClient: new KalshiTradeClient(apiKey),
-      eventClient: new KalshiEventClient(apiKey),
-      collectionClient: new KalshiCollectionClient(apiKey),
-      structuredTargetClient: new KalshiStructuredTargetClient(apiKey),
-      rfqClient: new KalshiRfqClient(apiKey),
-      quoteClient: new KalshiQuoteClient(apiKey),
-      communicationClient: new KalshiCommunicationClient(apiKey),
-      exchangeClient: new KalshiExchangeClient(apiKey),
-      seriesClient: new KalshiSeriesClient(apiKey)
+      marketClient: new KalshiMarketClient(clientOptions),
+      userClient: new KalshiUserClient(clientOptions),
+      metaClient: new KalshiMetaClient(clientOptions),
+      tradeClient: new KalshiTradeClient(clientOptions),
+      eventClient: new KalshiEventClient(clientOptions),
+      collectionClient: new KalshiCollectionClient(clientOptions),
+      structuredTargetClient: new KalshiStructuredTargetClient(clientOptions),
+      rfqClient: new KalshiRfqClient(clientOptions),
+      quoteClient: new KalshiQuoteClient(clientOptions),
+      communicationClient: new KalshiCommunicationClient(clientOptions),
+      exchangeClient: new KalshiExchangeClient(clientOptions),
+      seriesClient: new KalshiSeriesClient(clientOptions)
     };
   }
 }

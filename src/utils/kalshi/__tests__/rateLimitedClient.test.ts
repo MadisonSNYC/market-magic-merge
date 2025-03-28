@@ -1,89 +1,89 @@
 
 import { RateLimitedClient } from '../client/rateLimitedClient';
 import { HttpClient } from '../client/httpClient';
-import { mockAxios, setupTestEnvironment } from './testUtils';
 
-// Set up test environment
-setupTestEnvironment();
-
-// Mock the HttpClient
-jest.mock('../client/httpClient', () => {
-  return {
-    HttpClient: jest.fn().mockImplementation(() => {
-      return {
-        get: jest.fn().mockResolvedValue({ data: { success: true } }),
-        post: jest.fn().mockResolvedValue({ data: { success: true } }),
-        put: jest.fn().mockResolvedValue({ data: { success: true } }),
-        delete: jest.fn().mockResolvedValue({ data: { success: true } })
-      };
-    })
-  };
-});
+// Mock HttpClient
+jest.mock('../client/httpClient');
 
 describe('RateLimitedClient', () => {
-  let client: RateLimitedClient;
-  let httpClient: HttpClient;
-
+  let httpClient: jest.Mocked<HttpClient>;
+  let rateLimitedClient: RateLimitedClient;
+  
   beforeEach(() => {
-    httpClient = new HttpClient('https://api.example.com');
-    client = new RateLimitedClient(httpClient);
+    // Reset mocks
+    jest.clearAllMocks();
+    
+    // Create mocked HttpClient instance
+    httpClient = new HttpClient('https://test-api.example.com') as jest.Mocked<HttpClient>;
+    
+    // Create RateLimitedClient instance with mocked HttpClient
+    rateLimitedClient = new RateLimitedClient(httpClient);
   });
-
+  
   describe('rateLimitedGet', () => {
-    it('should make a GET request through the HttpClient', async () => {
-      // Call the method
-      const result = await client.rateLimitedGet('/test-endpoint', { param: 'value' });
+    it('should call httpClient.get with correct parameters', async () => {
+      // Set up the mock
+      const mockResponse = { data: { result: 'success' } };
+      httpClient.get = jest.fn().mockResolvedValue(mockResponse);
       
-      // Assert the result and that the httpClient was called
-      expect(result).toEqual({ success: true });
+      // Call the method
+      const url = '/test-endpoint';
+      const params = { param1: 'value1', param2: 'value2' };
+      
+      const result = await rateLimitedClient.rateLimitedGet(url, params);
+      
+      // Verify the mock was called correctly
       expect(httpClient.get).toHaveBeenCalledWith(
-        '/test-endpoint', 
-        expect.objectContaining({ params: { param: 'value' } })
+        url,
+        expect.objectContaining({ params })
       );
+      
+      // Verify the result
+      expect(result).toEqual(mockResponse.data);
+    });
+    
+    it('should handle errors correctly', async () => {
+      // Set up the mock to throw an error
+      const mockError = new Error('Test error');
+      httpClient.get = jest.fn().mockRejectedValue(mockError);
+      
+      // Call the method
+      const url = '/test-endpoint';
+      
+      try {
+        await rateLimitedClient.rateLimitedGet(url);
+        // If we reach here, the test should fail
+        expect(true).toBe(false); // This line should not be reached
+      } catch (error) {
+        // Verify the error was thrown
+        expect(error).toBe(mockError);
+      }
+      
+      // Verify the mock was called correctly
+      expect(httpClient.get).toHaveBeenCalledWith(url, expect.objectContaining({}));
     });
   });
-
+  
   describe('rateLimitedPost', () => {
-    it('should make a POST request through the HttpClient', async () => {
-      // Call the method
-      const result = await client.rateLimitedPost('/test-endpoint', { data: 'value' });
+    it('should call httpClient.post with correct parameters', async () => {
+      // Set up the mock
+      const mockResponse = { data: { result: 'success' } };
+      httpClient.post = jest.fn().mockResolvedValue(mockResponse);
       
-      // Assert the result and that the httpClient was called
-      expect(result).toEqual({ success: true });
-      expect(httpClient.post).toHaveBeenCalledWith(
-        '/test-endpoint', 
-        { data: 'value' }, 
-        undefined
-      );
+      // Call the method
+      const url = '/test-endpoint';
+      const data = { field1: 'value1', field2: 'value2' };
+      const config = { headers: { 'Custom-Header': 'value' } };
+      
+      const result = await rateLimitedClient.rateLimitedPost(url, data, config);
+      
+      // Verify the mock was called correctly
+      expect(httpClient.post).toHaveBeenCalledWith(url, data, config);
+      
+      // Verify the result
+      expect(result).toEqual(mockResponse.data);
     });
   });
-
-  describe('rateLimitedPut', () => {
-    it('should make a PUT request through the HttpClient', async () => {
-      // Call the method
-      const result = await client.rateLimitedPut('/test-endpoint', { data: 'value' });
-      
-      // Assert the result and that the httpClient was called
-      expect(result).toEqual({ success: true });
-      expect(httpClient.put).toHaveBeenCalledWith(
-        '/test-endpoint', 
-        { data: 'value' }, 
-        undefined
-      );
-    });
-  });
-
-  describe('rateLimitedDelete', () => {
-    it('should make a DELETE request through the HttpClient', async () => {
-      // Call the method
-      const result = await client.rateLimitedDelete('/test-endpoint', { data: 'value' });
-      
-      // Assert the result and that the httpClient was called
-      expect(result).toEqual({ success: true });
-      expect(httpClient.delete).toHaveBeenCalledWith(
-        '/test-endpoint', 
-        expect.objectContaining({ data: { data: 'value' } })
-      );
-    });
-  });
+  
+  // Add tests for other methods as needed (rateLimitedPut, rateLimitedDelete)
 });

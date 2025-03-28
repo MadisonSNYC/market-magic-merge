@@ -3,8 +3,12 @@
  * Kalshi API configuration
  */
 
-// API Base URL
-export const KALSHI_API_BASE_URL = 'https://trading-api.kalshi.com/v3';
+// API Base URLs
+export const KALSHI_API_URL = 'https://trading-api.kalshi.com/v3';
+export const KALSHI_DEMO_API_URL = 'https://demo-api.kalshi.com/trade-api/v3';
+
+// Demo mode flag
+export const DEMO_MODE = false;
 
 // Authentication method (rsa or api_key)
 export const AUTH_METHOD = 'api_key';
@@ -13,4 +17,23 @@ export const AUTH_METHOD = 'api_key';
 export const RATE_LIMIT = {
   maxRequestsPerMinute: 120,
   maxRequestsPerSecond: 5
+};
+
+// Default rate limit tier
+export const DEFAULT_RATE_LIMIT_TIER = 'standard';
+
+// Rate limit tiers
+export const RATE_LIMIT_TIERS = {
+  DEFAULT: {
+    requestsPerMinute: 60,
+    requestsPerHour: 1000
+  },
+  PREMIUM: {
+    requestsPerMinute: 120,
+    requestsPerHour: 2000
+  },
+  ENTERPRISE: {
+    requestsPerMinute: 300,
+    requestsPerHour: 5000
+  }
 };

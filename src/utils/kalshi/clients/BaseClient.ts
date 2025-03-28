@@ -1,6 +1,10 @@
 
 import axios, { AxiosRequestConfig } from 'axios';
-import { KALSHI_API_URL, KALSHI_DEMO_API_URL, DEMO_MODE } from '../config';
+import { 
+  KALSHI_API_URL, 
+  KALSHI_DEMO_API_URL, 
+  DEMO_MODE 
+} from '../config';
 
 /**
  * Base client for Kalshi API with common functionality

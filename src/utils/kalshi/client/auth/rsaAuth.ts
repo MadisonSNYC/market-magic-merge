@@ -1,5 +1,13 @@
 
 /**
+ * RSA Authentication options for Kalshi API
+ */
+export interface RsaAuthOptions {
+  keyId: string;
+  privateKey: string;
+}
+
+/**
  * Generate Kalshi API authentication headers using RSA
  * @param rsaOptions RSA authentication options
  * @param method HTTP method
@@ -7,7 +15,7 @@
  * @returns Object with authentication headers
  */
 export function generateKalshiAuthHeaders(
-  rsaOptions: any,
+  rsaOptions: RsaAuthOptions,
   method: string,
   path: string
 ): Record<string, string> {

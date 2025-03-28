@@ -1,7 +1,8 @@
 
 import { RateLimitedClient } from './rateLimitedClient';
 import { HttpClient } from './httpClient';
-import { KALSHI_API_BASE_URL } from '../config';
+import { KALSHI_API_URL, KALSHI_DEMO_API_URL, DEMO_MODE } from '../config';
+import { CoreClientOptions } from './types';
 
 /**
  * Base class for all Kalshi API clients
@@ -12,13 +13,13 @@ export class BaseKalshiClient {
   protected mockMode: boolean;
   protected rateLimitedClient: RateLimitedClient;
   
-  constructor(options: { apiKey?: string; mockMode?: boolean; baseUrl?: string } = {}) {
+  constructor(options: CoreClientOptions = {}) {
     this.apiKey = options.apiKey;
     this.mockMode = options.mockMode || false;
-    this.baseUrl = options.baseUrl || KALSHI_API_BASE_URL;
+    this.baseUrl = options.baseUrl || (this.mockMode || DEMO_MODE ? KALSHI_DEMO_API_URL : KALSHI_API_URL);
     
     // Initialize HTTP client
-    const httpClient = new HttpClient(this.baseUrl, this.apiKey);
+    const httpClient = new HttpClient(this.baseUrl, this.apiKey, options.rsaOptions);
     this.rateLimitedClient = new RateLimitedClient(httpClient);
   }
   

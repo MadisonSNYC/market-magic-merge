@@ -1,8 +1,19 @@
 
-import { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import { RsaAuthOptions } from './auth/rsaAuth';
 
 /**
- * Rate limit tiers definitions
+ * Core client options interface
+ */
+export interface CoreClientOptions {
+  apiKey?: string;
+  rsaOptions?: RsaAuthOptions;
+  baseUrl?: string;
+  mockMode?: boolean;
+  rateLimitTier?: RateLimitTier;
+}
+
+/**
+ * Rate limit tiers
  */
 export const RATE_LIMIT_TIERS = {
   standard: {
@@ -22,22 +33,18 @@ export const RATE_LIMIT_TIERS = {
 export type RateLimitTier = keyof typeof RATE_LIMIT_TIERS;
 
 /**
- * Options for core client
+ * Rate limit usage tracking interface
  */
-export interface CoreClientOptions {
-  baseUrl?: string;
-  apiKey?: string;
-  rsaOptions?: any;
-}
-
-/**
- * Response with pagination
- */
-export interface PaginatedResponse<T> {
-  data: T[];
-  cursor?: string;
-  page_number?: number;
-  total_pages?: number;
-  page_size?: number;
-  total_count?: number;
+export interface RateLimitUsage {
+  reads: {
+    used: number;
+    remaining: number;
+    limit: number;
+  };
+  writes: {
+    used: number;
+    remaining: number;
+    limit: number;
+  };
+  resetAt?: Date;
 }

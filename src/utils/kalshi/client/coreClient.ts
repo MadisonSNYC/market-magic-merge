@@ -8,7 +8,37 @@ import { RsaAuthOptions } from './auth/rsaAuth';
 import { HttpClient } from './httpClient';
 import { RateLimitedClient } from './rateLimitedClient';
 import { ClientFactory } from './clientFactory';
-import { RATE_LIMIT_TIERS, RateLimitTier, CoreClientOptions } from './types';
+
+/**
+ * Rate limit tiers definitions
+ */
+export const RATE_LIMIT_TIERS = {
+  standard: {
+    reads: 100,
+    writes: 50
+  },
+  pro: {
+    reads: 500,
+    writes: 250
+  },
+  enterprise: {
+    reads: 2000,
+    writes: 1000
+  }
+};
+
+export type RateLimitTier = keyof typeof RATE_LIMIT_TIERS;
+
+/**
+ * Core Kalshi API client options
+ */
+export interface CoreClientOptions {
+  apiKey?: string;
+  rsaOptions?: RsaAuthOptions;
+  baseUrl?: string;
+  mockMode?: boolean;
+  rateLimitTier?: RateLimitTier;
+}
 
 /**
  * Core Kalshi API client
@@ -18,7 +48,7 @@ export class KalshiCoreClient {
   private readonly httpClient: HttpClient;
   private readonly rateLimitedClient: RateLimitedClient;
   
-  // Client properties
+  // Client properties will be added by ClientFactory
   public readonly marketClient;
   public readonly userClient;
   public readonly metaClient;
