@@ -1,5 +1,5 @@
 
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosHeaders } from 'axios';
 import { KALSHI_API_URL, KALSHI_DEMO_API_URL, DEMO_MODE } from '../config';
 import { RsaAuthOptions, generateKalshiAuthHeaders } from './auth/rsaAuth';
 import { KalshiMarketClient } from './marketClient';
@@ -16,8 +16,11 @@ import { KalshiExchangeClient } from './exchangeClient';
 import { KalshiSeriesClient } from './seriesClient';
 import { CoreClientOptions, RateLimitTier, RATE_LIMIT_TIERS } from './types';
 
+// Define auth method type
+type AuthMethod = 'api_key' | 'rsa';
+
 // Import auth method from config (make sure this is exported in config.ts)
-const AUTH_METHOD = 'api_key'; // Default value
+const AUTH_METHOD: AuthMethod = 'api_key'; // Default value
 
 /**
  * Core Kalshi API client
@@ -66,7 +69,7 @@ export class KalshiCoreClient {
     
     // Initialize all client instances with the API key
     this.marketClient = new KalshiMarketClient(this.apiKey);
-    this.userClient = new KalshiUserClient({ apiKey: this.apiKey });
+    this.userClient = new KalshiUserClient(this.apiKey);
     this.metaClient = new KalshiMetaClient(this.apiKey);
     this.tradeClient = new KalshiTradeClient(this.apiKey);
     this.eventClient = new KalshiEventClient(this.apiKey);
@@ -81,21 +84,25 @@ export class KalshiCoreClient {
     // Add request interceptor to handle authentication
     this.client.interceptors.request.use(
       (config) => {
+        // Ensure headers object exists
+        if (!config.headers) {
+          config.headers = new AxiosHeaders();
+        }
+        
         // Add authentication headers
         if (AUTH_METHOD === 'rsa' && this.rsaOptions) {
           const path = config.url || '';
           const method = config.method?.toUpperCase() || 'GET';
           const authHeaders = generateKalshiAuthHeaders(this.rsaOptions, method, path);
           
-          config.headers = {
-            ...config.headers,
-            ...authHeaders
-          };
+          // Add each header individually
+          Object.entries(authHeaders).forEach(([key, value]) => {
+            if (config.headers && value) {
+              config.headers.set(key, value);
+            }
+          });
         } else if (this.apiKey) {
-          config.headers = {
-            ...config.headers,
-            'Authorization': `Bearer ${this.apiKey}`
-          };
+          config.headers.set('Authorization', `Bearer ${this.apiKey}`);
         }
         
         return config;

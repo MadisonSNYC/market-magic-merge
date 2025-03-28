@@ -1,5 +1,5 @@
 
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosHeaders } from 'axios';
 import { generateKalshiAuthHeaders, RsaAuthOptions } from './auth/rsaAuth';
 
 /**
@@ -25,21 +25,25 @@ export class HttpClient {
     
     // Add authentication interceptor
     this.client.interceptors.request.use((config) => {
+      // Ensure headers object exists
+      if (!config.headers) {
+        config.headers = new AxiosHeaders();
+      }
+      
       // Add authentication headers
       if (options?.authMethod === 'rsa' && this.rsaOptions) {
         const path = config.url || '';
         const method = config.method?.toUpperCase() || 'GET';
         const authHeaders = generateKalshiAuthHeaders(this.rsaOptions, method, path);
         
-        config.headers = {
-          ...config.headers,
-          ...authHeaders
-        };
+        // Add each header individually
+        Object.entries(authHeaders).forEach(([key, value]) => {
+          if (config.headers && value) {
+            config.headers.set(key, value);
+          }
+        });
       } else if (this.apiKey) {
-        config.headers = {
-          ...config.headers,
-          'Authorization': `Bearer ${this.apiKey}`
-        };
+        config.headers.set('Authorization', `Bearer ${this.apiKey}`);
       }
       
       return config;

@@ -30,21 +30,26 @@ declare global {
     function mock(moduleName: string): any;
     function fn<T = any>(): jest.Mock<T>;
     
-    function spyOn(object: any, methodName: string): {
-      mockReturnValue(value: any): any;
-      mockResolvedValue(value: any): any;
-      mockImplementation(fn: (...args: any[]) => any): any;
-      mockRejectedValue(error: any): any;
-      mockResolvedValueOnce(value: any): any;
+    type SpyInstance<T = any, Y extends any[] = any[]> = {
+      (...args: Y): T;
+      mockReturnValue(value: T): SpyInstance<T, Y>;
+      mockImplementation(fn: (...args: Y) => T): SpyInstance<T, Y>;
+      mockResolvedValue(value: T): SpyInstance<T, Y>;
+      mockRejectedValue(error: any): SpyInstance<T, Y>;
     };
     
-    type Mock<T = any> = {
-      (...args: any[]): any;
-      mockReturnValue(value: any): Mock<T>;
-      mockResolvedValue(value: any): Mock<T>;
-      mockImplementation(fn: (...args: any[]) => any): Mock<T>;
-      mockRejectedValue(error: any): Mock<T>;
-      mockResolvedValueOnce(value: any): Mock<T>;
+    function spyOn<T, M extends keyof T>(
+      object: T, 
+      method: M
+    ): SpyInstance<ReturnType<T[M]>, Parameters<T[M]>>;
+    
+    type Mock<T = any, Y extends any[] = any[]> = {
+      (...args: Y): T;
+      mockReturnValue(value: T): Mock<T, Y>;
+      mockResolvedValue(value: T): Mock<T, Y>;
+      mockImplementation(fn: (...args: Y) => T): Mock<T, Y>;
+      mockRejectedValue(error: any): Mock<T, Y>;
+      mockResolvedValueOnce(value: T): Mock<T, Y>;
     };
     
     // Fix Mocked type
@@ -54,7 +59,7 @@ declare global {
         : T[P];
     } & T;
     
-    // Add missing matchers
+    // Add these matchers to the global namespace
     const objectContaining: (expected: object) => any;
     const stringContaining: (expected: string) => any;
   }

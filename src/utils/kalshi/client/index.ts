@@ -1,6 +1,6 @@
 
 // Explicitly export types
-export { CoreClientOptions, RateLimitTier, RateLimitUsage } from './types';
+export type { CoreClientOptions, RateLimitTier, RateLimitUsage } from './types';
 
 // Export type-specific constants separately to avoid conflicts
 export { RATE_LIMIT_TIERS } from './types';

@@ -1,70 +1,43 @@
 
 import { BaseKalshiClient } from './baseClient';
-import { KalshiApiTrade, KalshiTrade, KalshiTradeResponse, TradeParams } from '../types/trades';
-
-// Transform API response to our KalshiTrade format
-const transformApiTrade = (apiTrade: KalshiApiTrade): KalshiTrade => {
-  return {
-    id: apiTrade.trade_id,
-    ticker: apiTrade.ticker,
-    timestamp: apiTrade.ts,
-    price: apiTrade.price / 100, // Convert from cents to decimal
-    count: apiTrade.count,
-    side: apiTrade.side.toLowerCase() as 'yes' | 'no',
-    type: apiTrade.type,
-    strikePrice: apiTrade.strike_price
-  };
-};
 
 /**
- * Kalshi Trades API client
+ * Client for interacting with Kalshi trade API endpoints 
  */
 export class KalshiTradeClient extends BaseKalshiClient {
   constructor(apiKey?: string) {
-    super({ apiKey, mockMode: false });
+    super('', apiKey);
   }
   
-  async getTrades(params?: TradeParams): Promise<{
-    trades: KalshiTrade[];
-    cursor: string;
-  }> {
+  /**
+   * Get trades with optional filtering
+   * @param params - Optional filter parameters
+   * @returns List of trades or null if the request fails
+   */
+  async getTrades(params?: Record<string, any>) {
     try {
-      // Convert our camelCase parameter names to snake_case for the API
-      const apiParams: Record<string, string | number | undefined> = {};
-      
-      if (params) {
-        if (params.limit) apiParams.limit = params.limit;
-        if (params.cursor) apiParams.cursor = params.cursor;
-        if (params.ticker) apiParams.ticker = params.ticker;
-        if (params.max_ts) apiParams.max_ts = params.max_ts;
-        if (params.min_ts) apiParams.min_ts = params.min_ts;
-      }
-      
-      const response = await this.rateLimitedGet<KalshiTradeResponse>(
-        `${this.baseUrl}/markets/trades`, 
-        apiParams
-      );
-      
-      return {
-        trades: response.trades.map(transformApiTrade),
-        cursor: response.cursor
-      };
+      const url = '/trades';
+      const response = await this.rateLimitedGet(url, params);
+      return response;
     } catch (error) {
-      console.error("Error fetching trades from Kalshi API:", error);
-      return {
-        trades: [],
-        cursor: ''
-      };
+      console.error('Error fetching trades:', error);
+      return null;
     }
   }
   
-  async getTradesByMarket(marketId: string, params?: Omit<TradeParams, 'ticker'>): Promise<{
-    trades: KalshiTrade[];
-    cursor: string;
-  }> {
-    return this.getTrades({
-      ...params,
-      ticker: marketId
-    });
+  /**
+   * Get trades for a specific market
+   * @param ticker - The market ticker to filter by
+   * @param params - Additional filter parameters
+   * @returns List of trades for the market
+   */
+  async getTradesByMarket(ticker: string, params?: Record<string, any>) {
+    try {
+      const marketParams = { ticker, ...params };
+      return await this.getTrades(marketParams);
+    } catch (error) {
+      console.error(`Error fetching trades for market ${ticker}:`, error);
+      return null;
+    }
   }
 }
