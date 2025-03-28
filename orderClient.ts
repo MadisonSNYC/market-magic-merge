@@ -172,8 +172,23 @@ export class OrderClient extends BaseUserClient {
    */
   async amendOrder(orderId: string, amendRequest: { price: number; count: number }): Promise<AmendOrderResponse> {
     try {
+      if (!orderId) {
+        throw new Error("Order ID is required for amendment");
+      }
+      
+      if (!amendRequest.price || !amendRequest.count) {
+        throw new Error("Both price and count are required for order amendment");
+      }
+      
+      console.log(`Attempting to amend order ${orderId} to price: ${amendRequest.price}, count: ${amendRequest.count}`);
+      
       const url = `${this.baseUrl}/portfolio/orders/${orderId}/amend`;
-      return this.rateLimitedPost<AmendOrderResponse>(url, amendRequest);
+      const response = await this.rateLimitedPost<AmendOrderResponse>(url, amendRequest);
+      
+      // Log successful amendment
+      console.log(`Successfully amended order ${orderId}, new order_id: ${response.order_id}`);
+      
+      return response;
     } catch (error) {
       console.error(`Error amending order ${orderId} in Kalshi API:`, error);
       throw error;
@@ -188,8 +203,23 @@ export class OrderClient extends BaseUserClient {
    */
   async decreaseOrder(orderId: string, decreaseRequest: { count: number }): Promise<DecreaseOrderResponse> {
     try {
+      if (!orderId) {
+        throw new Error("Order ID is required for decreasing quantity");
+      }
+      
+      if (!decreaseRequest.count || decreaseRequest.count <= 0) {
+        throw new Error("Positive count value is required for decreasing order quantity");
+      }
+      
+      console.log(`Attempting to decrease order ${orderId} by ${decreaseRequest.count} contracts`);
+      
       const url = `${this.baseUrl}/portfolio/orders/${orderId}/decrease`;
-      return this.rateLimitedPost<DecreaseOrderResponse>(url, decreaseRequest);
+      const response = await this.rateLimitedPost<DecreaseOrderResponse>(url, decreaseRequest);
+      
+      // Log successful decrease
+      console.log(`Successfully decreased order ${orderId}, updated order_id: ${response.order_id}`);
+      
+      return response;
     } catch (error) {
       console.error(`Error decreasing order ${orderId} in Kalshi API:`, error);
       throw error;
