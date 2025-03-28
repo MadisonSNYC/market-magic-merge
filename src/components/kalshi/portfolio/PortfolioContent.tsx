@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useKalshi } from '@/utils/kalshi/KalshiProvider';
 import { usePortfolio } from '@/contexts/portfolio/PortfolioContext';
@@ -11,8 +10,7 @@ import { PortfolioBalanceCard } from './PortfolioBalanceCard';
 import { PortfolioHelp } from './PortfolioHelp';
 import { PortfolioHistory } from './PortfolioHistory';
 import { useToast } from '@/hooks/use-toast';
-import { Position } from './PortfolioPositions';
-import { KalshiPosition } from '@/utils/kalshi/types/portfolio';
+import { Position, KalshiPosition } from '@/utils/kalshi/types/portfolio';
 
 export function PortfolioContent() {
   const { toast } = useToast();
