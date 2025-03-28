@@ -1,5 +1,5 @@
 
-import { BaseClient } from './BaseClient';
+import { BaseUserClient } from './user/baseUserClient';
 import { OrderClient } from './orders/orderClient';
 import { BatchClient } from './batch/batchClient';
 import { FillsClient } from './user/fillsClient';
@@ -9,7 +9,7 @@ import { KalshiPosition, KalshiAiRecommendation, KalshiBalanceResponse } from '.
  * Kalshi User-related API client (portfolio, positions, orders)
  * This class combines all user-related functionality from the specialized clients
  */
-export class KalshiUserClient extends BaseClient {
+export class KalshiUserClient extends BaseUserClient {
   private orderClient: OrderClient;
   private batchClient: BatchClient;
   private fillsClient: FillsClient;

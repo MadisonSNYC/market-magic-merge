@@ -1,53 +1,111 @@
 
 import { BaseBatchClient } from './baseBatchClient';
-import { BatchOrderCreationClient } from './batchOrderCreationClient';
-import { BatchOrderCancellationClient } from './batchOrderCancellationClient';
 import { AccountSummaryClient } from './accountSummaryClient';
-import { 
-  BatchCreateOrdersRequest, 
-  BatchCreateOrdersResponse,
-  BatchCancelOrdersRequest, 
-  BatchCancelOrdersResponse
-} from '../../types/orders';
 
 /**
- * Combined client for all batch operations
+ * Client for batch operations
+ * Combines functionality from specialized batch clients
  */
 export class BatchClient extends BaseBatchClient {
-  private readonly orderCreationClient: BatchOrderCreationClient;
-  private readonly orderCancellationClient: BatchOrderCancellationClient;
-  private readonly accountSummaryClient: AccountSummaryClient;
+  private accountSummaryClient: AccountSummaryClient;
   
   constructor(options: { apiKey?: string; mockMode?: boolean; baseUrl?: string } = {}) {
     super(options);
-    this.orderCreationClient = new BatchOrderCreationClient(options);
-    this.orderCancellationClient = new BatchOrderCancellationClient(options);
     this.accountSummaryClient = new AccountSummaryClient(options);
   }
   
   /**
-   * Create multiple orders in a single request
-   * @param batchRequest Array of orders to create
-   * @returns Response with created orders and any failures
+   * Batch create orders
    */
-  async batchCreateOrders(batchRequest: BatchCreateOrdersRequest): Promise<BatchCreateOrdersResponse> {
-    return this.orderCreationClient.batchCreateOrders(batchRequest);
+  async batchCreateOrders(batchRequest: any) {
+    try {
+      const response = await this.makeRequest(
+        '/portfolio/orders/batch',
+        {
+          method: 'POST',
+          body: JSON.stringify(batchRequest)
+        }
+      );
+      return response;
+    } catch (error) {
+      console.error('Error creating batch orders:', error);
+      throw error;
+    }
   }
   
   /**
-   * Cancel multiple orders in a single request
-   * @param batchCancelRequest Array of order IDs to cancel
-   * @returns Response with successful and failed cancellations
+   * Batch cancel orders
    */
-  async batchCancelOrders(batchCancelRequest: BatchCancelOrdersRequest): Promise<BatchCancelOrdersResponse> {
-    return this.orderCancellationClient.batchCancelOrders(batchCancelRequest);
+  async batchCancelOrders(batchRequest: any) {
+    try {
+      const response = await this.makeRequest(
+        '/portfolio/orders/batch/cancel',
+        {
+          method: 'POST',
+          body: JSON.stringify(batchRequest)
+        }
+      );
+      return response;
+    } catch (error) {
+      console.error('Error cancelling batch orders:', error);
+      throw error;
+    }
   }
   
   /**
    * Get total value of all resting orders
-   * @returns Total value of resting orders in cents
+   * Delegates to AccountSummaryClient
    */
   async getTotalRestingOrderValue(): Promise<number> {
     return this.accountSummaryClient.getTotalRestingOrderValue();
   }
 }
+
+// Export the batch order creation client
+export class BatchOrderCreationClient extends BaseBatchClient {
+  constructor(options: { apiKey?: string; mockMode?: boolean; baseUrl?: string } = {}) {
+    super(options);
+  }
+  
+  async createOrders(batchRequest: any) {
+    try {
+      const response = await this.makeRequest(
+        '/portfolio/orders/batch',
+        {
+          method: 'POST',
+          body: JSON.stringify(batchRequest)
+        }
+      );
+      return response;
+    } catch (error) {
+      console.error('Error creating batch orders:', error);
+      throw error;
+    }
+  }
+}
+
+// Export the batch order cancellation client
+export class BatchOrderCancellationClient extends BaseBatchClient {
+  constructor(options: { apiKey?: string; mockMode?: boolean; baseUrl?: string } = {}) {
+    super(options);
+  }
+  
+  async cancelOrders(batchRequest: any) {
+    try {
+      const response = await this.makeRequest(
+        '/portfolio/orders/batch/cancel',
+        {
+          method: 'POST',
+          body: JSON.stringify(batchRequest)
+        }
+      );
+      return response;
+    } catch (error) {
+      console.error('Error cancelling batch orders:', error);
+      throw error;
+    }
+  }
+}
+
+// Export AccountSummaryClient (this will be re-exported)
+export { AccountSummaryClient } from './accountSummaryClient';

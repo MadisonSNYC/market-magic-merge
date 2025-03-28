@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -17,7 +18,7 @@ const Portfolio = () => {
     const timer = setTimeout(() => {
       const mockPositions: KalshiPosition[] = [
         {
-          marketId: 'BTC-PRICE-7PM',
+          market_id: 'BTC-PRICE-7PM',
           yes: 10,
           no: 0,
           value: 650,
@@ -28,7 +29,7 @@ const Portfolio = () => {
           payout: 1000
         },
         {
-          marketId: 'ETH-PRICE-5PM',
+          market_id: 'ETH-PRICE-5PM',
           yes: 0,
           no: 8,
           value: 176,
@@ -39,7 +40,7 @@ const Portfolio = () => {
           payout: 800
         },
         {
-          marketId: 'SP500-EOD',
+          market_id: 'SP500-EOD',
           yes: 5,
           no: 0,
           value: 375,
@@ -170,7 +171,7 @@ const Portfolio = () => {
                 ) : filteredPositions.length > 0 ? (
                   <div className="space-y-4">
                     {filteredPositions.map((position) => (
-                      <div key={position.marketId} className="flex flex-col sm:flex-row border rounded p-4 items-start sm:items-center justify-between">
+                      <div key={position.market_id} className="flex flex-col sm:flex-row border rounded p-4 items-start sm:items-center justify-between">
                         <div className="space-y-1 mb-3 sm:mb-0">
                           <h3 className="font-semibold">{position.title}</h3>
                           <div className="flex items-center text-sm text-muted-foreground">
@@ -221,3 +222,4 @@ const Portfolio = () => {
 };
 
 export default Portfolio;
+

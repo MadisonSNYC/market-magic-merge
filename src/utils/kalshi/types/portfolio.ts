@@ -1,12 +1,12 @@
 
 export interface KalshiPosition {
   market_id: string;
-  ticker: string;
+  ticker?: string;
   title?: string;
   market_title?: string;
-  side: "yes" | "no";  // Position outcome
-  contracts: number;  // Positive number representing quantity
-  average_price: number;  // Average entry price in cents
+  side?: "yes" | "no";  // Position outcome
+  contracts?: number;  // Positive number representing quantity
+  average_price?: number;  // Average entry price in cents
   current_price?: number;  // Current market price
   value: number;  // Current position value in cents
   cost?: number;  // Total cost of position in cents
@@ -16,6 +16,7 @@ export interface KalshiPosition {
   yes: number;  // Number of YES contracts held
   no: number;   // Number of NO contracts held
   payout?: number;  // Potential payout
+  price?: number;  // Price field
 }
 
 export interface Position {
