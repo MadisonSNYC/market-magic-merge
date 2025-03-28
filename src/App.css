@@ -64,3 +64,25 @@
   box-shadow: 0 10px 15px -3px rgba(211, 162, 246, 0.2), 0 4px 6px -2px rgba(211, 162, 246, 0.1);
   transform: translateY(-2px);
 }
+
+/* Kanban container for strategies page */
+.kanban-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.kanban-card {
+  background: linear-gradient(to bottom right, #fff, #f5f3ff);
+  border: 1px solid rgba(211, 162, 246, 0.1);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  box-shadow: 0 4px 6px -1px rgba(211, 162, 246, 0.1), 0 2px 4px -1px rgba(211, 162, 246, 0.06);
+  transition: all 0.3s ease;
+}
+
+.kanban-card:hover {
+  box-shadow: 0 10px 15px -3px rgba(211, 162, 246, 0.2), 0 4px 6px -2px rgba(211, 162, 246, 0.1);
+  transform: translateY(-2px);
+}
