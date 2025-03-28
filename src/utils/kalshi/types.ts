@@ -42,3 +42,71 @@ export interface KalshiMarket {
   liquidity?: number;
   close_time?: string;
 }
+
+// Collection related types
+export interface KalshiCollection {
+  ticker: string;
+  title: string;
+  description?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface KalshiCollectionResponse {
+  cursor: string;
+  collections: KalshiCollection[];
+}
+
+export interface CollectionParams {
+  limit?: number;
+  cursor?: string;
+  status?: string;
+  associatedEventTicker?: string;
+  seriesTicker?: string;
+}
+
+export interface CollectionSelectedMarket {
+  id: string;
+  value?: number;
+  event_ticker: string;
+  market_ticker: string;
+  side?: string;
+}
+
+export interface CreateMarketInCollectionRequest {
+  selected_markets: CollectionSelectedMarket[];
+}
+
+export interface CreateMarketInCollectionResponse {
+  market_ticker: string;
+}
+
+export interface CollectionLookupParams {
+  lookback_seconds: number;
+}
+
+export interface CollectionLookupHistoryResponse {
+  tickers: string[];
+  values: number[][];
+  timestamps: number[];
+}
+
+export interface LookupMarketInCollectionRequest {
+  selected_markets: CollectionSelectedMarket[];
+}
+
+export interface LookupMarketInCollectionResponse {
+  model_prices: any[];
+}
+
+// Exchange status type
+export interface KalshiExchangeStatus {
+  status: string;
+  message?: string;
+  maintenance_scheduled?: {
+    start_time: string;
+    end_time: string;
+    message: string;
+    affected_features: string[];
+  };
+}

@@ -1,69 +1,24 @@
 
 import { BaseKalshiClient } from './baseClient';
 import { formatApiParameters } from './parameterFormatter';
-
-// Define the types that were missing before
-export interface KalshiCollection {
-  ticker: string;
-  title: string;
-  description?: string;
-  created_at?: string;
-  updated_at?: string;
-}
-
-export interface KalshiCollectionResponse {
-  cursor: string;
-  collections: KalshiCollection[];
-}
-
-export interface CollectionParams {
-  limit?: number;
-  cursor?: string;
-  status?: string;
-  associatedEventTicker?: string;
-  seriesTicker?: string;
-}
-
-export interface CollectionSelectedMarket {
-  id: string;
-  value?: number;
-  event_ticker: string;
-  market_ticker: string;
-  side?: string;
-}
-
-export interface CreateMarketInCollectionRequest {
-  selected_markets: CollectionSelectedMarket[];
-}
-
-export interface CreateMarketInCollectionResponse {
-  market_ticker: string;
-}
-
-export interface CollectionLookupParams {
-  lookback_seconds: number;
-}
-
-export interface CollectionLookupHistoryResponse {
-  tickers: string[];
-  values: number[][];
-  timestamps: number[];
-}
-
-export interface LookupMarketInCollectionRequest {
-  selected_markets: CollectionSelectedMarket[];
-}
-
-export interface LookupMarketInCollectionResponse {
-  model_prices: any[];
-}
+import { 
+  KalshiCollection, 
+  KalshiCollectionResponse, 
+  CollectionParams, 
+  CreateMarketInCollectionRequest,
+  CreateMarketInCollectionResponse,
+  CollectionLookupParams,
+  CollectionLookupHistoryResponse,
+  LookupMarketInCollectionRequest,
+  LookupMarketInCollectionResponse
+} from './kalshi/types';
 
 /**
  * Client for interacting with Kalshi multivariate event collections
  */
 export class KalshiCollectionClient extends BaseKalshiClient {
-  constructor(apiKey?: string) {
-    super(apiKey);
+  constructor(baseUrl: string, apiKey?: string) {
+    super(baseUrl, apiKey);
   }
 
   /**

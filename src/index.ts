@@ -1,116 +1,48 @@
-// Use explicit named exports to avoid ambiguity
-export type {
-  KalshiApiResponse,
-  KalshiApiVersionResponse,
-  KalshiCommunicationsIdResponse,
-  FillsParams,
-  OrdersParams,
-  BatchCreateOrdersRequest,
-  BatchCancelOrdersRequest,
-  AmendOrderRequest,
-  DecreaseOrderRequest,
-  BatchCreateOrdersResponse,
-  BatchCancelOrdersResponse,
-  GetOrderResponse,
-  CancelOrderResponse,
-  AmendOrderResponse,
-  DecreaseOrderResponse,
-  KalshiBalanceResponse,
-  KalshiFillsResponse,
-  KalshiOrdersResponse,
-  CreateOrderResponse,
-  KalshiFill
-} from './common';
 
-export type {
-  KalshiEvent,
-  KalshiApiEvent,
-  KalshiApiEventsResponse
-} from './events';
+// Re-export all types and clients
+import { KalshiApiClientCore } from './KalshiApiClientCore';
+import { KalshiApiClientBase } from './KalshiApiClientBase';
 
-export type {
-  KalshiMarket,
-  KalshiApiMarket,
-  KalshiOrder,
-  KalshiOrderbook,
-  OrderbookLevel,
-  Candlestick,
-  CandlestickParams,
-  KalshiCandlesticksResponse
-} from './markets';
+// Export the main API clients
+export { KalshiApiClientCore as KalshiApiClient };
+export { KalshiApiClientBase };
 
-export type {
-  KalshiSeries,
-  KalshiApiSeries,
-  KalshiSeriesResponse,
-  SeriesParams
-} from './series';
+// Export all types
+export * from './utils/kalshi/types';
 
-export type {
-  KalshiPosition,
-  KalshiPortfolioData,
-  Position,
-  KalshiAiRecommendation,
-  KalshiTrade as PortfolioTrade
-} from './portfolio';
+// Include all type definitions
+// Common types
+export const COMMON_TYPES = 'common';
 
-export type {
-  KalshiQuote,
-  KalshiQuotesResponse,
-  KalshiQuoteResponse,
-  KalshiCreateQuoteRequest,
-  KalshiCreateQuoteResponse,
-  KalshiAcceptQuoteRequest,
-  KalshiAcceptQuoteResponse,
-  KalshiConfirmQuoteResponse
-} from './quotes';
+// Event types
+export const EVENT_TYPES = 'events';
 
-export type {
-  KalshiRfq,
-  KalshiRfqsResponse,
-  KalshiRfqResponse,
-  KalshiCreateRfqRequest,
-  KalshiCreateRfqResponse
-} from './rfqs';
+// Market types
+export const MARKET_TYPES = 'markets';
 
-export type {
-  StructuredTarget
-} from './structured_targets';
+// Series types
+export const SERIES_TYPES = 'series';
 
-export type {
-  KalshiTrade,
-  KalshiApiTrade,
-  KalshiTradeResponse,
-  TradeParams
-} from './trades';
+// Portfolio types
+export const PORTFOLIO_TYPES = 'portfolio';
 
-export type {
-  CollectionParams,
-  KalshiCollection,
-  KalshiCollectionResponse,
-  CollectionSelectedMarket,
-  SelectedMarket,
-  LookupParams,
-  CreateMarketRequest,
-  CreateMarketResponse,
-  LookupMarketRequest,
-  LookupMarketResponse,
-  LookupHistoryResponse,
-  CreateMarketInCollectionRequest,
-  CreateMarketInCollectionResponse,
-  LookupMarketInCollectionRequest,
-  LookupMarketInCollectionResponse,
-  CollectionLookupParams,
-  CollectionLookupHistoryResponse
-} from './collections';
+// Quote types
+export const QUOTE_TYPES = 'quotes';
 
-export type {
-  KalshiAnnouncement,
-  KalshiAnnouncementsResponse,
-  KalshiExchangeScheduleDay,
-  KalshiExchangeSchedule,
-  KalshiExchangeStatus,
-  KalshiMilestone,
-  KalshiMilestonesResponse,
-  KalshiMilestoneParams
-} from './exchange';
+// RFQ types
+export const RFQ_TYPES = 'rfqs';
+
+// Structured targets types
+export const STRUCTURED_TARGET_TYPES = 'structured_targets';
+
+// Trade types
+export const TRADE_TYPES = 'trades';
+
+// Collection types
+export const COLLECTION_TYPES = 'collections';
+
+// Exchange types
+export const EXCHANGE_TYPES = 'exchange';
+
+// Re-export base client for extension
+export { BaseKalshiClient } from './utils/baseClient';
