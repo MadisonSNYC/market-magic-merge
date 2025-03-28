@@ -1,8 +1,9 @@
-// Basic types for Kalshi API responses
+
+// Basic types for Kalshi API responses - Updated for v3
 
 // Market-related types
 export interface KalshiApiMarket {
-  ticker: string;
+  ticker: string;  // Primary identifier in v3
   title: string;
   subtitle?: string;
   category?: string;
@@ -17,11 +18,22 @@ export interface KalshiApiMarket {
   open_interest?: number;
   event_ticker?: string;
   series_ticker?: string;
+  // New fields in v3
+  settlement_time?: string;
+  settlement_value?: string;
+  category_ticker?: string;
+  rules_primary?: string;
+  rules_secondary?: string;
+  visibility?: string;
 }
 
 export interface KalshiMarketResponse {
   markets: KalshiApiMarket[];
   cursor?: string;
+  page_number?: number;
+  total_pages?: number;
+  page_size?: number;
+  total_count?: number;
 }
 
 // Order-related types
@@ -37,6 +49,10 @@ export interface KalshiApiResponse<T> {
   data: T;
   status: string;
   cursor?: string;
+  page_number?: number;
+  total_pages?: number;
+  page_size?: number;
+  total_count?: number;
 }
 
 // Candlestick data
@@ -74,6 +90,8 @@ export interface KalshiCollection {
 export interface KalshiCollectionResponse {
   collections: KalshiCollection[];
   cursor?: string;
+  page_number?: number;
+  total_pages?: number;
 }
 
 export interface CollectionParams {
@@ -144,6 +162,8 @@ export interface KalshiRfq {
 export interface KalshiRfqsResponse {
   rfqs: KalshiRfq[];
   cursor?: string;
+  page_number?: number;
+  total_pages?: number;
 }
 
 export interface KalshiRfqResponse {
@@ -179,6 +199,8 @@ export interface KalshiQuote {
 export interface KalshiQuotesResponse {
   quotes: KalshiQuote[];
   cursor?: string;
+  page_number?: number;
+  total_pages?: number;
 }
 
 export interface KalshiQuoteResponse {
@@ -214,7 +236,7 @@ export interface KalshiConfirmQuoteResponse {
   quote?: KalshiQuote;
 }
 
-// Add the missing KalshiBalanceResponse type
+// Balance response
 export interface KalshiBalanceResponse {
   balance: number;
   portfolio_value: number;
@@ -222,4 +244,42 @@ export interface KalshiBalanceResponse {
   reserved_fees: number;
   bonus_balance: number;
   reserved_margin: number;
+}
+
+// Event types
+export interface KalshiApiEvent {
+  ticker: string;
+  title: string;
+  description?: string;
+  category?: string;
+  status: string;
+  markets?: KalshiApiMarket[];
+  series_ticker?: string;
+  close_time?: string;
+}
+
+export interface KalshiEventResponse {
+  events: KalshiApiEvent[];
+  cursor?: string;
+  page_number?: number;
+  total_pages?: number;
+}
+
+// Series types
+export interface KalshiApiSeries {
+  ticker: string;
+  series_ticker?: string;
+  title: string;
+  description?: string;
+  subtitle?: string;
+  category?: string;
+}
+
+export interface KalshiSeries {
+  ticker: string;
+  title: string;
+  description?: string;
+  subtitle?: string;
+  category?: string;
+  events: KalshiApiEvent[];
 }

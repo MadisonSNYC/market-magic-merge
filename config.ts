@@ -1,6 +1,7 @@
-// Update config.ts to include all required exports
-export const KALSHI_API_URL = 'https://api.elections.kalshi.com/trade-api/v2';
-export const KALSHI_DEMO_API_URL = 'https://demo-api.elections.kalshi.com/trade-api/v2';
+
+// Update config.ts to include all required exports with v3 endpoints
+export const KALSHI_API_URL = 'https://api.elections.kalshi.com/trade-api/v3';
+export const KALSHI_DEMO_API_URL = 'https://demo-api.elections.kalshi.com/trade-api/v3';
 export const DEMO_MODE = false;
 
 // Default rate limit tier
@@ -33,7 +34,7 @@ export const RATE_LIMIT_TIERS = {
   }
 };
 
-// API endpoints
+// API endpoints - Updated for v3
 export const API_ENDPOINTS = {
   // Market endpoints
   MARKETS: '/markets',

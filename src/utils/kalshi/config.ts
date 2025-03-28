@@ -1,9 +1,9 @@
 
 // Kalshi API configuration
 
-// API endpoints
-export const KALSHI_API_URL = 'https://api.elections.kalshi.com/trade-api/v2';
-export const KALSHI_DEMO_API_URL = 'https://demo-api.elections.kalshi.com/trade-api/v2';
+// API endpoints - Updated to v3
+export const KALSHI_API_URL = 'https://api.elections.kalshi.com/trade-api/v3';
+export const KALSHI_DEMO_API_URL = 'https://demo-api.elections.kalshi.com/trade-api/v3';
 
 // Default to demo mode when not authenticated
 export const DEMO_MODE = true; 

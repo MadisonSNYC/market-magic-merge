@@ -6,11 +6,13 @@ import type {
   KalshiMarketResponse,
   KalshiOrderbook,
   KalshiApiResponse,
-  KalshiBalanceResponse
+  KalshiBalanceResponse,
+  KalshiApiEvent,
+  KalshiEventResponse
 } from './types';
 
 /**
- * Simplified Kalshi API client
+ * Kalshi API client for v3
  */
 export class KalshiApiClient {
   private readonly baseUrl: string;
@@ -24,17 +26,20 @@ export class KalshiApiClient {
   }
 
   /**
-   * Get all markets with optional filters
+   * Get all markets with optional filters - Updated for v3 API
    */
   async getMarkets(params?: {
     limit?: number;
     cursor?: string;
-    eventTicker?: string;
-    seriesTicker?: string;
-    maxCloseTs?: number;
-    minCloseTs?: number;
+    page_number?: number;
+    page_size?: number;
+    event_ticker?: string;
+    series_ticker?: string;
+    max_close_ts?: number;
+    min_close_ts?: number;
     status?: string | string[];
     tickers?: string | string[];
+    category?: string;
   }): Promise<KalshiApiMarket[]> {
     if (this.mockMode) {
       return this.getMockMarkets();
@@ -43,14 +48,17 @@ export class KalshiApiClient {
     try {
       const formattedParams: Record<string, any> = {};
       if (params) {
-        if (params.eventTicker) formattedParams.event_ticker = params.eventTicker;
-        if (params.seriesTicker) formattedParams.series_ticker = params.seriesTicker;
-        if (params.maxCloseTs) formattedParams.max_close_ts = params.maxCloseTs;
-        if (params.minCloseTs) formattedParams.min_close_ts = params.minCloseTs;
+        if (params.event_ticker) formattedParams.event_ticker = params.event_ticker;
+        if (params.series_ticker) formattedParams.series_ticker = params.series_ticker;
+        if (params.max_close_ts) formattedParams.max_close_ts = params.max_close_ts;
+        if (params.min_close_ts) formattedParams.min_close_ts = params.min_close_ts;
         if (params.status) formattedParams.status = params.status;
         if (params.tickers) formattedParams.tickers = params.tickers;
+        if (params.category) formattedParams.category = params.category;
         if (params.limit) formattedParams.limit = params.limit;
         if (params.cursor) formattedParams.cursor = params.cursor;
+        if (params.page_number) formattedParams.page_number = params.page_number;
+        if (params.page_size) formattedParams.page_size = params.page_size;
       }
 
       const response = await this.makeRequest<KalshiMarketResponse>('/markets', { 
@@ -66,7 +74,7 @@ export class KalshiApiClient {
   }
 
   /**
-   * Get a specific market by ticker
+   * Get a specific market by ticker - Updated for v3 API
    */
   async getMarket(ticker: string): Promise<KalshiApiMarket | null> {
     if (this.mockMode) {
@@ -86,7 +94,7 @@ export class KalshiApiClient {
   }
 
   /**
-   * Get market orderbook
+   * Get market orderbook - Updated for v3 API
    */
   async getOrderbook(ticker: string): Promise<KalshiOrderbook | null> {
     if (this.mockMode) {
@@ -105,7 +113,7 @@ export class KalshiApiClient {
   }
 
   /**
-   * Get user's balance
+   * Get user's balance - Updated for v3 API
    */
   async getBalance(): Promise<KalshiBalanceResponse | null> {
     if (this.mockMode) {
@@ -131,7 +139,73 @@ export class KalshiApiClient {
   }
 
   /**
-   * Get user's positions
+   * Get events with optional filters - Updated for v3 API
+   */
+  async getEvents(params?: {
+    limit?: number;
+    cursor?: string;
+    page_number?: number;
+    page_size?: number;
+    series_ticker?: string;
+    status?: string;
+    category?: string;
+  }): Promise<KalshiApiEvent[]> {
+    if (this.mockMode) {
+      return this.getMockEvents();
+    }
+
+    try {
+      const formattedParams: Record<string, any> = {};
+      if (params) {
+        if (params.series_ticker) formattedParams.series_ticker = params.series_ticker;
+        if (params.status) formattedParams.status = params.status;
+        if (params.category) formattedParams.category = params.category;
+        if (params.limit) formattedParams.limit = params.limit;
+        if (params.cursor) formattedParams.cursor = params.cursor;
+        if (params.page_number) formattedParams.page_number = params.page_number;
+        if (params.page_size) formattedParams.page_size = params.page_size;
+      }
+
+      const response = await this.makeRequest<KalshiEventResponse>('/events', {
+        method: 'GET',
+        params: formattedParams
+      });
+
+      return response.events || [];
+    } catch (error) {
+      console.error('Error fetching events from Kalshi API:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get specific event by ticker - Updated for v3 API
+   */
+  async getEvent(eventTicker: string, includeMarkets: boolean = false): Promise<KalshiApiEvent | null> {
+    if (this.mockMode) {
+      const mockEvents = this.getMockEvents();
+      return mockEvents.find(e => e.ticker === eventTicker) || null;
+    }
+
+    try {
+      let url = `/events/${eventTicker}`;
+      if (includeMarkets) {
+        url += '?include_markets=true';
+      }
+      
+      const response = await this.makeRequest<{ event: KalshiApiEvent }>(url, {
+        method: 'GET'
+      });
+      
+      return response.event;
+    } catch (error) {
+      console.error(`Error fetching event ${eventTicker} from Kalshi API:`, error);
+      return null;
+    }
+  }
+
+  /**
+   * Get user's positions - Updated for v3 API
    */
   async getPositions(): Promise<any[]> {
     if (this.mockMode) {
@@ -150,7 +224,7 @@ export class KalshiApiClient {
   }
 
   /**
-   * Get exchange status
+   * Get exchange status - Updated for v3 API
    */
   async getExchangeStatus(): Promise<any> {
     if (this.mockMode) {
@@ -172,7 +246,7 @@ export class KalshiApiClient {
   }
 
   /**
-   * Helper method to make API requests
+   * Helper method to make API requests - Updated with v3 authentication
    */
   private async makeRequest<T>(path: string, options: { 
     method: string; 
@@ -251,6 +325,38 @@ export class KalshiApiClient {
         volume: 8000,
         event_ticker: 'CRYPTO-PRICES',
         series_ticker: 'BTC-MONTHLY'
+      }
+    ];
+  }
+
+  /**
+   * Generate mock event data for testing
+   */
+  private getMockEvents(): KalshiApiEvent[] {
+    return [
+      {
+        ticker: 'US-ELECTION-24',
+        title: 'US Presidential Election 2024',
+        description: 'Markets related to the 2024 US Presidential Election',
+        category: 'Politics',
+        status: 'active',
+        series_ticker: 'US-POLITICS'
+      },
+      {
+        ticker: 'CRYPTO-PRICES',
+        title: 'Cryptocurrency Price Predictions',
+        description: 'Markets forecasting cryptocurrency prices',
+        category: 'Crypto',
+        status: 'active',
+        series_ticker: 'CRYPTO'
+      },
+      {
+        ticker: 'FED-RATES-2024',
+        title: 'Federal Reserve Interest Rates 2024',
+        description: 'Markets predicting Federal Reserve interest rate decisions in 2024',
+        category: 'Economy',
+        status: 'active',
+        series_ticker: 'ECONOMY'
       }
     ];
   }
