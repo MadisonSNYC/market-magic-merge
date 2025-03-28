@@ -4,7 +4,6 @@
 // Export from individual type files explicitly
 export * from './common';
 export * from './markets';
-export * from './portfolio';
 export * from './events';
 export * from './series';
 export * from './quotes';

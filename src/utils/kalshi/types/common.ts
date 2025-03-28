@@ -1,47 +1,62 @@
 
-export interface KalshiApiResponse<T> {
-  data: T;
+/**
+ * Common types shared across multiple Kalshi API domains
+ */
+
+// Generic pagination response structure
+export interface PaginatedResponse<T> {
+  data: T[];
+  cursor?: string;
+  page_number?: number;
+  total_pages?: number;
+  page_size?: number;
+  total_count?: number;
+}
+
+// Generic API response structure
+export interface ApiResponse<T> {
   status: string;
+  data: T;
   message?: string;
+  error?: string;
+  code?: number;
 }
 
-export interface KalshiApiVersionResponse {
-  version: string;
+// Common date range filter parameters
+export interface DateRangeParams {
+  min_ts?: number; // Unix timestamp
+  max_ts?: number; // Unix timestamp
 }
 
-export interface KalshiCommunicationsIdResponse {
-  communications_id: string;
-}
-
-export interface KalshiFillsResponse {
-  cursor: string;
-  fills: KalshiFill[];
-}
-
-export interface KalshiFill {
-  fill_id: string;
-  order_id: string;
-  ticker: string;
-  ts: string;
-  price: number;
-  count: number;
-  side: 'yes' | 'no';
-  type: string;
-}
-
-export interface FillsParams {
-  market_id?: string;
-  min_ts?: number;
-  max_ts?: number;
+// Common pagination parameters
+export interface PaginationParams {
   limit?: number;
   cursor?: string;
 }
 
-export interface KalshiBalanceResponse {
-  balance: number;
-  portfolio_value?: number;
-  available_balance?: number;
-  reserved_fees?: number;
-  bonus_balance?: number;
-  reserved_margin?: number;
+// Status enum for various Kalshi entities
+export enum EntityStatus {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+  PENDING = 'pending',
+  SETTLED = 'settled',
+  OPEN = 'open',
+  CLOSED = 'closed'
+}
+
+// Side for orders and positions
+export type Side = 'yes' | 'no';
+
+// Error response from the API
+export interface ErrorResponse {
+  status: string;
+  error: string;
+  code: number;
+  message: string;
+}
+
+// Success response wrapper
+export interface SuccessResponse<T> {
+  status: 'success';
+  data: T;
 }
