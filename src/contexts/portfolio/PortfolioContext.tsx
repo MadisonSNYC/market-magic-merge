@@ -53,13 +53,12 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
       // Get balance information
       const balanceData = await client.getBalance();
       if (balanceData) {
-        setAvailableBalance(balanceData.available_balance_cents / 100); // Convert cents to dollars
+        setAvailableBalance(balanceData.available_balance / 100); // Convert cents to dollars
         
-        // Assuming portfolio_value_cents is the correct property name in the V3 API
-        // If not available directly, calculate it
-        setTotalPortfolioValue(balanceData.portfolio_value_cents 
-          ? balanceData.portfolio_value_cents / 100 
-          : balanceData.available_balance_cents / 100); // Fallback calculation
+        // Assuming portfolio_value is the correct property name in the API
+        setTotalPortfolioValue(balanceData.portfolio_value 
+          ? balanceData.portfolio_value / 100 
+          : balanceData.available_balance / 100); // Fallback calculation
       }
       
       setLastUpdated(new Date().toISOString());

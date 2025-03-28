@@ -1,154 +1,131 @@
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Position } from '@/utils/kalshi/types/portfolio';
+import React from 'react';
+import { 
+  Card, 
+  CardContent, 
+  CardHeader, 
+  CardTitle 
+} from '@/components/ui/card';
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { formatCurrency } from '@/utils/format';
 import { Button } from '@/components/ui/button';
-import { ArrowUpDown, ChevronDown, ChevronUp } from 'lucide-react';
+import { formatCurrency } from '@/utils/format';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
+// Export the Position interface so it can be imported elsewhere
+export interface Position {
+  marketId: string;
+  marketTitle: string;
+  contracts?: number;
+  avgPrice?: number;
+  cost?: number;
+  currentValue?: number;
+  potentialPayout?: number;
+  positionType?: string;
+  timeRemaining?: string;
+  yes: number;
+  no: number;
+  value: number;
+  icon?: string;
+}
 
 interface PortfolioPositionsProps {
   positions: Position[];
+  onClosePosition?: (position: Position) => void;
+  activeTab?: string;
+  loading?: boolean;
 }
 
-export function PortfolioPositions({ positions }: PortfolioPositionsProps) {
-  const [sortBy, setSortBy] = useState<'market' | 'value' | 'expiration'>('value');
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
-  
-  const handleSort = (column: 'market' | 'value' | 'expiration') => {
-    if (sortBy === column) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortBy(column);
-      setSortDirection('desc');
-    }
-  };
-  
-  const sortedPositions = [...positions].sort((a, b) => {
-    const multiplier = sortDirection === 'asc' ? 1 : -1;
-    
-    switch (sortBy) {
-      case 'market':
-        return (a.marketTitle?.localeCompare(b.marketTitle || '') || 0) * multiplier;
-      case 'value':
-        return (a.value - b.value) * multiplier;
-      case 'expiration':
-        const aDate = a.expires_at || a.expiration || '';
-        const bDate = b.expires_at || b.expiration || '';
-        return (aDate.localeCompare(bDate) || 0) * multiplier;
-      default:
-        return 0;
-    }
-  });
-
-  if (positions.length === 0) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Positions</CardTitle>
-          <CardDescription>You don't have any open positions.</CardDescription>
-        </CardHeader>
-      </Card>
-    );
-  }
-
+export function PortfolioPositions({ 
+  positions, 
+  onClosePosition,
+  activeTab = "active",
+  loading = false
+}: PortfolioPositionsProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Active Positions</CardTitle>
-        <CardDescription>Your current market positions and their values</CardDescription>
+        <CardTitle>Your Positions</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="overflow-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b">
-                <th onClick={() => handleSort('market')} className="text-left py-3 px-2 cursor-pointer">
-                  <div className="flex items-center">
-                    Market
-                    {sortBy === 'market' && (
-                      sortDirection === 'asc' ? <ChevronUp className="ml-1 h-4 w-4" /> : <ChevronDown className="ml-1 h-4 w-4" />
-                    )}
-                  </div>
-                </th>
-                <th className="text-left py-3 px-2">Position</th>
-                <th onClick={() => handleSort('value')} className="text-right py-3 px-2 cursor-pointer">
-                  <div className="flex items-center justify-end">
-                    Value
-                    {sortBy === 'value' && (
-                      sortDirection === 'asc' ? <ChevronUp className="ml-1 h-4 w-4" /> : <ChevronDown className="ml-1 h-4 w-4" />
-                    )}
-                  </div>
-                </th>
-                <th onClick={() => handleSort('expiration')} className="text-right py-3 px-2 cursor-pointer">
-                  <div className="flex items-center justify-end">
-                    Expiration
-                    {sortBy === 'expiration' && (
-                      sortDirection === 'asc' ? <ChevronUp className="ml-1 h-4 w-4" /> : <ChevronDown className="ml-1 h-4 w-4" />
-                    )}
-                  </div>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {sortedPositions.map((position, index) => (
-                <tr key={position.marketId} className={index !== positions.length - 1 ? "border-b" : ""}>
-                  <td className="py-3 px-2">
-                    <div className="font-medium">{position.ticker || position.marketId}</div>
-                    <div className="text-sm text-muted-foreground truncate max-w-[200px]">
-                      {position.marketTitle}
-                    </div>
-                  </td>
-                  <td className="py-3 px-2">
-                    <PositionBadge position={position} />
-                  </td>
-                  <td className="py-3 px-2 text-right font-medium">
-                    {formatCurrency(position.value / 100)}
-                  </td>
-                  <td className="py-3 px-2 text-right">
-                    {position.expires_at || position.expiration 
-                      ? new Date(position.expires_at || position.expiration || '').toLocaleDateString()
-                      : 'N/A'}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <Tabs defaultValue={activeTab}>
+          <TabsList className="mb-4">
+            <TabsTrigger value="active">Active Positions</TabsTrigger>
+            <TabsTrigger value="settled">Settled Positions</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="active">
+            {loading ? (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">Loading positions...</p>
+              </div>
+            ) : positions.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">You have no active positions</p>
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Market</TableHead>
+                    <TableHead>Position</TableHead>
+                    <TableHead className="text-right">Contracts</TableHead>
+                    <TableHead className="text-right">Avg Price</TableHead>
+                    <TableHead className="text-right">Current Value</TableHead>
+                    <TableHead className="text-right">Payout</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {positions.map((position) => (
+                    <TableRow key={position.marketId}>
+                      <TableCell className="font-medium">
+                        {position.marketTitle}
+                        <div className="text-xs text-muted-foreground">
+                          Expires: {position.timeRemaining}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={position.positionType === 'YES' ? 'default' : 'destructive'}>
+                          {position.positionType}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">{position.contracts}</TableCell>
+                      <TableCell className="text-right">{formatCurrency(position.avgPrice || 0)}</TableCell>
+                      <TableCell className="text-right">{formatCurrency(position.currentValue || 0)}</TableCell>
+                      <TableCell className="text-right">{formatCurrency(position.potentialPayout || 0)}</TableCell>
+                      <TableCell className="text-right">
+                        {onClosePosition && (
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => onClosePosition(position)}
+                          >
+                            Close
+                          </Button>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </TabsContent>
+          
+          <TabsContent value="settled">
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">No settled positions to display</p>
+            </div>
+          </TabsContent>
+        </Tabs>
       </CardContent>
     </Card>
   );
-}
-
-function PositionBadge({ position }: { position: Position }) {
-  // Determine the position type and quantity
-  const hasYes = position.yes > 0;
-  const hasNo = position.no > 0;
-  
-  if (position.side) {
-    return (
-      <Badge variant={position.side === 'yes' ? 'default' : 'outline'}>
-        {position.contracts || 0} {position.side.toUpperCase()}
-      </Badge>
-    );
-  }
-  
-  if (hasYes && hasNo) {
-    return (
-      <div className="space-y-1">
-        <Badge variant="default">{position.yes} YES</Badge>
-        <Badge variant="outline">{position.no} NO</Badge>
-      </div>
-    );
-  }
-  
-  if (hasYes) {
-    return <Badge variant="default">{position.yes} YES</Badge>;
-  }
-  
-  if (hasNo) {
-    return <Badge variant="outline">{position.no} NO</Badge>;
-  }
-  
-  return <Badge variant="secondary">No Position</Badge>;
 }

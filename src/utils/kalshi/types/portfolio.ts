@@ -1,4 +1,3 @@
-
 export interface KalshiPosition {
   market_id: string;
   ticker?: string;
@@ -63,10 +62,10 @@ export interface KalshiBalance {
  */
 export interface KalshiBalanceResponse {
   // Available balance in cents
-  available_balance_cents: number;
+  available_balance: number;
   
   // Portfolio value in cents
-  portfolio_value_cents: number;
+  portfolio_value: number;
   
   // Timestamp of the balance snapshot
   timestamp?: string;
