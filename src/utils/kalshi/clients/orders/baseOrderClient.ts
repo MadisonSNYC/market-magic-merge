@@ -1,10 +1,10 @@
 
-import { BaseUserClient } from '../baseUserClient';
+import { BaseBatchClient } from '../batch/baseBatchClient';
 
 /**
- * Base class for order-related API clients
+ * Base client for order operations
  */
-export class BaseOrderClient extends BaseUserClient {
+export class BaseOrderClient extends BaseBatchClient {
   constructor(apiKey?: string) {
     super(apiKey);
   }

@@ -12,7 +12,7 @@ import {
   DecreaseOrderResponse,
   KalshiOrdersResponse,
   OrdersParams 
-} from '../../../types';
+} from '../../types/orders';
 
 /**
  * Main Kalshi User Orders API client

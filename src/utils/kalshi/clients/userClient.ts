@@ -1,6 +1,6 @@
 
-import { BaseUserClient } from './user/baseUserClient';
-import { OrderClient } from './user/orderClient';
+import { BaseClient } from '../baseClient';
+import { OrderClient } from './orders/orderClient';
 import { BatchClient } from './batch/batchClient';
 import { FillsClient } from './user/fillsClient';
 
@@ -8,7 +8,7 @@ import { FillsClient } from './user/fillsClient';
  * Kalshi User-related API client (portfolio, positions, orders)
  * This class combines all user-related functionality from the specialized clients
  */
-export class KalshiUserClient extends BaseUserClient {
+export class KalshiUserClient extends BaseClient {
   private orderClient: OrderClient;
   private batchClient: BatchClient;
   private fillsClient: FillsClient;
@@ -20,8 +20,59 @@ export class KalshiUserClient extends BaseUserClient {
     this.fillsClient = new FillsClient(apiKey);
   }
 
-  // Base User methods (from BaseUserClient)
-  // getPositions, getPortfolio, getAiRecommendations, getBalance are inherited
+  // Base User methods
+  async getPositions() {
+    try {
+      const url = `${this.baseUrl}/portfolio/positions`;
+      return this.rateLimitedGet(url);
+    } catch (error) {
+      console.error("Error fetching positions:", error);
+      throw error;
+    }
+  }
+
+  async getPortfolio() {
+    try {
+      const url = `${this.baseUrl}/portfolio`;
+      return this.rateLimitedGet(url);
+    } catch (error) {
+      console.error("Error fetching portfolio:", error);
+      throw error;
+    }
+  }
+
+  async getAiRecommendations() {
+    try {
+      // This is a mock endpoint - in production, you'd have a real API endpoint
+      return Promise.resolve([
+        {
+          marketId: 'BTC-PRICE-7PM',
+          recommendation: 'Buy YES',
+          reason: 'Bitcoin momentum indicators suggest upward movement',
+          confidence: 0.75
+        },
+        {
+          marketId: 'ETH-PRICE-EOD',
+          recommendation: 'Buy NO',
+          reason: 'Ethereum facing resistance levels',
+          confidence: 0.65
+        }
+      ]);
+    } catch (error) {
+      console.error("Error fetching AI recommendations:", error);
+      throw error;
+    }
+  }
+
+  async getBalance() {
+    try {
+      const url = `${this.baseUrl}/portfolio/balance`;
+      return this.rateLimitedGet(url);
+    } catch (error) {
+      console.error("Error fetching balance:", error);
+      throw error;
+    }
+  }
 
   // Order methods (delegated to OrderClient)
   async placeOrder(order: any) {

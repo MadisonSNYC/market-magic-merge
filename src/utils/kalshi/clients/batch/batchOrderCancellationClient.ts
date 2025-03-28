@@ -1,9 +1,9 @@
 
 import { BaseBatchClient } from './baseBatchClient';
-import {
-  BatchCancelOrdersRequest,
-  BatchCancelOrdersResponse
-} from '../../types';
+import { 
+  BatchCancelOrdersRequest, 
+  BatchCancelOrdersResponse 
+} from '../../types/orders';
 
 /**
  * Client for batch order cancellation operations

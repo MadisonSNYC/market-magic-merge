@@ -1,37 +1,33 @@
 
 import { BaseOrderClient } from './baseOrderClient';
-import { 
-  AmendOrderResponse, 
-  DecreaseOrderResponse 
-} from '../../../types';
+import {
+  AmendOrderRequest,
+  DecreaseOrderRequest,
+  AmendOrderResponse,
+  DecreaseOrderResponse
+} from '../../types/orders';
 
 /**
  * Client for order modification operations
  */
 export class OrderModificationClient extends BaseOrderClient {
   /**
-   * Amend a specific order by ID (v3 compatible)
-   * @param orderId Order ID
-   * @param amendRequest New order parameters
-   * @returns Update status
+   * Amend an existing order (price and size)
+   * @param orderId Order ID to amend
+   * @param amendRequest New price and size
+   * @returns Amended order ID
    */
-  async amendOrder(orderId: string, amendRequest: { price: number; count: number }): Promise<AmendOrderResponse> {
+  async amendOrder(orderId: string, amendRequest: AmendOrderRequest): Promise<AmendOrderResponse> {
     try {
       if (!orderId) {
-        throw new Error("Order ID is required for amendment");
+        throw new Error("Order ID is required to amend an order");
       }
       
-      if (!amendRequest.price || !amendRequest.count) {
-        throw new Error("Both price and count are required for order amendment");
-      }
+      // Convert to V3 format if needed
+      const v3Request = this.createV3AmendRequest(amendRequest);
       
-      console.log(`Attempting to amend order ${orderId} to price: ${amendRequest.price}, count: ${amendRequest.count}`);
-      
-      const url = `${this.baseUrl}/portfolio/orders/${orderId}/amend`;
-      const response = await this.rateLimitedPost<AmendOrderResponse>(url, amendRequest);
-      
-      // Log successful amendment
-      console.log(`Successfully amended order ${orderId}, new order_id: ${response.order_id}`);
+      const url = `${this.baseUrl}/portfolio/orders/${orderId}`;
+      const response = await this.rateLimitedPost<AmendOrderResponse>(url, v3Request);
       
       return response;
     } catch (error) {
@@ -41,33 +37,48 @@ export class OrderModificationClient extends BaseOrderClient {
   }
 
   /**
-   * Decrease an order's quantity (v3 compatible)
-   * @param orderId Order ID
-   * @param decreaseRequest New quantity parameters
-   * @returns Update status
+   * Decrease an order's size
+   * @param orderId Order ID to decrease
+   * @param decreaseRequest Amount to decrease by
+   * @returns Decreased order ID
    */
-  async decreaseOrder(orderId: string, decreaseRequest: { count: number }): Promise<DecreaseOrderResponse> {
+  async decreaseOrder(orderId: string, decreaseRequest: DecreaseOrderRequest): Promise<DecreaseOrderResponse> {
     try {
       if (!orderId) {
-        throw new Error("Order ID is required for decreasing quantity");
+        throw new Error("Order ID is required to decrease an order");
       }
       
-      if (!decreaseRequest.count || decreaseRequest.count <= 0) {
-        throw new Error("Positive count value is required for decreasing order quantity");
-      }
-      
-      console.log(`Attempting to decrease order ${orderId} by ${decreaseRequest.count} contracts`);
+      // Convert to V3 format if needed
+      const v3Request = this.createV3DecreaseRequest(decreaseRequest);
       
       const url = `${this.baseUrl}/portfolio/orders/${orderId}/decrease`;
-      const response = await this.rateLimitedPost<DecreaseOrderResponse>(url, decreaseRequest);
-      
-      // Log successful decrease
-      console.log(`Successfully decreased order ${orderId}, updated order_id: ${response.order_id}`);
+      const response = await this.rateLimitedPost<DecreaseOrderResponse>(url, v3Request);
       
       return response;
     } catch (error) {
       console.error(`Error decreasing order ${orderId} in Kalshi API:`, error);
       throw error;
     }
+  }
+
+  /**
+   * Convert to V3 amend request format if needed
+   */
+  private createV3AmendRequest(request: AmendOrderRequest): any {
+    // In V3, we might need to change from price/count to price/quantity
+    return {
+      price: request.price,
+      quantity: request.count
+    };
+  }
+
+  /**
+   * Convert to V3 decrease request format if needed
+   */
+  private createV3DecreaseRequest(request: DecreaseOrderRequest): any {
+    // In V3, we might need to change from count to quantity
+    return {
+      quantity: request.count
+    };
   }
 }

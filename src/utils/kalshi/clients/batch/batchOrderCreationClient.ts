@@ -1,9 +1,9 @@
 
 import { BaseBatchClient } from './baseBatchClient';
-import {
-  BatchCreateOrdersRequest,
-  BatchCreateOrdersResponse
-} from '../../types';
+import { 
+  BatchCreateOrdersRequest, 
+  BatchCreateOrdersResponse 
+} from '../../types/orders';
 
 /**
  * Client for batch order creation operations

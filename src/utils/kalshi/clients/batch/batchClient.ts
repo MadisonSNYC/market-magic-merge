@@ -3,26 +3,19 @@ import { BaseBatchClient } from './baseBatchClient';
 import { BatchOrderCreationClient } from './batchOrderCreationClient';
 import { BatchOrderCancellationClient } from './batchOrderCancellationClient';
 import { AccountSummaryClient } from './accountSummaryClient';
-import {
-  BatchCreateOrdersRequest,
-  BatchCancelOrdersRequest,
-  BatchCreateOrdersResponse,
-  BatchCancelOrdersResponse
-} from '../../types';
 
 /**
- * Kalshi Batch Operations API client
- * Combines functionality from specialized batch clients
+ * Combined batch client that provides access to all batch operation functionality
  */
 export class BatchClient extends BaseBatchClient {
-  private batchOrderCreationClient: BatchOrderCreationClient;
-  private batchOrderCancellationClient: BatchOrderCancellationClient;
+  private orderCreationClient: BatchOrderCreationClient;
+  private orderCancellationClient: BatchOrderCancellationClient;
   private accountSummaryClient: AccountSummaryClient;
 
   constructor(apiKey?: string) {
     super(apiKey);
-    this.batchOrderCreationClient = new BatchOrderCreationClient(apiKey);
-    this.batchOrderCancellationClient = new BatchOrderCancellationClient(apiKey);
+    this.orderCreationClient = new BatchOrderCreationClient(apiKey);
+    this.orderCancellationClient = new BatchOrderCancellationClient(apiKey);
     this.accountSummaryClient = new AccountSummaryClient(apiKey);
   }
 
@@ -31,8 +24,8 @@ export class BatchClient extends BaseBatchClient {
    * @param batchRequest Object containing array of orders to create
    * @returns Response with array of created order IDs
    */
-  async batchCreateOrders(batchRequest: BatchCreateOrdersRequest): Promise<BatchCreateOrdersResponse> {
-    return this.batchOrderCreationClient.batchCreateOrders(batchRequest);
+  async batchCreateOrders(batchRequest: any) {
+    return this.orderCreationClient.batchCreateOrders(batchRequest);
   }
 
   /**
@@ -40,8 +33,8 @@ export class BatchClient extends BaseBatchClient {
    * @param batchRequest Object containing array of order IDs to cancel
    * @returns Response with array of canceled order IDs
    */
-  async batchCancelOrders(batchRequest: BatchCancelOrdersRequest): Promise<BatchCancelOrdersResponse> {
-    return this.batchOrderCancellationClient.batchCancelOrders(batchRequest);
+  async batchCancelOrders(batchRequest: any) {
+    return this.orderCancellationClient.batchCancelOrders(batchRequest);
   }
 
   /**
@@ -53,9 +46,5 @@ export class BatchClient extends BaseBatchClient {
   }
 }
 
-// Export the specialized clients as well for direct use if needed
-export { 
-  BatchOrderCreationClient, 
-  BatchOrderCancellationClient, 
-  AccountSummaryClient 
-};
+// Export all clients for direct use
+export { BatchOrderCreationClient, BatchOrderCancellationClient, AccountSummaryClient };
