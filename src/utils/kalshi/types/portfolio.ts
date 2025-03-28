@@ -1,4 +1,3 @@
-
 export interface KalshiPosition {
   market_id: string;
   ticker?: string;
@@ -58,13 +57,18 @@ export interface KalshiBalance {
   reserved_margin?: number;  // Margin reserved for open positions
 }
 
+/**
+ * Balance response model for the Kalshi API
+ */
 export interface KalshiBalanceResponse {
-  balance: number;
-  portfolio_value: number;
-  available_balance: number;
-  reserved_fees: number;
-  bonus_balance: number;
-  reserved_margin: number;
+  // Available balance in cents
+  available_balance_cents: number;
+  
+  // Portfolio value in cents
+  portfolio_value_cents: number;
+  
+  // Timestamp of the balance snapshot
+  timestamp?: string;
 }
 
 export interface KalshiTrade {
