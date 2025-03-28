@@ -1,10 +1,13 @@
 
-export * from './marketApiWrapper';
-export * from './userApiWrapper';
-export * from './metaApiWrapper';
-export * from './tradingApiWrapper';
-export * from './eventApiWrapper';
-export * from './collectionApiWrapper';
-export * from './structuredTargetApiWrapper';
-export * from './rateLimitApiWrapper';
-export type { RateLimitUsage } from './rateLimitApiWrapper';
+// Re-export all facades
+export * from './collectionFacade';
+export * from './eventFacade';
+export * from './exchangeFacade';
+export * from './marketFacade';
+export * from './metaFacade';
+export * from './quoteFacade';
+export * from './rfqFacade';
+export * from './seriesFacade';
+export * from './tradeFacade';
+export * from './userFacade';
+export * from './structuredTargetFacade';
