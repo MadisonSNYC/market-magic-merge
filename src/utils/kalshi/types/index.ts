@@ -1,77 +1,65 @@
 
-// Basic types for Kalshi API responses
+// Use explicit named exports to avoid ambiguity
 
-// Market-related types
-export interface KalshiApiMarket {
-  ticker: string;
-  title: string;
-  subtitle?: string;
-  category?: string;
-  status: 'open' | 'closed' | 'settled';
-  close_time?: string;
-  yes_bid?: number;
-  yes_ask?: number;
-  no_bid?: number;
-  no_ask?: number;
-  last_price?: number;
-  volume?: number;
-  open_interest?: number;
-  event_ticker?: string;
-  series_ticker?: string;
-}
-
-export interface KalshiMarketResponse {
-  markets: KalshiApiMarket[];
-  cursor?: string;
-}
-
-// Order-related types
-export interface KalshiOrderbook {
-  ticker: string;
-  yes_bids: Array<{ price: number; count: number }>;
-  yes_asks: Array<{ price: number; count: number }>;
-  no_bids: Array<{ price: number; count: number }>;
-  no_asks: Array<{ price: number; count: number }>;
-}
-
-export interface KalshiApiResponse<T> {
-  data: T;
-  status: string;
-  cursor?: string;
-}
-
-// Candlestick data
-export interface KalshiCandlestick {
-  time: string;
-  open: number;
-  high: number;
-  low: number;
-  close: number;
-  volume: number;
-}
-
-export interface KalshiCandlesticksResponse {
-  ticker: string;
-  candles: KalshiCandlestick[];
-}
-
-export interface CandlestickParams {
-  resolution: string;
-  from?: number;
-  to?: number;
-  limit?: number;
-}
-
-// Balance and Portfolio
-export interface KalshiBalanceResponse {
-  balance: number;
-  portfolio_value: number;
-  available_balance: number;
-  reserved_fees: number;
-  bonus_balance: number;
-  reserved_margin: number;
-}
-
-// Export from other type files
+// Export from individual type files explicitly
+export * from './common';
+export * from './markets';
 export * from './portfolio';
-export * from './recommendations';
+export * from './events';
+export * from './series';
+export * from './quotes';
+export * from './rfqs';
+export * from './structured_targets';
+export * from './trades';
+export * from './collections';
+export * from './exchange';
+export * from './orders';
+export * from './meta';
+
+// Re-export specific types as type to fix isolated modules issues
+export type { KalshiMarket } from './markets';
+export type { KalshiPosition } from './portfolio';
+export type { Position } from './portfolio';
+export type { KalshiEvent, KalshiApiEvent } from './events';
+export type { KalshiApiEventsResponse } from './events';
+export type { KalshiSeries, KalshiApiSeries } from './series';
+export type { KalshiSeriesResponse, SeriesParams } from './series';
+export type { KalshiRfq, KalshiRfqsResponse, KalshiRfqResponse, KalshiCreateRfqRequest, KalshiCreateRfqResponse } from './rfqs';
+export type { KalshiApiMarket } from './markets';
+export type { KalshiOrderbook, CandlestickParams, KalshiCandlesticksResponse } from './markets';
+export type { KalshiApiVersionResponse } from './meta';
+export type { KalshiCommunicationsIdResponse } from './meta';
+export type { StructuredTarget } from './structured_targets';
+export type { KalshiTrade, KalshiApiTrade, KalshiTradeResponse, TradeParams } from './trades';
+export type { 
+  KalshiQuote, 
+  KalshiQuotesResponse, 
+  KalshiQuoteResponse, 
+  KalshiCreateQuoteRequest, 
+  KalshiCreateQuoteResponse, 
+  KalshiAcceptQuoteRequest,
+  KalshiAcceptQuoteResponse,
+  KalshiConfirmQuoteResponse
+} from './quotes';
+export type {
+  CollectionParams,
+  KalshiCollection,
+  KalshiCollectionResponse,
+  CollectionSelectedMarket,
+  SelectedMarket,
+  LookupParams,
+  CreateMarketRequest,
+  CreateMarketResponse,
+  LookupMarketRequest,
+  LookupMarketResponse,
+  LookupHistoryResponse,
+  CreateMarketInCollectionRequest,
+  CreateMarketInCollectionResponse,
+  LookupMarketInCollectionRequest,
+  LookupMarketInCollectionResponse,
+  CollectionLookupParams,
+  CollectionLookupHistoryResponse
+} from './collections';
+export type {
+  KalshiMilestoneParams
+} from './exchange';
