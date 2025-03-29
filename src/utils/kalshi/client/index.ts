@@ -16,4 +16,4 @@ export * from './eventClient';
 export * from './tradeClient';
 
 // Export types from userTypes for backward compatibility
-export { KalshiPosition, KalshiBalanceResponse, KalshiPortfolioResponse, KalshiAiRecommendation } from './userTypes';
+export type { KalshiPosition, KalshiBalanceResponse, KalshiPortfolioResponse, KalshiAiRecommendation } from './userTypes';

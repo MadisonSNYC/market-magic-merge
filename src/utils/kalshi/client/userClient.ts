@@ -1,4 +1,3 @@
-
 import { BaseKalshiClient } from './baseClient';
 import { CoreClientOptions } from './types';
 import { PortfolioClient } from './user/portfolioClient';
@@ -88,4 +87,4 @@ export class KalshiUserClient extends BaseKalshiClient {
 }
 
 // Export types from userTypes
-export { KalshiPosition, KalshiBalanceResponse, KalshiPortfolioResponse, KalshiAiRecommendation } from './userTypes';
+export type { KalshiPosition, KalshiBalanceResponse, KalshiPortfolioResponse, KalshiAiRecommendation } from './userTypes';

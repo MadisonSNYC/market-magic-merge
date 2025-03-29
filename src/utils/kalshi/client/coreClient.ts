@@ -1,7 +1,13 @@
-
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosHeaders } from 'axios';
-import { KALSHI_API_URL, KALSHI_DEMO_API_URL, DEMO_MODE } from '../config';
-import { RsaAuthOptions, generateKalshiAuthHeaders } from './auth/rsaAuth';
+import { 
+  KALSHI_API_URL, 
+  KALSHI_DEMO_API_URL, 
+  DEMO_MODE, 
+  AUTH_METHOD, 
+  RSA_KEY_ID, 
+  RSA_PRIVATE_KEY 
+} from '../config';
+import { generateKalshiAuthHeaders, RsaAuthOptions } from './auth/rsaAuth';
 import { KalshiMarketClient } from './marketClient';
 import { KalshiUserClient } from './userClient';
 import { KalshiMetaClient } from './metaClient';
@@ -14,13 +20,27 @@ import { KalshiQuoteClient } from './quoteClient';
 import { KalshiCommunicationClient } from './communicationClient';
 import { KalshiExchangeClient } from './exchangeClient';
 import { KalshiSeriesClient } from './seriesClient';
-import { CoreClientOptions, RateLimitTier, RATE_LIMIT_TIERS } from './types';
+import { CoreClientOptions } from './types';
 
-// Define auth method type
-type AuthMethod = 'api_key' | 'rsa';
+/**
+ * Rate limit tiers definitions
+ */
+export const RATE_LIMIT_TIERS = {
+  standard: {
+    reads: 100,
+    writes: 50
+  },
+  pro: {
+    reads: 500,
+    writes: 250
+  },
+  enterprise: {
+    reads: 2000,
+    writes: 1000
+  }
+};
 
-// Import auth method from config (make sure this is exported in config.ts)
-const AUTH_METHOD: AuthMethod = 'api_key'; // Default value
+export type RateLimitTier = keyof typeof RATE_LIMIT_TIERS;
 
 /**
  * Core Kalshi API client
@@ -67,9 +87,11 @@ export class KalshiCoreClient {
       }
     });
     
-    // Initialize all client instances with the API key
+    // Initialize all client instances with proper options
+    const clientOptions: CoreClientOptions = { apiKey: this.apiKey };
+    
     this.marketClient = new KalshiMarketClient(this.apiKey);
-    this.userClient = new KalshiUserClient(this.apiKey);
+    this.userClient = new KalshiUserClient(clientOptions);
     this.metaClient = new KalshiMetaClient(this.apiKey);
     this.tradeClient = new KalshiTradeClient(this.apiKey);
     this.eventClient = new KalshiEventClient(this.apiKey);
