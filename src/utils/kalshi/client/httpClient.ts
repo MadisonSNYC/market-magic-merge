@@ -31,8 +31,8 @@ export class HttpClient {
         config.headers = new AxiosHeaders();
       }
       
-      // Add authentication headers
-      const authMethod = options?.authMethod || 'none';
+      // Add authentication headers - using safe fallback
+      const authMethod: AuthMethod = options?.authMethod || 'none';
       
       if (authMethod === 'rsa' && this.rsaOptions) {
         const path = config.url || '';

@@ -8,14 +8,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { kalshiApi } from '@/utils/kalshi';
 import { useToast } from '@/hooks/use-toast';
-import { AUTH_METHOD, AUTH_METHODS, API_KEY, RSA_KEY_ID, RSA_PRIVATE_KEY, DEMO_MODE } from '@/utils/kalshi/config';
+import { AUTH_METHOD, AUTH_METHODS, KALSHI_API_KEY, RSA_KEY_ID, RSA_PRIVATE_KEY, DEMO_MODE } from '@/utils/kalshi/config';
 
 export function ApiKeySettings() {
   const { toast } = useToast();
   const [authMethod, setAuthMethod] = useState<'bearer' | 'rsa'>(
     AUTH_METHOD === AUTH_METHODS.RSA ? 'rsa' : 'bearer'
   );
-  const [apiKey, setApiKey] = useState(API_KEY || '');
+  const [apiKey, setApiKey] = useState(KALSHI_API_KEY || '');
   const [keyId, setKeyId] = useState(RSA_KEY_ID || '');
   const [privateKey, setPrivateKey] = useState(RSA_PRIVATE_KEY || '');
   const [demoMode, setDemoMode] = useState(DEMO_MODE);
@@ -34,7 +34,7 @@ export function ApiKeySettings() {
       // Generate .env.local content
       const envContent = `
 # Kalshi API Configuration
-VITE_KALSHI_AUTH_METHOD=${authMethod}
+VITE_KALSHI_AUTH_METHOD=${authMethod === 'rsa' ? 'rsa' : 'api_key'}
 ${authMethod === 'bearer' 
   ? `VITE_KALSHI_API_KEY=${apiKey}`
   : `VITE_KALSHI_KEY_ID=${keyId}

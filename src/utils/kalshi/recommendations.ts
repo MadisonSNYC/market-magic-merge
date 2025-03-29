@@ -6,8 +6,8 @@ import { mockAiRecommendations } from './mockData';
  */
 export interface KalshiRecommendation {
   id: string;
-  market_id: string;
-  marketId: string; // Alias for market_id for backward compatibility
+  market_id: string;  // Primary property name
+  marketId?: string;  // Alias for backward compatibility
   title: string;
   confidence: number;
   side: string;
@@ -25,11 +25,7 @@ export interface KalshiRecommendation {
 export const getAiRecommendations = async (): Promise<KalshiRecommendation[]> => {
   // In a real application, this would call an AI service or API
   // For now, we're returning mock data
-  const recommendations = mockAiRecommendations.map(rec => ({
-    ...rec,
-    marketId: rec.market_id // Add the alias for backward compatibility
-  }));
-  return recommendations;
+  return mockAiRecommendations;
 };
 
 /**
@@ -39,12 +35,8 @@ export const getAiRecommendations = async (): Promise<KalshiRecommendation[]> =>
  */
 export const getPersonalizedRecommendations = async (userId: string): Promise<KalshiRecommendation[]> => {
   // This would normally filter or customize recommendations based on user data
-  // For now, just return the mock recommendations with the alias added
-  const recommendations = mockAiRecommendations.map(rec => ({
-    ...rec,
-    marketId: rec.market_id // Add the alias for backward compatibility
-  }));
-  return recommendations;
+  // For now, just return the mock recommendations
+  return mockAiRecommendations;
 };
 
 /**

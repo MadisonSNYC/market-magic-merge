@@ -25,7 +25,7 @@ export function AiRecommendations() {
           {mockAiRecommendations.map((rec, index) => (
             <div key={index} className="flex items-center justify-between border-b border-muted/40 pb-3">
               <div>
-                <h4 className="font-medium">{rec.marketId}</h4>
+                <h4 className="font-medium">{rec.market_id}</h4>
                 <p className="text-sm text-muted-foreground">{rec.reason}</p>
                 <div className="flex items-center mt-1 gap-2">
                   <Badge 

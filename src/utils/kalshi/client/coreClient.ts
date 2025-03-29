@@ -49,7 +49,15 @@ export class KalshiCoreClient {
     this.baseUrl = options.baseUrl || 'https://trading-api.kalshi.com/v1';
     this.apiKey = options.apiKey || '';
     this.mockMode = options.mockMode || false;
-    this.authType = (options.authMethod || (this.apiKey ? 'api_key' : 'none')) as AuthMethod;
+    
+    // Ensure we always have a valid authType
+    const specifiedAuthMethod = options.authMethod || (this.apiKey ? 'api_key' : 'none');
+    this.authType = (specifiedAuthMethod as AuthMethod);
+
+    if (!['api_key', 'rsa', 'none'].includes(this.authType)) {
+      console.warn(`Invalid auth type "${this.authType}" specified. Falling back to "api_key"`);
+      this.authType = 'api_key';
+    }
 
     // Initialize HTTP client
     this.httpClient = new HttpClient(this.baseUrl, {
@@ -78,8 +86,8 @@ export class KalshiCoreClient {
   ): Promise<T> {
     const config: AxiosRequestConfig = {};
     
-    // Add API key if available
-    if (this.apiKey) {
+    // Add API key if available and using api_key auth method
+    if (this.authType === 'api_key' && this.apiKey) {
       config.headers = {
         'Authorization': `Bearer ${this.apiKey}`
       };
@@ -103,8 +111,8 @@ export class KalshiCoreClient {
   ): Promise<T> {
     const headers: Record<string, string> = {};
     
-    // Add API key if available
-    if (this.apiKey) {
+    // Add API key if available and using api_key auth method
+    if (this.authType === 'api_key' && this.apiKey) {
       headers['Authorization'] = `Bearer ${this.apiKey}`;
     }
     
@@ -129,8 +137,8 @@ export class KalshiCoreClient {
   ): Promise<T> {
     const headers: Record<string, string> = {};
     
-    // Add API key if available
-    if (this.apiKey) {
+    // Add API key if available and using api_key auth method
+    if (this.authType === 'api_key' && this.apiKey) {
       headers['Authorization'] = `Bearer ${this.apiKey}`;
     }
     
@@ -154,8 +162,8 @@ export class KalshiCoreClient {
   ): Promise<T> {
     const headers: Record<string, string> = {};
     
-    // Add API key if available
-    if (this.apiKey) {
+    // Add API key if available and using api_key auth method
+    if (this.authType === 'api_key' && this.apiKey) {
       headers['Authorization'] = `Bearer ${this.apiKey}`;
     }
     
