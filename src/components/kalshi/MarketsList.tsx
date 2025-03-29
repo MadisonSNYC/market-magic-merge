@@ -23,25 +23,49 @@ import { Button } from '@/components/ui/button';
 import { useKalshi } from '@/utils/kalshi';
 import { Search, RefreshCw } from 'lucide-react';
 
+interface Market {
+  ticker: string;
+  title: string;
+  status: string;
+  category?: string;
+  yes_ask?: number;
+  no_ask?: number;
+  volume?: number;
+}
+
 export function MarketsList() {
   const { client, isConnected, isDemo } = useKalshi();
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   
   const { 
-    data: markets = [], 
+    data: markets = [] as Market[], 
     isLoading, 
     error, 
     refetch 
   } = useQuery({
     queryKey: ['kalshi-markets', isDemo],
-    queryFn: () => client.getMarkets(),
+    queryFn: async () => {
+      const response = await client?.getMarkets();
+      return response || [];
+    },
     enabled: true, // Always fetch markets, even in demo mode
     staleTime: 30000 // Refetch after 30 seconds
   });
   
-  // Extract unique categories
-  const categories = ['all', ...new Set(markets.map(m => m.category || 'uncategorized').filter(Boolean))];
+  // Extract unique categories and ensure they're strings
+  const categoriesSet = new Set<string>();
+  categoriesSet.add('all');
+  
+  markets.forEach(market => {
+    if (market.category) {
+      categoriesSet.add(market.category);
+    } else {
+      categoriesSet.add('uncategorized');
+    }
+  });
+  
+  const categories = Array.from(categoriesSet);
   
   // Filter markets
   const filteredMarkets = markets.filter(market => {
@@ -98,7 +122,7 @@ export function MarketsList() {
                   <SelectValue placeholder="Category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {categories.map(category => (
+                  {categories.map((category) => (
                     <SelectItem key={category} value={category}>
                       {category === 'all' ? 'All Categories' : 
                        category.charAt(0).toUpperCase() + category.slice(1)}

@@ -1,6 +1,9 @@
 
+/**
+ * Options for creating core clients
+ */
 export interface CoreClientOptions {
   apiKey?: string;
-  baseUrl?: string;
   mockMode?: boolean;
+  baseUrl?: string;
 }
