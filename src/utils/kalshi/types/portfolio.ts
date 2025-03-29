@@ -26,6 +26,7 @@ export interface KalshiPosition {
   marketTitle?: string;
   contracts?: number;
   avgPrice?: number;
+  average_price?: number; // Add this missing property
   currentValue?: number;
   potentialPayout?: number;
   positionType?: string;
@@ -57,6 +58,20 @@ export interface KalshiPortfolioData {
   availableBalance: number;
   totalPortfolioValue: number;
   lastUpdated: string;
+  
+  // Adding legacy property names for backward compatibility
+  available_balance?: number;
+  portfolio_value?: number;
+  total_value?: number;
+}
+
+// Add KalshiBalanceResponse which was missing
+export interface KalshiBalanceResponse {
+  available_balance: number;
+  portfolio_value: number;
+  total_value: number;
+  pending_deposits?: number;
+  pending_withdrawals?: number;
 }
 
 export interface KalshiTrade {

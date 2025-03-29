@@ -17,14 +17,26 @@ export const mockKalshiData = {
       yes_amount: 10,
       no_amount: 0,
       average_yes_price: 65,
-      average_no_price: 0
+      average_no_price: 0,
+      // Add required fields to match KalshiPosition
+      ticker: 'BTC-PRICE-24H',
+      yes_count: 10,
+      no_count: 0,
+      settlement_fee: 0.1,
+      marketId: 'BTC-PRICE-24H'
     },
     {
       market_id: 'ETH-PRICE-24H',
       yes_amount: 0,
       no_amount: 5,
       average_yes_price: 0,
-      average_no_price: 30
+      average_no_price: 30,
+      // Add required fields to match KalshiPosition
+      ticker: 'ETH-PRICE-24H',
+      yes_count: 0,
+      no_count: 5,
+      settlement_fee: 0.1,
+      marketId: 'ETH-PRICE-24H'
     }
   ],
   markets: () => ({
@@ -119,6 +131,17 @@ export const mockKalshiData = {
     }
   ]
 };
+
+// Helper function to create mock responses
+export function mockResponse<T>(data: T): { data: T, status: number, statusText: string, headers: {}, config: {} } {
+  return {
+    data,
+    status: 200,
+    statusText: 'OK',
+    headers: {},
+    config: {}
+  };
+}
 
 // Mock the axios module
 export const mockAxios = (response: any, status = 200) => {

@@ -82,7 +82,7 @@ describe('Kalshi API Integration', () => {
       
       // Assertions
       expect(balance).toBeDefined();
-      expect(balance?.available_balance).toBeGreaterThan(0);
+      expect(balance?.availableBalance || balance?.available_balance).toBeGreaterThan(0);
       
       expect(orderResult).toBeDefined();
       expect(orderResult?.order_id).toBe('ord_12345');

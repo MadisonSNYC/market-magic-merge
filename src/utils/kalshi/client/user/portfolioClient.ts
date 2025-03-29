@@ -1,80 +1,56 @@
-
 import { BaseUserClient } from './baseUserClient';
-import { KalshiPosition, KalshiPortfolioData, KalshiAiRecommendation } from '../../types/portfolio';
+import { KalshiPosition, KalshiPortfolioData } from '../../types/portfolio';
 
 /**
- * Client for managing Kalshi portfolio data
+ * Client for managing portfolio-related API calls
  */
 export class PortfolioClient extends BaseUserClient {
-  constructor(apiKey?: string) {
-    super('', apiKey);
-  }
-
   /**
-   * Get user portfolio including balance and positions
+   * Get detailed portfolio information
    */
-  async getPortfolio(): Promise<{
-    positions: KalshiPosition[];
-    balance: KalshiPortfolioData;
-  }> {
+  async getPortfolioSummary(): Promise<KalshiPortfolioData | null> {
     try {
-      const [positions, balance] = await Promise.all([
-        this.getPositions(),
-        this.getBalance()
-      ]);
+      const balance = await this.getBalance();
       
+      if (!balance) {
+        return null;
+      }
+      
+      // Transform the balance response to portfolio data
       return {
-        positions: positions || [],
-        balance: balance || {
-          availableBalance: 0,
-          totalPortfolioValue: 0,
-          lastUpdated: new Date().toISOString()
-        }
+        availableBalance: balance.available_balance,
+        totalPortfolioValue: balance.total_value,
+        lastUpdated: new Date().toISOString(),
+        
+        // Keep original field names for backward compatibility
+        available_balance: balance.available_balance,
+        portfolio_value: balance.portfolio_value,
+        total_value: balance.total_value
       };
     } catch (error) {
-      console.error("Error fetching portfolio:", error);
-      return {
-        positions: [],
-        balance: {
-          availableBalance: 0,
-          totalPortfolioValue: 0,
-          lastUpdated: new Date().toISOString()
-        }
-      };
+      console.error("Error getting portfolio summary:", error);
+      return null;
     }
   }
-
+  
   /**
-   * Get AI recommendations for portfolio optimization
-   * Note: This is a mock implementation for now
+   * Get positions with additional market metadata
    */
-  async getAiRecommendations(): Promise<KalshiAiRecommendation[]> {
-    // This would eventually connect to a real AI recommendation service
-    return [
-      {
-        marketId: 'CRYPTO-BTC-20000-DEC28',
-        recommendation: 'Buy YES',
-        reason: 'Bitcoin has shown strong momentum in the last week',
-        contractPrice: 0.65,
-        size: 10,
-        cost: 6.50,
-        potentialProfit: 3.50,
-        potentialPayout: 10.00,
-        confidence: 0.75,
-        category: 'Crypto'
-      },
-      {
-        marketId: 'ELECTION-SENATE-GA-DEC',
-        recommendation: 'Buy NO',
-        reason: 'Recent polling shows a shift in voter sentiment',
-        contractPrice: 0.42,
-        size: 20,
-        cost: 8.40,
-        potentialProfit: 11.60,
-        potentialPayout: 20.00,
-        confidence: 0.68,
-        category: 'Politics'
+  async getEnrichedPositions(): Promise<KalshiPosition[] | null> {
+    try {
+      const positions = await this.getPositions();
+      
+      if (!positions) {
+        return null;
       }
-    ];
+      
+      // In a real implementation, you would fetch market details for each position
+      // and enrich them with additional data
+      
+      return positions;
+    } catch (error) {
+      console.error("Error getting enriched positions:", error);
+      return null;
+    }
   }
 }
