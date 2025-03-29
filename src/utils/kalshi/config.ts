@@ -15,7 +15,7 @@ export const DEMO_API_URL = KALSHI_DEMO_API_URL;
 export const DEMO_MODE = false;
 
 // Authentication method (rsa or api_key)
-export const AUTH_METHOD = 'api_key';
+export const AUTH_METHOD = 'api_key' as 'api_key' | 'rsa' | 'none';
 export enum AUTH_METHODS {
   API_KEY = 'api_key',
   RSA = 'rsa',

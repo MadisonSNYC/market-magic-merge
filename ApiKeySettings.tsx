@@ -8,11 +8,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { kalshiApi } from '@/utils/kalshi';
 import { useToast } from '@/hooks/use-toast';
-import { AUTH_METHOD, API_KEY, RSA_KEY_ID, RSA_PRIVATE_KEY, DEMO_MODE } from '@/utils/kalshi/config';
+import { AUTH_METHOD, AUTH_METHODS, API_KEY, RSA_KEY_ID, RSA_PRIVATE_KEY, DEMO_MODE } from '@/utils/kalshi/config';
 
 export function ApiKeySettings() {
   const { toast } = useToast();
-  const [authMethod, setAuthMethod] = useState<'bearer' | 'rsa'>(AUTH_METHOD as 'bearer' | 'rsa' || 'bearer');
+  const [authMethod, setAuthMethod] = useState<'bearer' | 'rsa'>(
+    AUTH_METHOD === AUTH_METHODS.RSA ? 'rsa' : 'bearer'
+  );
   const [apiKey, setApiKey] = useState(API_KEY || '');
   const [keyId, setKeyId] = useState(RSA_KEY_ID || '');
   const [privateKey, setPrivateKey] = useState(RSA_PRIVATE_KEY || '');

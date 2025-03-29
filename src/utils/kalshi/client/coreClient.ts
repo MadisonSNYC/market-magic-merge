@@ -1,6 +1,6 @@
 
 import axios, { AxiosResponse, AxiosRequestConfig } from 'axios';
-import { CoreClientOptions } from './types';
+import { CoreClientOptions, AuthMethod } from './types';
 import { RateLimitedClient } from './rateLimitedClient';
 import { HttpClient } from './httpClient';
 
@@ -40,7 +40,7 @@ export class KalshiCoreClient {
   protected mockMode: boolean;
   protected rateLimitedClient: RateLimitedClient;
   protected httpClient: HttpClient;
-  protected authType: 'api_key' | 'rsa' | 'none';
+  protected authType: AuthMethod;
 
   /**
    * Create a new Kalshi core client
@@ -49,10 +49,13 @@ export class KalshiCoreClient {
     this.baseUrl = options.baseUrl || 'https://trading-api.kalshi.com/v1';
     this.apiKey = options.apiKey || '';
     this.mockMode = options.mockMode || false;
-    this.authType = this.apiKey ? 'api_key' : 'none';
+    this.authType = (options.authMethod || (this.apiKey ? 'api_key' : 'none')) as AuthMethod;
 
     // Initialize HTTP client
-    this.httpClient = new HttpClient(this.baseUrl);
+    this.httpClient = new HttpClient(this.baseUrl, {
+      apiKey: this.apiKey,
+      authMethod: this.authType
+    });
     
     // Initialize rate limited client
     this.rateLimitedClient = new RateLimitedClient(this.httpClient);

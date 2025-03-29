@@ -1,6 +1,7 @@
 
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosHeaders } from 'axios';
 import { generateKalshiAuthHeaders, RsaAuthOptions } from './auth/rsaAuth';
+import { AuthMethod } from './types';
 
 /**
  * HTTP client for Kalshi API
@@ -11,7 +12,7 @@ export class HttpClient {
   private readonly rsaOptions?: RsaAuthOptions;
   private readonly client: AxiosInstance;
   
-  constructor(baseUrl: string, options?: { apiKey?: string; rsaOptions?: RsaAuthOptions; authMethod?: 'api_key' | 'rsa' }) {
+  constructor(baseUrl: string, options?: { apiKey?: string; rsaOptions?: RsaAuthOptions; authMethod?: AuthMethod }) {
     this.baseUrl = baseUrl;
     this.apiKey = options?.apiKey;
     this.rsaOptions = options?.rsaOptions;
@@ -31,7 +32,9 @@ export class HttpClient {
       }
       
       // Add authentication headers
-      if (options?.authMethod === 'rsa' && this.rsaOptions) {
+      const authMethod = options?.authMethod || 'none';
+      
+      if (authMethod === 'rsa' && this.rsaOptions) {
         const path = config.url || '';
         const method = config.method?.toUpperCase() || 'GET';
         const authHeaders = generateKalshiAuthHeaders(this.rsaOptions, method, path);
@@ -42,7 +45,7 @@ export class HttpClient {
             config.headers.set(key, value);
           }
         });
-      } else if (this.apiKey) {
+      } else if (authMethod === 'api_key' && this.apiKey) {
         config.headers.set('Authorization', `Bearer ${this.apiKey}`);
       }
       
