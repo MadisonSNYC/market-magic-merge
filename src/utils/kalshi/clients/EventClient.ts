@@ -1,78 +1,83 @@
 
 import { BaseClient } from './BaseClient';
 import { MockDataService } from './MockDataService';
-import { 
-  KalshiApiEvent,
-  KalshiEventResponse
-} from '../types';
 
 /**
- * Client for event-related API endpoints
+ * Client for interacting with Kalshi events
  */
 export class EventClient extends BaseClient {
+  private mockMode: boolean;
+
+  constructor(options: { apiKey?: string; mockMode?: boolean; baseUrl?: string } = {}) {
+    super(options);
+    this.mockMode = options.mockMode || false;
+  }
+
   /**
-   * Get events with optional filters - Updated for v3 API
+   * Get a list of all events
    */
-  async getEvents(params?: {
-    limit?: number;
-    cursor?: string;
-    page_number?: number;
-    page_size?: number;
-    series_ticker?: string;
-    status?: string;
-    category?: string;
-  }): Promise<KalshiApiEvent[]> {
+  async getEvents(params: any = {}) {
     if (this.mockMode) {
-      return MockDataService.getMockEvents();
+      return { 
+        events: MockDataService.getEvents(),
+        cursor: ''
+      };
     }
 
     try {
-      const formattedParams: Record<string, any> = {};
-      if (params) {
-        if (params.series_ticker) formattedParams.series_ticker = params.series_ticker;
-        if (params.status) formattedParams.status = params.status;
-        if (params.category) formattedParams.category = params.category;
-        if (params.limit) formattedParams.limit = params.limit;
-        if (params.cursor) formattedParams.cursor = params.cursor;
-        if (params.page_number) formattedParams.page_number = params.page_number;
-        if (params.page_size) formattedParams.page_size = params.page_size;
-      }
-
-      const response = await this.makeRequest<KalshiEventResponse>('/events', {
-        method: 'GET',
-        params: formattedParams
-      });
-
-      return response.events || [];
+      const url = `${this.baseUrl}/events`;
+      return this.get(url, { params });
     } catch (error) {
-      console.error('Error fetching events from Kalshi API:', error);
-      return [];
+      console.error("Error fetching events:", error);
+      return {
+        events: [],
+        cursor: ''
+      };
     }
   }
 
   /**
-   * Get specific event by ticker - Updated for v3 API
+   * Get a specific event by ticker
    */
-  async getEvent(eventTicker: string, includeMarkets: boolean = false): Promise<KalshiApiEvent | null> {
+  async getEvent(eventTicker: string) {
     if (this.mockMode) {
-      const mockEvents = MockDataService.getMockEvents();
-      return mockEvents.find(e => e.ticker === eventTicker) || null;
+      const events = MockDataService.getEvents();
+      const event = events.find(e => e.ticker === eventTicker);
+      return { event: event || null };
     }
 
     try {
-      let url = `/events/${eventTicker}`;
-      if (includeMarkets) {
-        url += '?include_markets=true';
-      }
-      
-      const response = await this.makeRequest<{ event: KalshiApiEvent }>(url, {
-        method: 'GET'
-      });
-      
-      return response.event;
+      const url = `${this.baseUrl}/events/${eventTicker}`;
+      return this.get(url);
     } catch (error) {
-      console.error(`Error fetching event ${eventTicker} from Kalshi API:`, error);
-      return null;
+      console.error(`Error fetching event ${eventTicker}:`, error);
+      return { event: null };
+    }
+  }
+
+  /**
+   * Get markets for a specific event
+   */
+  async getEventMarkets(eventTicker: string, params: any = {}) {
+    if (this.mockMode) {
+      const markets = MockDataService.getMarkets().filter(
+        m => m.event_ticker === eventTicker
+      );
+      return { 
+        markets, 
+        cursor: '' 
+      };
+    }
+
+    try {
+      const url = `${this.baseUrl}/events/${eventTicker}/markets`;
+      return this.get(url, { params });
+    } catch (error) {
+      console.error(`Error fetching markets for event ${eventTicker}:`, error);
+      return {
+        markets: [],
+        cursor: ''
+      };
     }
   }
 }

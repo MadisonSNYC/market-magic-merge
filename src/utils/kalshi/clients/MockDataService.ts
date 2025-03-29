@@ -1,5 +1,5 @@
 
-import { mockKalshiPositions, mockKalshiTrades } from '../mockData';
+import { mockKalshiPositions, mockKalshiTrades, mockAiRecommendations, mockKalshiMarkets, mockKalshiEvents } from '../mockData';
 
 /**
  * Service providing mock data for testing and development
@@ -23,22 +23,21 @@ export class MockDataService {
    * Get mock markets data
    */
   static getMarkets() {
-    return [
-      {
-        ticker: 'BTC-PRICE-24H',
-        title: 'Bitcoin Price Above $40K',
-        event_ticker: 'CRYPTO-PRICES',
-        category: 'Crypto',
-        status: 'open'
-      },
-      {
-        ticker: 'ETH-PRICE-24H',
-        title: 'Ethereum Price Above $2K',
-        event_ticker: 'CRYPTO-PRICES',
-        category: 'Crypto',
-        status: 'open'
-      }
-    ];
+    return mockKalshiMarkets;
+  }
+  
+  /**
+   * Get mock events data
+   */
+  static getEvents() {
+    return mockKalshiEvents;
+  }
+  
+  /**
+   * Get mock AI recommendations
+   */
+  static getAiRecommendations() {
+    return mockAiRecommendations;
   }
   
   /**
@@ -52,6 +51,23 @@ export class MockDataService {
       pending_deposits: 0,
       pending_withdrawals: 0,
       bonuses: []
+    };
+  }
+  
+  /**
+   * Get mock orderbook data
+   */
+  static getOrderbook() {
+    return {
+      ticker: 'BTC-PRICE-24H',
+      bids: [
+        { price: 60, count: 5 },
+        { price: 55, count: 10 }
+      ],
+      asks: [
+        { price: 65, count: 8 },
+        { price: 70, count: 12 }
+      ]
     };
   }
   

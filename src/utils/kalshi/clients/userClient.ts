@@ -10,11 +10,11 @@ import { MockDataService } from './MockDataService';
 export class UserClient extends BaseClient {
   private portfolioClient: PortfolioClient;
   private fillsClient: FillsClient;
-  private mockMode: boolean;
+  private _mockMode: boolean;
 
   constructor(options: { apiKey?: string, mockMode?: boolean, baseUrl?: string } = {}) {
     super(options);
-    this.mockMode = options.mockMode || false;
+    this._mockMode = options.mockMode || false;
     
     // Initialize sub-clients with the same API key
     this.portfolioClient = new PortfolioClient(options.apiKey);
@@ -22,10 +22,17 @@ export class UserClient extends BaseClient {
   }
 
   /**
+   * Check if client is in mock mode
+   */
+  public isMockMode(): boolean {
+    return this._mockMode;
+  }
+
+  /**
    * Get the user's positions
    */
   async getPositions() {
-    if (this.mockMode) {
+    if (this._mockMode) {
       return MockDataService.getPositions();
     }
     return this.portfolioClient.getPositions();
@@ -35,15 +42,8 @@ export class UserClient extends BaseClient {
    * Get the user's balance
    */
   async getBalance() {
-    if (this.mockMode) {
-      return {
-        available_balance: 10000,
-        portfolio_value: 2500,
-        total_value: 12500,
-        pending_deposits: 0,
-        pending_withdrawals: 0,
-        bonuses: []
-      };
+    if (this._mockMode) {
+      return MockDataService.getBalance();
     }
     return this.portfolioClient.getBalance();
   }
@@ -52,7 +52,7 @@ export class UserClient extends BaseClient {
    * Get the user's fills (completed trades)
    */
   async getFills(params?: any) {
-    if (this.mockMode) {
+    if (this._mockMode) {
       return {
         fills: MockDataService.getTrades(),
         cursor: ''
@@ -65,7 +65,7 @@ export class UserClient extends BaseClient {
    * Place an order
    */
   async placeOrder(orderData: any) {
-    if (this.mockMode) {
+    if (this._mockMode) {
       return { order_id: `mock-order-${Date.now()}` };
     }
     

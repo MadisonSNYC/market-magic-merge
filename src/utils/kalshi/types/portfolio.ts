@@ -1,101 +1,82 @@
 
-// KalshiPosition represents the raw position data from the API
-export interface KalshiPosition {
-  // Required fields
-  market_id: string;
-  yes_amount: number;
-  no_amount: number;
-  ticker: string;
-  yes_count: number;
-  no_count: number;
-  settlement_fee: number;
-  marketId: string;
-  
-  // Optional fields
-  title?: string;
-  market_title?: string;
-  average_yes_price?: number;
-  average_no_price?: number;
-  average_price?: number;
-  expires_at?: string;
-  expiration?: string;
-  yes?: number;
-  no?: number;
-  value?: number;
-  price?: number;
-  cost?: number;
-  payout?: number;
+// Portfolio-related types for Kalshi API
+export interface KalshiBalanceResponse {
+  available_balance: number;
+  portfolio_value: number;
+  total_value: number;
+  pending_deposits: number;
+  pending_withdrawals: number;
+  bonuses: any[];
 }
 
-// Position is a more user-friendly, processed position representation
-export interface Position {
-  marketId: string;
-  marketTitle: string;
-  ticker: string;
-  yes_count: number;
-  no_count: number;
-  settlement_fee: number;
+export interface KalshiPosition {
+  // Legacy fields
+  market_id?: string;
+  yes_amount?: number;
+  no_amount?: number;
+  average_yes_price?: number;
+  average_no_price?: number;
   
-  // Optional fields
-  contracts?: number;
-  avgPrice?: number;
-  cost?: number;
-  currentValue?: number;
-  potentialPayout?: number;
-  positionType?: string;
-  timeRemaining?: string;
+  // New fields
+  marketId?: string;
   yes?: number;
   no?: number;
+  price?: number;
+  cost?: number;
   value?: number;
-  icon?: string;
+  payout?: number;
+  ticker?: string;
+  title?: string;
+  market_title?: string;
+  yes_count?: number;  
+  no_count?: number;
+  settlement_fee?: number;
   expires_at?: string;
   expiration?: string;
-  price?: number;
-  payout?: number;
+}
+
+export interface Position {
+  marketId: string;
+  ticker?: string;
+  marketTitle: string;
+  contracts: number;
+  positionType: 'YES' | 'NO';
+  avgPrice: number;
+  cost: number;
+  currentValue: number;
+  potentialPayout: number;
+  timeRemaining: string;
+  icon?: string;
+  yes_count?: number;
+  no_count?: number;
+  settlement_fee?: number;
+  yes: number;
+  no: number;
+  value: number;
 }
 
 export interface KalshiPortfolioData {
-  availableBalance: number;
-  totalPortfolioValue: number;
-  lastUpdated: string;
-  
-  // Adding legacy property names for backward compatibility
-  available_balance?: number;
-  portfolio_value?: number;
-  total_value?: number;
-}
-
-// KalshiBalanceResponse represents the balance response from the API
-export interface KalshiBalanceResponse {
   available_balance: number;
   portfolio_value: number;
   total_value: number;
   pending_deposits?: number;
   pending_withdrawals?: number;
-  bonuses?: any[]; // Adding bonuses field that was missing
+  bonuses?: any[];
 }
 
-export interface KalshiTrade {
+export interface KalshiPortfolioPosition {
+  market_id: string;
+  yes_amount: number;
+  no_amount: number;
+  average_yes_price: number;
+  average_no_price: number;
+}
+
+export interface KalshiFill {
   id: string;
-  market_id?: string;
-  ticker?: string;
-  timestamp: string;
+  ticker: string;
   price: number;
   count: number;
   side: 'yes' | 'no';
-  type: string;
-  strikePrice?: number;
-}
-
-export interface KalshiAiRecommendation {
-  marketId: string;
-  recommendation: string;
-  reason: string;
-  contractPrice: number;
-  size: number;
-  cost: number;
-  potentialProfit: number;
-  potentialPayout: number;
-  confidence: number;
-  category: string;
+  created_time: string;
 }

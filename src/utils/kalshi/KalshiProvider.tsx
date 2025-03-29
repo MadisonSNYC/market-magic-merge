@@ -1,6 +1,13 @@
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { KalshiApiClient, KalshiApiClientOptions } from './KalshiApiClient';
+import { KalshiApiClient } from './KalshiApiClient';
+
+// Define interface for KalshiApiClientOptions
+interface KalshiApiClientOptions {
+  apiKey?: string;
+  mockMode?: boolean;
+  baseUrl?: string;
+}
 
 interface KalshiContextValue {
   client: KalshiApiClient | null;
@@ -46,7 +53,8 @@ export const KalshiProvider: React.FC<KalshiProviderProps> = ({
       apiKey: currentApiKey,
       mockMode
     };
-    setClient(new KalshiApiClient(options));
+    const newClient = new KalshiApiClient(options);
+    setClient(newClient);
   }, [currentApiKey, mockMode]);
 
   // Function to update the API key
@@ -64,9 +72,9 @@ export const KalshiProvider: React.FC<KalshiProviderProps> = ({
     setCurrentApiKey('');
   };
 
-  // Compute context values
-  const isConnected = client ? client.isConnected() : false;
-  const isMockMode = client ? client.isMockMode() : true;
+  // Compute context values - add isConnected and isMockMode methods to client
+  const isConnected = client ? Boolean(currentApiKey) : false;
+  const isMockMode = client ? mockMode : true;
   const isDemo = isMockMode; // For backward compatibility
 
   return (
