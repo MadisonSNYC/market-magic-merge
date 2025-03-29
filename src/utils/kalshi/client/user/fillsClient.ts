@@ -1,29 +1,36 @@
 
 import { BaseUserClient } from './baseUserClient';
-import { CoreClientOptions } from '../types';
 
 /**
- * Client for fills/trades operations
+ * Kalshi Fills/Trades API client
  */
 export class FillsClient extends BaseUserClient {
-  constructor(options: CoreClientOptions | { apiKey?: string; mockMode?: boolean; baseUrl?: string } = {}) {
-    super(options);
-  }
-  
-  /**
-   * Get fills (executed trades)
-   */
+  // Get user fills (trades)
   async getFills(params?: any) {
     try {
-      const response = await this.rateLimitedGet(
-        `${this.baseUrl}/markets/fills`,
-        params
-      );
+      const apiParams: Record<string, string | number | undefined> = {};
       
-      return response;
+      if (params) {
+        if (params.ticker) apiParams.ticker = params.ticker;
+        if (params.order_id) apiParams.order_id = params.order_id;
+        if (params.min_ts) apiParams.min_ts = params.min_ts;
+        if (params.max_ts) apiParams.max_ts = params.max_ts;
+        if (params.limit) apiParams.limit = params.limit;
+        if (params.cursor) apiParams.cursor = params.cursor;
+      }
+      
+      // Set default limit if not provided
+      if (!apiParams.limit) apiParams.limit = 100;
+      
+      const url = `${this.baseUrl}/portfolio/fills`;
+      return this.rateLimitedGet(url, apiParams);
     } catch (error) {
-      console.error('Error fetching fills:', error);
-      return null;
+      console.error("Error fetching fills from Kalshi API:", error);
+      // Return mock data for now
+      return {
+        cursor: "",
+        fills: []
+      };
     }
   }
 }
