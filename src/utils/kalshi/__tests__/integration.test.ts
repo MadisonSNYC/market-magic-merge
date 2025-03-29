@@ -1,6 +1,7 @@
 
 import { ClientFactory } from '../client/clientFactory';
 import { mockAxios, mockKalshiData, setupTestEnvironment } from './testUtils';
+import { describe, it, expect } from 'vitest';
 
 // Set up test environment
 setupTestEnvironment();

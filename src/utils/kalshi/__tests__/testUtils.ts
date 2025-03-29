@@ -1,6 +1,6 @@
 
 import { AxiosResponse } from 'axios';
-import { vi } from 'vitest';
+import { vi, expect } from 'vitest';
 
 /**
  * Helper function to create a mock Axios response

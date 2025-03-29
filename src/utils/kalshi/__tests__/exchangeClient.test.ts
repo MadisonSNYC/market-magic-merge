@@ -1,6 +1,7 @@
 
 import { ExchangeClient } from '../clients/ExchangeClient';
 import { mockAxios, setupTestEnvironment } from './testUtils';
+import { describe, it, expect, beforeEach } from 'vitest';
 
 // Set up test environment
 setupTestEnvironment();

@@ -1,7 +1,6 @@
 
 import { ClientFactory } from '../client/clientFactory';
-
-// No explicit import of expect needed - it's available globally via jest.d.ts
+import { describe, it, expect } from 'vitest';
 
 describe('ClientFactory', () => {
   describe('createClients', () => {

@@ -1,11 +1,11 @@
 
 import { KalshiUserClient } from '../client/userClient';
 import axios from 'axios';
-import { vi } from 'vitest';
+import { vi, expect, describe, it, beforeEach } from 'vitest';
 
 // Mock axios
 vi.mock('axios');
-const mockedAxios = axios as any;
+const mockedAxios = axios as ReturnType<typeof vi.fn>;
 
 describe('KalshiUserClient', () => {
   let userClient: KalshiUserClient;

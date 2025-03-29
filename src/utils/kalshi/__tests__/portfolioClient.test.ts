@@ -1,6 +1,7 @@
 
 import { PortfolioClient } from '../clients/PortfolioClient';
 import { mockAxios, mockKalshiData, setupTestEnvironment } from './testUtils';
+import { describe, it, expect, beforeEach } from 'vitest';
 
 // Set up test environment
 setupTestEnvironment();

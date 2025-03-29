@@ -1,7 +1,7 @@
 
 import { RateLimitedClient } from '../client/rateLimitedClient';
 import { HttpClient } from '../client/httpClient';
-import { vi } from 'vitest';
+import { vi, expect, describe, it, beforeEach } from 'vitest';
 
 // Mock HttpClient
 vi.mock('../client/httpClient');
