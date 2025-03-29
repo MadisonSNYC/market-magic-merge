@@ -2,6 +2,15 @@
 import { ClientFactory } from './client/clientFactory';
 
 /**
+ * Options for the KalshiApiClient constructor
+ */
+export interface KalshiApiClientOptions {
+  apiKey?: string;
+  mockMode?: boolean;
+  baseUrl?: string;
+}
+
+/**
  * Main Kalshi API client that provides access to all Kalshi API endpoints
  */
 export class KalshiApiClient {
@@ -21,9 +30,25 @@ export class KalshiApiClient {
 
   /**
    * Create a new KalshiApiClient
+   * @param apiKeyOrOptions - API key as string or options object
+   * @param options - Additional options (deprecated when using object in first param)
    */
-  constructor(apiKey?: string, options: { mockMode?: boolean } = {}) {
-    this.mockMode = options.mockMode || false;
+  constructor(apiKeyOrOptions?: string | KalshiApiClientOptions, options: { mockMode?: boolean } = {}) {
+    // Handle both constructor signatures for backward compatibility
+    let apiKey: string | undefined;
+    let config: { mockMode?: boolean } = { mockMode: false };
+    
+    if (typeof apiKeyOrOptions === 'string') {
+      // Old constructor signature: constructor(apiKey?: string, options?: { mockMode?: boolean })
+      apiKey = apiKeyOrOptions;
+      config = options || {};
+    } else if (apiKeyOrOptions && typeof apiKeyOrOptions === 'object') {
+      // New constructor signature: constructor(options?: KalshiApiClientOptions)
+      apiKey = apiKeyOrOptions.apiKey;
+      config = { mockMode: apiKeyOrOptions.mockMode };
+    }
+    
+    this.mockMode = config.mockMode || false;
     
     // Create all client instances
     const clients = ClientFactory.createClients({

@@ -1,79 +1,68 @@
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { KalshiApiClient } from './KalshiApiClient';
+import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { KalshiApiClient, KalshiApiClientOptions } from './KalshiApiClient';
 
-interface KalshiContextType {
-  client: KalshiApiClient;
-  apiKey: string;
-  setApiKey: (key: string) => void;
+interface KalshiContextValue {
+  client: KalshiApiClient | null;
   isConnected: boolean;
-  isDemo: boolean;
-  clearApiKey: () => void;
+  isMockMode: boolean;
+  updateApiKey: (newApiKey: string) => void;
 }
 
-const KalshiContext = createContext<KalshiContextType | undefined>(undefined);
+const KalshiContext = createContext<KalshiContextValue>({
+  client: null,
+  isConnected: false,
+  isMockMode: true,
+  updateApiKey: () => {}
+});
 
-// Local storage key for persisting the API key
-const KALSHI_API_KEY_STORAGE_KEY = 'kalshi_api_key';
+export const useKalshi = () => useContext(KalshiContext);
 
-export const KalshiProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // Initialize state with saved API key if available
-  const [apiKey, setApiKey] = useState<string>(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem(KALSHI_API_KEY_STORAGE_KEY) || '';
-    }
-    return '';
-  });
+interface KalshiProviderProps {
+  apiKey?: string;
+  children: ReactNode;
+  mockMode?: boolean;
+}
 
-  // Create client instance whenever apiKey changes
-  const [client, setClient] = useState<KalshiApiClient>(() => new KalshiApiClient({
-    apiKey: apiKey || undefined,
-    mockMode: !apiKey
-  }));
+export const KalshiProvider: React.FC<KalshiProviderProps> = ({
+  apiKey = '',
+  mockMode = !apiKey,
+  children
+}) => {
+  const [client, setClient] = useState<KalshiApiClient | null>(null);
 
-  // Update client when API key changes
+  // Initialize the client when apiKey or mockMode changes
   useEffect(() => {
-    const newClient = new KalshiApiClient({
-      apiKey: apiKey || undefined,
-      mockMode: !apiKey
-    });
-    setClient(newClient);
+    const options: KalshiApiClientOptions = {
+      apiKey,
+      mockMode
+    };
+    setClient(new KalshiApiClient(options));
+  }, [apiKey, mockMode]);
 
-    // Persist API key to localStorage
-    if (typeof window !== 'undefined') {
-      if (apiKey) {
-        localStorage.setItem(KALSHI_API_KEY_STORAGE_KEY, apiKey);
-      } else {
-        localStorage.removeItem(KALSHI_API_KEY_STORAGE_KEY);
-      }
-    }
-  }, [apiKey]);
-
-  // Function to clear API key
-  const clearApiKey = () => setApiKey('');
-
-  // Context value
-  const value = {
-    client,
-    apiKey,
-    setApiKey,
-    isConnected: client.isConnected(),
-    isDemo: client.isDemoMode(),
-    clearApiKey
+  // Function to update the API key
+  const updateApiKey = (newApiKey: string) => {
+    const options: KalshiApiClientOptions = {
+      apiKey: newApiKey,
+      mockMode: !newApiKey
+    };
+    setClient(new KalshiApiClient(options));
   };
 
+  // Compute context values
+  const isConnected = client ? client.isConnected() : false;
+  const isMockMode = client ? client.isMockMode() : true;
+
   return (
-    <KalshiContext.Provider value={value}>
+    <KalshiContext.Provider
+      value={{
+        client,
+        isConnected,
+        isMockMode,
+        updateApiKey
+      }}
+    >
       {children}
     </KalshiContext.Provider>
   );
-};
-
-// Custom hook for using the Kalshi context
-export const useKalshi = (): KalshiContextType => {
-  const context = useContext(KalshiContext);
-  if (context === undefined) {
-    throw new Error('useKalshi must be used within a KalshiProvider');
-  }
-  return context;
 };

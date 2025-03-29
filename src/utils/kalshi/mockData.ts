@@ -72,7 +72,10 @@ export const mockAiRecommendations = [
     confidence: 85,
     side: 'yes',
     recommendation: 'Buy YES contracts on Bitcoin exceeding $40K by end of week',
-    reasoning: 'Technical indicators suggest an upward trend and market sentiment is positive'
+    reasoning: 'Technical indicators suggest an upward trend and market sentiment is positive',
+    reason: 'Technical indicators suggest an upward trend and market sentiment is positive',
+    cost: 65,
+    potentialProfit: 35
   },
   {
     id: 'rec_2',
@@ -81,6 +84,9 @@ export const mockAiRecommendations = [
     confidence: 75,
     side: 'no',
     recommendation: 'Buy NO contracts on Ethereum exceeding $2K by end of week',
-    reasoning: 'Recent volatility and technical resistance at the $2K level'
+    reasoning: 'Recent volatility and technical resistance at the $2K level',
+    reason: 'Recent volatility and technical resistance at the $2K level',
+    cost: 30,
+    potentialProfit: 70
   }
 ];

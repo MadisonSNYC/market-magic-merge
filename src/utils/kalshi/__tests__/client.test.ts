@@ -1,35 +1,35 @@
 
-// Test file for Kalshi API Client
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { KalshiApiClient } from '../KalshiApiClient';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { mockKalshiPositions, mockKalshiTrades } from '../mockData';
 
+// We're using Vitest globals
 describe('KalshiApiClient', () => {
   let client: KalshiApiClient;
 
   beforeEach(() => {
-    // Create a fresh client instance before each test with mock mode enabled
+    // Create a fresh client instance before each test
     client = new KalshiApiClient({ mockMode: true });
   });
 
   describe('getPositions', () => {
-    it('should return positions in mock mode', async () => {
+    it('should return mock positions in mock mode', async () => {
       const positions = await client.getPositions();
-      expect(positions).toBeDefined();
-      expect(Array.isArray(positions)).toBe(true);
+      expect(positions).toEqual(mockKalshiPositions);
     });
   });
 
   describe('getTrades', () => {
-    it('should return trades in mock mode', async () => {
-      const trades = await client.getTrades({ limit: 10 });
-      expect(trades).toBeDefined();
+    it('should return mock trades in mock mode', async () => {
+      const trades = await client.getTrades();
+      expect(trades).toEqual(mockKalshiTrades);
     });
   });
 
   describe('getApiVersion', () => {
     it('should return a version string in mock mode', async () => {
       const version = await client.getApiVersion();
-      expect(typeof version).toBe('string');
+      expect(version).toBe('2.0.0');
     });
   });
 
