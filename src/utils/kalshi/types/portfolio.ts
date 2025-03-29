@@ -1,42 +1,42 @@
 
+// KalshiPosition represents the raw position data from the API
 export interface KalshiPosition {
-  // Original properties
+  // Required fields
+  market_id: string;
+  yes_amount: number;
+  no_amount: number;
+  ticker: string;
+  yes_count: number;
+  no_count: number;
+  settlement_fee: number;
   marketId: string;
-  yes: number;
-  no: number;
-  value: number;
+  
+  // Optional fields
+  title?: string;
   market_title?: string;
+  average_yes_price?: number;
+  average_no_price?: number;
+  average_price?: number;
+  expires_at?: string;
   expiration?: string;
+  yes?: number;
+  no?: number;
+  value?: number;
   price?: number;
   cost?: number;
   payout?: number;
-  
-  // Required properties mentioned in the error
+}
+
+// Position is a more user-friendly, processed position representation
+export interface Position {
+  marketId: string;
+  marketTitle: string;
   ticker: string;
   yes_count: number;
   no_count: number;
   settlement_fee: number;
   
-  // Additional properties from error
-  title?: string;
-  expires_at?: string;
-  market_id?: string;
-  
-  // Properties from Position interface
-  marketTitle?: string;
-  contracts?: number;
-  avgPrice?: number;
-  average_price?: number; // Add this missing property
-  currentValue?: number;
-  potentialPayout?: number;
-  positionType?: string;
-  timeRemaining?: string;
-  icon?: string;
-}
-
-export interface Position {
-  marketId: string;
-  marketTitle: string;
+  // Optional fields
   contracts?: number;
   avgPrice?: number;
   cost?: number;
@@ -44,9 +44,9 @@ export interface Position {
   potentialPayout?: number;
   positionType?: string;
   timeRemaining?: string;
-  yes: number;
-  no: number;
-  value: number;
+  yes?: number;
+  no?: number;
+  value?: number;
   icon?: string;
   expires_at?: string;
   expiration?: string;
@@ -65,13 +65,14 @@ export interface KalshiPortfolioData {
   total_value?: number;
 }
 
-// Add KalshiBalanceResponse which was missing
+// KalshiBalanceResponse represents the balance response from the API
 export interface KalshiBalanceResponse {
   available_balance: number;
   portfolio_value: number;
   total_value: number;
   pending_deposits?: number;
   pending_withdrawals?: number;
+  bonuses?: any[]; // Adding bonuses field that was missing
 }
 
 export interface KalshiTrade {

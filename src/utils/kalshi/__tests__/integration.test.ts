@@ -1,29 +1,33 @@
-import { KalshiClient } from '../index';
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
 
-const axiosMock = new MockAdapter(axios);
+import { KalshiApiClient } from '../KalshiApiClient';
+import axios from 'axios';
+import { vi } from 'vitest';
+
+// Mock axios
+vi.mock('axios');
 
 describe('integration client', () => {
-  let client: KalshiClient;
+  let client: KalshiApiClient;
 
   beforeEach(() => {
-    client = new KalshiClient({ apiKey: 'test-api-key' });
-  });
-
-  afterEach(() => {
-    axiosMock.reset();
+    client = new KalshiApiClient({ apiKey: 'test-api-key' });
+    
+    // Reset mocks
+    vi.mocked(axios).mockReset();
   });
 
   it('should get markets', async () => {
     // Mock the axios response for markets
     const mockMarkets = [{ ticker: 'ETH-01' }, { ticker: 'BTC-01' }];
-    axiosMock.onGet().reply(200, { data: { markets: mockMarkets } });
+    vi.mocked(axios).get.mockResolvedValueOnce({ data: { markets: mockMarkets } });
 
     const markets = await client.getMarkets();
     expect(markets.length).toBe(2);
     expect(markets[0].ticker).toBe('ETH-01');
-    expect(axiosMock.history.get[0].url).toContain('/markets');
+    expect(vi.mocked(axios).get).toHaveBeenCalledWith(
+      expect.stringContaining('/markets'), 
+      expect.any(Object)
+    );
   });
   
   it('should get balance', async () => {
@@ -36,21 +40,28 @@ describe('integration client', () => {
       bonuses: []
     };
     
-    axiosMock.onGet().reply(200, mockBalance);
+    vi.mocked(axios).get.mockResolvedValueOnce({ data: mockBalance });
     
     const balance = await client.getBalance();
     expect(balance.available_balance).toBe(10000);
-    expect(axiosMock.history.get[0].url).toContain('/portfolio/balance');
+    expect(vi.mocked(axios).get).toHaveBeenCalledWith(
+      expect.stringContaining('/portfolio/balance'),
+      expect.any(Object)
+    );
   });
 
   it('should place an order', async () => {
     // Mock the axios response for placing an order
     const mockOrderResponse = { order_id: 'order123' };
-    axiosMock.onPost().reply(200, mockOrderResponse);
+    vi.mocked(axios).post.mockResolvedValueOnce({ data: mockOrderResponse });
 
     const orderData = { ticker: 'ETH-01', side: 'yes', quantity: 1 };
     const order = await client.placeOrder(orderData);
     expect(order.order_id).toBe('order123');
-    expect(axiosMock.history.post[0].url).toContain('/portfolio/orders');
+    expect(vi.mocked(axios).post).toHaveBeenCalledWith(
+      expect.stringContaining('/portfolio/orders'),
+      orderData,
+      expect.any(Object)
+    );
   });
 });

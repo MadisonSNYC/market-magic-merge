@@ -1,129 +1,152 @@
 
-import { ClientFactory } from './client/clientFactory';
+import axios from 'axios';
+import { mockKalshiPositions, mockKalshiTrades } from './mockData';
 
-/**
- * Options for the KalshiApiClient constructor
- */
-export interface KalshiApiClientOptions {
+interface KalshiApiClientOptions {
   apiKey?: string;
-  mockMode?: boolean;
   baseUrl?: string;
+  mockMode?: boolean;
 }
 
 /**
- * Main Kalshi API client that provides access to all Kalshi API endpoints
+ * Main client for the Kalshi API
  */
 export class KalshiApiClient {
-  private marketClient;
-  private userClient;
-  private metaClient;
-  private tradeClient;
-  private eventClient;
-  private collectionClient;
-  private structuredTargetClient;
-  private rfqClient;
-  private quoteClient;
-  private communicationClient;
-  private exchangeClient;
-  private seriesClient;
+  private apiKey: string;
+  private baseUrl: string;
   private mockMode: boolean;
 
-  /**
-   * Create a new KalshiApiClient
-   * @param apiKeyOrOptions - API key as string or options object
-   * @param options - Additional options (deprecated when using object in first param)
-   */
-  constructor(apiKeyOrOptions?: string | KalshiApiClientOptions, options: { mockMode?: boolean } = {}) {
-    // Handle both constructor signatures for backward compatibility
-    let apiKey: string | undefined;
-    let config: { mockMode?: boolean } = { mockMode: false };
-    
-    if (typeof apiKeyOrOptions === 'string') {
-      // Old constructor signature: constructor(apiKey?: string, options?: { mockMode?: boolean })
-      apiKey = apiKeyOrOptions;
-      config = options || {};
-    } else if (apiKeyOrOptions && typeof apiKeyOrOptions === 'object') {
-      // New constructor signature: constructor(options?: KalshiApiClientOptions)
-      apiKey = apiKeyOrOptions.apiKey;
-      config = { mockMode: apiKeyOrOptions.mockMode };
-    }
-    
-    this.mockMode = config.mockMode || false;
-    
-    // Create all client instances
-    const clients = ClientFactory.createClients({
-      apiKey,
-      mockMode: this.mockMode
-    });
-    
-    // Store client instances
-    this.marketClient = clients.marketClient;
-    this.userClient = clients.userClient;
-    this.metaClient = clients.metaClient;
-    this.tradeClient = clients.tradeClient;
-    this.eventClient = clients.eventClient;
-    this.collectionClient = clients.collectionClient;
-    this.structuredTargetClient = clients.structuredTargetClient;
-    this.rfqClient = clients.rfqClient;
-    this.quoteClient = clients.quoteClient;
-    this.communicationClient = clients.communicationClient;
-    this.exchangeClient = clients.exchangeClient;
-    this.seriesClient = clients.seriesClient;
+  constructor(options: KalshiApiClientOptions = {}) {
+    this.apiKey = options.apiKey || '';
+    this.baseUrl = options.baseUrl || 'https://trading-api.kalshi.com/trade-api/v2';
+    this.mockMode = options.mockMode || false;
   }
 
   /**
-   * Get user positions
+   * Gets the user's current positions
    */
   async getPositions() {
-    return this.userClient.getPositions();
+    if (this.mockMode) {
+      return mockKalshiPositions;
+    }
+
+    try {
+      const response = await axios.get(`${this.baseUrl}/portfolio/positions`, {
+        headers: this.getHeaders(),
+      });
+      return response.data.positions;
+    } catch (error) {
+      console.error('Error fetching positions:', error);
+      return [];
+    }
   }
 
   /**
-   * Get trading history
+   * Gets the user's recent trades
    */
-  async getTrades(options?: any) {
-    return this.tradeClient.getTrades(options);
+  async getTrades() {
+    if (this.mockMode) {
+      return mockKalshiTrades;
+    }
+
+    try {
+      const response = await axios.get(`${this.baseUrl}/portfolio/fills`, {
+        headers: this.getHeaders(),
+      });
+      return response.data.fills;
+    } catch (error) {
+      console.error('Error fetching trades:', error);
+      return [];
+    }
   }
 
   /**
-   * Get API version
+   * Gets available markets
    */
-  async getApiVersion() {
-    return this.metaClient.getApiVersion();
+  async getMarkets() {
+    try {
+      const response = await axios.get(`${this.baseUrl}/markets`, {
+        headers: this.getHeaders(),
+      });
+      return response.data.markets;
+    } catch (error) {
+      console.error('Error fetching markets:', error);
+      return [];
+    }
   }
 
   /**
-   * Get markets list
-   */
-  async getMarkets(options?: any) {
-    return this.marketClient.getMarkets(options);
-  }
-
-  /**
-   * Get user balance
+   * Gets the user's current balance
    */
   async getBalance() {
-    return this.userClient.getBalance();
+    if (this.mockMode) {
+      return {
+        available_balance: 10000,
+        portfolio_value: 2500,
+        total_value: 12500,
+      };
+    }
+
+    try {
+      const response = await axios.get(`${this.baseUrl}/portfolio/balance`, {
+        headers: this.getHeaders(),
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching balance:', error);
+      return {
+        available_balance: 0,
+        portfolio_value: 0,
+        total_value: 0,
+      };
+    }
   }
 
   /**
-   * Check if client is connected to Kalshi API
+   * Places an order
    */
-  isConnected() {
-    return !!this.metaClient;
+  async placeOrder(orderData: any) {
+    if (this.mockMode) {
+      return { order_id: `mock-order-${Date.now()}` };
+    }
+
+    try {
+      const response = await axios.post(`${this.baseUrl}/portfolio/orders`, orderData, {
+        headers: this.getHeaders(),
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error placing order:', error);
+      throw error;
+    }
   }
 
   /**
-   * Check if client is in mock mode
+   * Gets the API version
    */
-  isMockMode() {
-    return this.mockMode;
+  async getApiVersion() {
+    if (this.mockMode) {
+      return '2.0.0';
+    }
+
+    try {
+      const response = await axios.get(`${this.baseUrl}/version`, {
+        headers: this.getHeaders(),
+      });
+      return response.data.version;
+    } catch (error) {
+      console.error('Error fetching API version:', error);
+      return 'unknown';
+    }
   }
 
   /**
-   * Get isDemoMode for backward compatibility
+   * Helper to get headers with authentication
    */
-  get isDemoMode() {
-    return this.isMockMode();
+  private getHeaders() {
+    return {
+      'Content-Type': 'application/json',
+      ...(this.apiKey && { Authorization: `Bearer ${this.apiKey}` }),
+    };
   }
 }

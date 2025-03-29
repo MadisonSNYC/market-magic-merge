@@ -1,81 +1,80 @@
 
-import { BaseUserClient } from './user/baseUserClient';
-import { OrderClient } from './user/orderClient';
-import { BatchClient } from './user/batchClient';
-import { FillsClient } from './user/fillsClient';
+import { BaseClient } from './BaseClient';
+import { FillsClient } from '../client/user/fillsClient';
+import { PortfolioClient } from '../client/user/portfolioClient';
 import { MockDataService } from './MockDataService';
 
 /**
- * Kalshi User-related API client (portfolio, positions, orders)
- * This class combines all user-related functionality from the specialized clients
+ * Unified Kalshi user client for accessing all user-related functionality
  */
-export class KalshiUserClient extends BaseUserClient {
-  private orderClient: OrderClient;
-  private batchClient: BatchClient;
+export class UserClient extends BaseClient {
+  private portfolioClient: PortfolioClient;
   private fillsClient: FillsClient;
+  private mockMode: boolean;
 
-  constructor(apiKey?: string) {
-    super(apiKey);
-    this.orderClient = new OrderClient(apiKey);
-    this.batchClient = new BatchClient(apiKey);
-    this.fillsClient = new FillsClient(apiKey);
+  constructor(options: { apiKey?: string, mockMode?: boolean, baseUrl?: string } = {}) {
+    super(options);
+    this.mockMode = options.mockMode || false;
+    
+    // Initialize sub-clients with the same API key
+    this.portfolioClient = new PortfolioClient(options.apiKey);
+    this.fillsClient = new FillsClient(options.apiKey);
   }
 
-  // Base User methods (from BaseUserClient)
-  // getPositions, getPortfolio, getAiRecommendations, getBalance are inherited
-
-  // Order methods (delegated to OrderClient)
-  async placeOrder(order: any) {
-    return this.orderClient.placeOrder(order);
+  /**
+   * Get the user's positions
+   */
+  async getPositions() {
+    if (this.mockMode) {
+      return MockDataService.getPositions();
+    }
+    return this.portfolioClient.getPositions();
   }
 
-  async getOrders(params?: any) {
-    return this.orderClient.getOrders(params);
+  /**
+   * Get the user's balance
+   */
+  async getBalance() {
+    if (this.mockMode) {
+      return {
+        available_balance: 10000,
+        portfolio_value: 2500,
+        total_value: 12500,
+        pending_deposits: 0,
+        pending_withdrawals: 0,
+        bonuses: []
+      };
+    }
+    return this.portfolioClient.getBalance();
   }
 
-  async createOrder(order: any) {
-    return this.orderClient.createOrder(order);
-  }
-
-  async getOrder(orderId: string) {
-    return this.orderClient.getOrder(orderId);
-  }
-
-  async cancelOrder(orderId: string) {
-    return this.orderClient.cancelOrder(orderId);
-  }
-
-  async amendOrder(orderId: string, amendRequest: any) {
-    return this.orderClient.amendOrder(orderId, amendRequest);
-  }
-
-  async decreaseOrder(orderId: string, decreaseRequest: any) {
-    return this.orderClient.decreaseOrder(orderId, decreaseRequest);
-  }
-
-  // Batch methods (delegated to BatchClient)
-  async batchCreateOrders(batchRequest: any) {
-    return this.batchClient.batchCreateOrders(batchRequest);
-  }
-
-  async batchCancelOrders(batchRequest: any) {
-    return this.batchClient.batchCancelOrders(batchRequest);
-  }
-
-  async getTotalRestingOrderValue() {
-    return this.batchClient.getTotalRestingOrderValue();
-  }
-
-  // Fills methods (delegated to FillsClient)
+  /**
+   * Get the user's fills (completed trades)
+   */
   async getFills(params?: any) {
+    if (this.mockMode) {
+      return {
+        fills: MockDataService.getTrades(),
+        cursor: ''
+      };
+    }
     return this.fillsClient.getFills(params);
   }
-  
-  // Mock data support
-  getMockPositions() {
-    if (this.mockMode && MockDataService) {
-      return MockDataService.getMockPositions();
+
+  /**
+   * Place an order
+   */
+  async placeOrder(orderData: any) {
+    if (this.mockMode) {
+      return { order_id: `mock-order-${Date.now()}` };
     }
-    return [];
+    
+    try {
+      const url = `${this.baseUrl}/portfolio/orders`;
+      return this.post(url, orderData);
+    } catch (error) {
+      console.error("Error placing order:", error);
+      throw error;
+    }
   }
 }
