@@ -1,22 +1,10 @@
 
 /**
- * Kalshi API configuration
+ * Kalshi API configuration with standardized variable names and type safety
  */
 
-// API Base URLs
-export const KALSHI_API_URL = 'https://trading-api.kalshi.com/v3';
-export const KALSHI_DEMO_API_URL = 'https://demo-api.kalshi.com/trade-api/v3';
-
-// For backwards compatibility
-export const API_URL = KALSHI_API_URL;
-export const DEMO_API_URL = KALSHI_DEMO_API_URL;
-
-// Demo mode flag
-export const DEMO_MODE = false;
-
-// Authentication method (rsa or api_key)
+// Type definition for authentication methods
 export type AuthMethod = 'api_key' | 'rsa' | 'none';
-export const AUTH_METHOD: AuthMethod = (import.meta.env.VITE_KALSHI_AUTH_METHOD ?? 'api_key') as AuthMethod;
 
 // Authentication method enum for strict typing
 export enum AUTH_METHODS {
@@ -25,15 +13,42 @@ export enum AUTH_METHODS {
   NONE = 'none'
 }
 
-// For backwards compatibility with other imports
-export const USE_RSA_AUTH = AUTH_METHOD === 'rsa';
-export const KALSHI_API_KEY = '';
-export const CLIENT_ID = '';
-export const KALSHI_ENVIRONMENT = DEMO_MODE ? 'demo' : 'production';
+// API Base URLs
+export const KALSHI_API_URL = 'https://trading-api.kalshi.com/v3';
+export const KALSHI_DEMO_API_URL = 'https://demo-api.kalshi.com/trade-api/v3';
 
-// RSA Authentication settings (if using RSA auth)
-export const RSA_KEY_ID = '';
-export const RSA_PRIVATE_KEY = '';
+// Core configuration object
+export const config = {
+  // Environment mode
+  DEMO_MODE: import.meta.env.VITE_DEMO_MODE === 'true' || false,
+  
+  // Authentication configuration
+  AUTH_METHOD: (import.meta.env.VITE_AUTH_METHOD || 'api_key') as AuthMethod,
+  API_KEY: import.meta.env.VITE_KALSHI_API_KEY || '',
+  CLIENT_ID: import.meta.env.VITE_KALSHI_CLIENT_ID || '',
+  
+  // Base URL - dynamic based on mode
+  get API_BASE_URL() {
+    return this.DEMO_MODE ? KALSHI_DEMO_API_URL : KALSHI_API_URL;
+  },
+  
+  // RSA Authentication settings
+  RSA_KEY_ID: import.meta.env.VITE_KALSHI_RSA_KEY_ID || '',
+  RSA_PRIVATE_KEY: import.meta.env.VITE_KALSHI_RSA_PRIVATE_KEY || '',
+  
+  // Environment identification
+  ENVIRONMENT: import.meta.env.VITE_KALSHI_ENVIRONMENT || (import.meta.env.VITE_DEMO_MODE === 'true' ? 'demo' : 'production'),
+};
+
+// For backwards compatibility - direct exports
+export const DEMO_MODE = config.DEMO_MODE;
+export const AUTH_METHOD = config.AUTH_METHOD;
+export const USE_RSA_AUTH = config.AUTH_METHOD === 'rsa';
+export const KALSHI_API_KEY = config.API_KEY;
+export const CLIENT_ID = config.CLIENT_ID;
+export const KALSHI_ENVIRONMENT = config.ENVIRONMENT;
+export const RSA_KEY_ID = config.RSA_KEY_ID;
+export const RSA_PRIVATE_KEY = config.RSA_PRIVATE_KEY;
 
 // Rate limiting configuration
 export const RATE_LIMIT = {

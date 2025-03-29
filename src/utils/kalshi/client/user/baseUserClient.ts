@@ -1,6 +1,6 @@
 
 import { BaseKalshiClient } from '../baseClient';
-import { KalshiPosition, KalshiBalanceResponse } from '../../types';
+import { KalshiPosition, KalshiPortfolioData } from '../../types/portfolio';
 
 /**
  * Base class for Kalshi user-related API clients
@@ -23,7 +23,7 @@ export class BaseUserClient extends BaseKalshiClient {
   /**
    * Get the user's current balance
    */
-  async getBalance(): Promise<KalshiBalanceResponse | null> {
+  async getBalance(): Promise<KalshiPortfolioData | null> {
     try {
       const url = `${this.baseUrl}/portfolio/balance`;
       return this.rateLimitedGet(url);

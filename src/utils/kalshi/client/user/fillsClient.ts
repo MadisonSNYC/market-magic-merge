@@ -1,5 +1,6 @@
 
 import { BaseUserClient } from './baseUserClient';
+import { KalshiTrade } from '../../types/portfolio';
 
 /**
  * Client for managing Kalshi fills (trades)

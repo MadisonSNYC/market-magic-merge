@@ -1,76 +1,74 @@
 
-/**
- * Portfolio related types (positions, balance, etc.)
- */
-
 export interface KalshiPosition {
+  // Original properties
+  marketId: string;
+  yes: number;
+  no: number;
+  value: number;
+  market_title?: string;
+  expiration?: string;
+  price?: number;
+  cost?: number;
+  payout?: number;
+  
+  // Required properties mentioned in the error
   ticker: string;
   yes_count: number;
   no_count: number;
   settlement_fee: number;
-  settlement_payout: number;
-  settlement_price: number;
-  settlement_type: string;
-  last_price: number;
-  average_price: number;
-  cost_basis: number;
-  unrealized_pnl: number;
-  realized_pnl: number;
-  market_name?: string;
-  total_matched: number;
-  total_fees: number;
-  outstanding_asks: number;
-  outstanding_bids: number;
-  expiration_time?: string;
-  created_time?: string;
-  status?: string;
   
-  // Additional properties for enhanced functionality
-  market_id?: string;
-  marketId?: string;
-  market_title?: string;
+  // Additional properties from error
   title?: string;
-  yes?: number;
-  no?: number;
-  value?: number;
-  price?: number;
-  cost?: number;
-  payout?: number;
   expires_at?: string;
-  expiration?: string;
-  icon?: string;
+  market_id?: string;
   
-  // Properties for Position compatibility
+  // Properties from Position interface
+  marketTitle?: string;
   contracts?: number;
   avgPrice?: number;
   currentValue?: number;
   potentialPayout?: number;
   positionType?: string;
   timeRemaining?: string;
-  marketTitle?: string;
+  icon?: string;
 }
 
-// Alias for backward compatibility
-export type Position = KalshiPosition;
-
-export interface KalshiBalanceResponse {
-  balance: number;
-  available_balance: number;
-  pending_deposits: number;
-  pending_withdrawals: number;
-  bonuses: KalshiBonus[];
-  total_bonuses: number;
-  weekly_deposit_volume: number;
-  weekly_withdrawal_volume: number;
+export interface Position {
+  marketId: string;
+  marketTitle: string;
+  contracts?: number;
+  avgPrice?: number;
+  cost?: number;
+  currentValue?: number;
+  potentialPayout?: number;
+  positionType?: string;
+  timeRemaining?: string;
+  yes: number;
+  no: number;
+  value: number;
+  icon?: string;
+  expires_at?: string;
+  expiration?: string;
+  price?: number;
+  payout?: number;
 }
 
-export interface KalshiBonus {
+export interface KalshiPortfolioData {
+  availableBalance: number;
+  totalPortfolioValue: number;
+  lastUpdated: string;
+}
+
+export interface KalshiTrade {
   id: string;
-  created_time: string;
-  expiration_time: string;
-  amount: number;
-  amount_used: number;
-  description: string;
+  market_id?: string;
+  ticker?: string;
+  timestamp: string;
+  price: number;
+  count: number;
+  side: 'yes' | 'no';
+  type: string;
+  strikePrice?: number;
 }
 
 export interface KalshiAiRecommendation {
