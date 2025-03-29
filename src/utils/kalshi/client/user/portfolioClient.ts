@@ -1,55 +1,64 @@
+
 import { BaseUserClient } from './baseUserClient';
-import { KalshiPosition, KalshiPortfolioData } from '../../types/portfolio';
+import { KalshiPosition, KalshiBalanceResponse, KalshiPortfolioData } from '../../types';
 
 /**
- * Client for managing portfolio-related API calls
+ * Client for managing Kalshi portfolio information
  */
 export class PortfolioClient extends BaseUserClient {
+  constructor(apiKey?: string) {
+    super('', apiKey);
+  }
+
   /**
-   * Get detailed portfolio information
+   * Get the user's current positions
    */
-  async getPortfolioSummary(): Promise<KalshiPortfolioData | null> {
+  async getPositions(): Promise<KalshiPosition[]> {
     try {
-      const balance = await this.getBalance();
-      
-      if (!balance) {
-        return null;
-      }
-      
-      // Transform the balance response to portfolio data
-      return {
-        availableBalance: balance.available_balance,
-        totalPortfolioValue: balance.total_value,
-        lastUpdated: new Date().toISOString(),
-        
-        // Keep original field names for backward compatibility
-        available_balance: balance.available_balance,
-        portfolio_value: balance.portfolio_value,
-        total_value: balance.total_value
-      };
+      const url = `${this.baseUrl}/portfolio/positions`;
+      const response = await this.rateLimitedGet(url);
+      return response.positions || [];
     } catch (error) {
-      console.error("Error getting portfolio summary:", error);
+      console.error("Error fetching positions:", error);
+      return [];
+    }
+  }
+
+  /**
+   * Get the user's portfolio data
+   */
+  async getPortfolio(): Promise<KalshiPortfolioData | null> {
+    try {
+      const url = `${this.baseUrl}/portfolio`;
+      return this.rateLimitedGet(url);
+    } catch (error) {
+      console.error("Error fetching portfolio:", error);
       return null;
     }
   }
-  
+
   /**
-   * Get positions with additional market metadata
+   * Get the user's AI recommendations
    */
-  async getEnrichedPositions(): Promise<KalshiPosition[] | null> {
+  async getAiRecommendations() {
     try {
-      const positions = await this.getPositions();
-      
-      if (!positions) {
-        return null;
-      }
-      
-      // In a real implementation, you would fetch market details for each position
-      // and enrich them with additional data
-      
-      return positions;
+      const url = `${this.baseUrl}/portfolio/ai/recommendations`;
+      return this.rateLimitedGet(url);
     } catch (error) {
-      console.error("Error getting enriched positions:", error);
+      console.error("Error fetching AI recommendations:", error);
+      return { recommendations: [] };
+    }
+  }
+
+  /**
+   * Get the user's current balance
+   */
+  async getBalance(): Promise<KalshiBalanceResponse | null> {
+    try {
+      const url = `${this.baseUrl}/portfolio/balance`;
+      return this.rateLimitedGet(url);
+    } catch (error) {
+      console.error("Error fetching balance:", error);
       return null;
     }
   }

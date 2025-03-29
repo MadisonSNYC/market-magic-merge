@@ -23,7 +23,7 @@ export type {
 
 // Re-export recommendations but avoid duplicate export with portfolio's KalshiAiRecommendation
 export type {
-  KalshiRecommendation,
-  RecommendationResponse,
-  RecommendationParams
+  KalshiAiRecommendation as KalshiRecommendation,
+  KalshiAiRecommendationResponse as RecommendationResponse,
+  KalshiAiRecommendationParams as RecommendationParams
 } from './recommendations';

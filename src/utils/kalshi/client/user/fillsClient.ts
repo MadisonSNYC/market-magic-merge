@@ -1,6 +1,6 @@
 
 import { BaseUserClient } from './baseUserClient';
-import { KalshiTrade } from '../../types';
+import { KalshiTradeType as KalshiTrade } from '../../types';
 
 /**
  * Client for managing Kalshi fills (trades)

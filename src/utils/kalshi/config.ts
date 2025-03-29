@@ -31,3 +31,7 @@ export const API_BASE_URL = config.API_BASE_URL;
 export const AUTH_METHOD = config.AUTH_METHOD;
 export const DEMO_MODE = config.DEMO_MODE;
 export const API_VERSION = config.API_VERSION;
+
+// Additional exports for backward compatibility
+export const KALSHI_API_URL = 'https://trading-api.kalshi.com/trade-api/v2';
+export const KALSHI_DEMO_API_URL = 'https://demo-api.kalshi.com/trade-api/v2';
