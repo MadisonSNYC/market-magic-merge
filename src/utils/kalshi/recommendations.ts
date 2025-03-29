@@ -7,7 +7,7 @@ import { mockAiRecommendations } from './mockData';
 export interface KalshiRecommendation {
   id: string;
   market_id: string;
-  marketId?: string; // Alias for market_id for backward compatibility
+  marketId: string; // Alias for market_id for backward compatibility
   title: string;
   confidence: number;
   side: string;

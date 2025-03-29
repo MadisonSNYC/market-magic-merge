@@ -14,7 +14,7 @@ export * from './communicationClient';
 export * from './exchangeClient';
 export * from './seriesClient';
 
-// Re-export core client but rename duplicate exported classes
+// Selectively re-export from coreClient to avoid duplicate exports
 export {
   KalshiCoreClient,
   RATE_LIMIT_TIERS,
