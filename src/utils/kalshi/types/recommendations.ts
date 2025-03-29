@@ -1,13 +1,22 @@
 
+/**
+ * AI recommendation interfaces for Kalshi
+ */
+
 export interface KalshiAiRecommendation {
-  marketId: string;
+  id: string;
+  market_id: string;  // Primary property name
+  marketId?: string;  // Alias for backward compatibility
+  title: string;
+  confidence: number;
+  side: string;
   recommendation: string;
+  reasoning: string;
   reason: string;
-  contractPrice: number;
-  size: number;
   cost: number;
   potentialProfit: number;
-  potentialPayout: number;
-  confidence: number;
-  category: string;
+  potentialPayout?: number;
+  category?: string;
+  contractPrice?: number;
+  size?: number;
 }

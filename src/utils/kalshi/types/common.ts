@@ -60,3 +60,6 @@ export interface SuccessResponse<T> {
   status: 'success';
   data: T;
 }
+
+// Auth method type
+export type AuthMethod = 'api_key' | 'rsa' | 'none';

@@ -4,9 +4,27 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, TrendingUp, Trophy } from 'lucide-react';
-import { mockAiRecommendations } from '@/utils/kalshi/mockData';
+import { getAiRecommendations } from '@/utils/kalshi/recommendations';
+import { KalshiAiRecommendation } from '@/utils/kalshi/types/recommendations';
+import { useQuery } from '@tanstack/react-query';
 
 export function AiRecommendations() {
+  // Use React Query to fetch recommendations
+  const { data: recommendations, isLoading } = useQuery({
+    queryKey: ['ai-recommendations'], 
+    queryFn: getAiRecommendations
+  });
+
+  if (isLoading) {
+    return (
+      <Card className="border-muted/40">
+        <CardHeader>
+          <CardTitle className="text-base font-medium">Loading recommendations...</CardTitle>
+        </CardHeader>
+      </Card>
+    );
+  }
+
   return (
     <Card className="border-muted/40">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -22,8 +40,8 @@ export function AiRecommendations() {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {mockAiRecommendations.map((rec, index) => (
-            <div key={index} className="flex items-center justify-between border-b border-muted/40 pb-3">
+          {recommendations && recommendations.map((rec: KalshiAiRecommendation, index) => (
+            <div key={rec.id || index} className="flex items-center justify-between border-b border-muted/40 pb-3">
               <div>
                 <h4 className="font-medium">{rec.market_id}</h4>
                 <p className="text-sm text-muted-foreground">{rec.reason}</p>

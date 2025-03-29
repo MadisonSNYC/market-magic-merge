@@ -98,3 +98,18 @@ export interface KalshiOrdersResponse {
   orders: V3OrderResponse[];
   cursor?: string;
 }
+
+// Fills API
+export interface FillsParams {
+  ticker?: string;
+  order_id?: string;
+  min_ts?: number;
+  max_ts?: number;
+  limit?: number;
+  cursor?: string;
+}
+
+export interface KalshiFillsResponse {
+  cursor: string;
+  fills: any[];
+}

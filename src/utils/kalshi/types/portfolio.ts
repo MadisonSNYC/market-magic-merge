@@ -25,6 +25,7 @@ export interface KalshiPosition {
   no: number;   // Number of NO contracts held
   payout?: number;  // Potential payout
   price?: number;  // Price field
+  marketId?: string; // Alternative to market_id for compatibility
 }
 
 /**
@@ -85,21 +86,6 @@ export interface KalshiBalanceResponse {
 }
 
 /**
- * Trade model for Kalshi API
- */
-export interface KalshiTrade {
-  id: string;
-  market_id?: string;
-  ticker?: string;
-  timestamp: string;
-  price: number;
-  count: number;
-  side: 'yes' | 'no';
-  type: string;
-  strikePrice?: number;
-}
-
-/**
  * Settlement model for Kalshi API v3
  */
 export interface KalshiSettlement {
@@ -120,20 +106,4 @@ export interface KalshiSettlement {
 export interface KalshiSettlementsResponse {
   settlements: KalshiSettlement[];
   cursor?: string;
-}
-
-/**
- * AI-generated recommendation model
- */
-export interface KalshiAiRecommendation {
-  marketId: string;
-  recommendation: string;
-  reason: string;
-  contractPrice: number;
-  size: number;
-  cost: number;
-  potentialProfit: number;
-  potentialPayout: number;
-  confidence: number;
-  category: string;
 }

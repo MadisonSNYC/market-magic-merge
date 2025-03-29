@@ -37,8 +37,6 @@ export interface KalshiApiMarket {
   yes_sub_title?: string;
 }
 
-// Moved KalshiOrder to orders.ts to avoid duplicate exports
-
 export interface OrderbookLevel {
   price: number;  // In cents (0-100 range typically)
   count: number;  // Size/quantity at this price level

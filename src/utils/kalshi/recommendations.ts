@@ -1,28 +1,12 @@
 
 import { mockAiRecommendations } from './mockData';
-
-/**
- * Recommendation type with required properties for AiRecommendations component
- */
-export interface KalshiRecommendation {
-  id: string;
-  market_id: string;  // Primary property name
-  marketId?: string;  // Alias for backward compatibility
-  title: string;
-  confidence: number;
-  side: string;
-  recommendation: string;
-  reasoning: string;
-  reason: string;
-  cost: number;
-  potentialProfit: number;
-}
+import { KalshiAiRecommendation } from './types/recommendations';
 
 /**
  * Get AI-generated trade recommendations
  * @returns An array of trade recommendations
  */
-export const getAiRecommendations = async (): Promise<KalshiRecommendation[]> => {
+export const getAiRecommendations = async (): Promise<KalshiAiRecommendation[]> => {
   // In a real application, this would call an AI service or API
   // For now, we're returning mock data
   return mockAiRecommendations;
@@ -33,7 +17,7 @@ export const getAiRecommendations = async (): Promise<KalshiRecommendation[]> =>
  * @param userId User ID to generate personalized recommendations for
  * @returns An array of personalized recommendations
  */
-export const getPersonalizedRecommendations = async (userId: string): Promise<KalshiRecommendation[]> => {
+export const getPersonalizedRecommendations = async (userId: string): Promise<KalshiAiRecommendation[]> => {
   // This would normally filter or customize recommendations based on user data
   // For now, just return the mock recommendations
   return mockAiRecommendations;

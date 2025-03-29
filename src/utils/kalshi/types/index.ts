@@ -14,11 +14,12 @@ export * from './collections';
 export * from './exchange';
 export * from './orders';
 export * from './meta';
+export * from './portfolio';
+export * from './recommendations';
 
 // Re-export specific types as type to fix isolated modules issues
 export type { KalshiMarket } from './markets';
-export type { KalshiPosition } from './portfolio';
-export type { Position } from './portfolio';
+export type { KalshiPosition, Position } from './portfolio';
 export type { KalshiEvent, KalshiApiEvent } from './events';
 export type { KalshiApiEventsResponse } from './events';
 export type { KalshiSeries, KalshiApiSeries } from './series';
@@ -62,3 +63,6 @@ export type {
 export type {
   KalshiMilestoneParams
 } from './exchange';
+export type {
+  KalshiAiRecommendation
+} from './recommendations';
