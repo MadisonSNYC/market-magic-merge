@@ -1,5 +1,6 @@
 
 import { AxiosResponse } from 'axios';
+import { vi } from 'vitest';
 
 /**
  * Helper function to create a mock Axios response
@@ -33,15 +34,15 @@ export function createMockErrorResponse(status = 500, message = 'Internal Server
 /**
  * Mock Axios request for testing
  */
-export function mockAxios(responseData: any, status = 200): jest.Mock {
+export function mockAxios(responseData: any, status = 200): ReturnType<typeof vi.fn> {
   const mockResponse = createMockResponse(responseData, status);
-  // Create a Jest mock function that returns the response
-  const mockFn = jest.fn().mockReturnValue(mockResponse);
+  // Create a mock function that returns the response
+  const mockFn = vi.fn().mockReturnValue(mockResponse);
   
-  // Use mock implementation that allows for Jest type checking
+  // Use mock implementation that allows for type checking
   if (typeof global.fetch === 'function') {
-    // @ts-ignore - Jest mock handling
-    jest.spyOn(global, 'fetch').mockImplementation(() => 
+    // @ts-ignore - Vitest mock handling
+    vi.spyOn(global, 'fetch').mockImplementation(() => 
       Promise.resolve({
         json: () => Promise.resolve(responseData),
         ok: status < 400,
@@ -121,27 +122,13 @@ export const mockKalshiData = {
  * Setup test environment
  */
 export function setupTestEnvironment() {
-  // @ts-ignore - Jest functions
-  if (typeof beforeEach === 'function') {
-    // @ts-ignore - Jest function
-    beforeEach(() => {
-      // @ts-ignore - Jest function
-      if (typeof jest !== 'undefined') {
-        // @ts-ignore - Jest function
-        jest.clearAllMocks();
-      }
-    });
-  }
+  // Reset all mocks before each test
+  beforeEach(() => {
+    vi.resetAllMocks();
+  });
   
-  // @ts-ignore - Jest function
-  if (typeof afterEach === 'function') {
-    // @ts-ignore - Jest function
-    afterEach(() => {
-      // @ts-ignore - Jest function
-      if (typeof jest !== 'undefined') {
-        // @ts-ignore - Jest function
-        jest.restoreAllMocks();
-      }
-    });
-  }
+  // Restore all mocks after each test
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
 }

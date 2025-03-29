@@ -47,14 +47,12 @@ describe('KalshiTradeClient', () => {
       });
 
       // Assert that the parameters were passed correctly
-      expect(mockRequest).toHaveBeenCalledWith(
-        expect.toMatchObject({
-          params: expect.toMatchObject({
-            ticker: 'BTC-PRICE-24H',
-            limit: 10
-          })
-        })
-      );
+      expect(mockRequest).toHaveBeenCalledWith({
+        params: {
+          ticker: 'BTC-PRICE-24H',
+          limit: 10
+        }
+      });
     });
   });
 
@@ -68,14 +66,12 @@ describe('KalshiTradeClient', () => {
       await client.getTradesByMarket('BTC-PRICE-24H', { limit: 5 });
 
       // Assert that the correct parameters were passed
-      expect(mockRequest).toHaveBeenCalledWith(
-        expect.toMatchObject({
-          params: expect.toMatchObject({
-            ticker: 'BTC-PRICE-24H',
-            limit: 5
-          })
-        })
-      );
+      expect(mockRequest).toHaveBeenCalledWith({
+        params: {
+          ticker: 'BTC-PRICE-24H',
+          limit: 5
+        }
+      });
     });
   });
 });

@@ -1,17 +1,18 @@
 
 import { KalshiUserClient } from '../client/userClient';
 import axios from 'axios';
+import { vi } from 'vitest';
 
 // Mock axios
-jest.mock('axios');
-const mockedAxios = axios as jest.Mocked<typeof axios>;
+vi.mock('axios');
+const mockedAxios = axios as any;
 
 describe('KalshiUserClient', () => {
   let userClient: KalshiUserClient;
   
   beforeEach(() => {
     // Reset mocks
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     
     // Create client instance
     userClient = new KalshiUserClient({ apiKey: 'test_api_key' });

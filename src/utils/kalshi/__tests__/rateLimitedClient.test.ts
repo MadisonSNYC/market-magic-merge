@@ -1,20 +1,21 @@
 
 import { RateLimitedClient } from '../client/rateLimitedClient';
 import { HttpClient } from '../client/httpClient';
+import { vi } from 'vitest';
 
 // Mock HttpClient
-jest.mock('../client/httpClient');
+vi.mock('../client/httpClient');
 
 describe('RateLimitedClient', () => {
-  let httpClient: jest.Mocked<HttpClient>;
+  let httpClient: HttpClient;
   let rateLimitedClient: RateLimitedClient;
   
   beforeEach(() => {
     // Reset mocks
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     
     // Create mocked HttpClient instance
-    httpClient = new HttpClient('https://test-api.example.com') as jest.Mocked<HttpClient>;
+    httpClient = new HttpClient('https://test-api.example.com') as any;
     
     // Create RateLimitedClient instance with mocked HttpClient
     rateLimitedClient = new RateLimitedClient(httpClient);
@@ -24,7 +25,7 @@ describe('RateLimitedClient', () => {
     it('should call httpClient.get with correct parameters', async () => {
       // Set up the mock
       const mockResponse = { data: { result: 'success' } };
-      httpClient.get = jest.fn().mockResolvedValue(mockResponse);
+      httpClient.get = vi.fn().mockResolvedValue(mockResponse);
       
       // Call the method
       const url = '/test-endpoint';
@@ -35,7 +36,7 @@ describe('RateLimitedClient', () => {
       // Verify the mock was called correctly
       expect(httpClient.get).toHaveBeenCalledWith(
         url,
-        expect.toMatchObject({ params })
+        { params }
       );
       
       // Verify the result
@@ -45,7 +46,7 @@ describe('RateLimitedClient', () => {
     it('should handle errors correctly', async () => {
       // Set up the mock to throw an error
       const mockError = new Error('Test error');
-      httpClient.get = jest.fn().mockRejectedValue(mockError);
+      httpClient.get = vi.fn().mockRejectedValue(mockError);
       
       // Call the method
       const url = '/test-endpoint';
@@ -60,7 +61,7 @@ describe('RateLimitedClient', () => {
       }
       
       // Verify the mock was called correctly
-      expect(httpClient.get).toHaveBeenCalledWith(url, expect.toMatchObject({}));
+      expect(httpClient.get).toHaveBeenCalledWith(url, {});
     });
   });
   
@@ -68,7 +69,7 @@ describe('RateLimitedClient', () => {
     it('should call httpClient.post with correct parameters', async () => {
       // Set up the mock
       const mockResponse = { data: { result: 'success' } };
-      httpClient.post = jest.fn().mockResolvedValue(mockResponse);
+      httpClient.post = vi.fn().mockResolvedValue(mockResponse);
       
       // Call the method
       const url = '/test-endpoint';

@@ -42,14 +42,12 @@ describe('MarketClient', () => {
       await client.getMarkets({ category: 'Crypto', status: 'open' });
 
       // Assert that the parameters were passed correctly
-      expect(mockRequest).toHaveBeenCalledWith(
-        expect.toMatchObject({
-          params: expect.toMatchObject({
-            category: 'Crypto',
-            status: 'open'
-          })
-        })
-      );
+      expect(mockRequest).toHaveBeenCalledWith({
+        params: {
+          category: 'Crypto',
+          status: 'open'
+        }
+      });
     });
   });
 

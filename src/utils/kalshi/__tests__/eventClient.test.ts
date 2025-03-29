@@ -47,15 +47,13 @@ describe('EventClient', () => {
       });
 
       // Assert that the parameters were passed correctly
-      expect(mockRequest).toHaveBeenCalledWith(
-        expect.toMatchObject({
-          params: expect.toMatchObject({
-            category: 'Politics',
-            status: 'active',
-            series_ticker: 'US-POLITICS'
-          })
-        })
-      );
+      expect(mockRequest).toHaveBeenCalledWith({
+        params: {
+          category: 'Politics',
+          status: 'active',
+          series_ticker: 'US-POLITICS'
+        }
+      });
     });
   });
 
@@ -100,11 +98,9 @@ describe('EventClient', () => {
       await client.getEvent('US-ELECTION-2024', true);
 
       // Assert the API was called with the right URL
-      expect(mockRequest).toHaveBeenCalledWith(
-        expect.toMatchObject({
-          url: expect.stringContaining('?include_markets=true')
-        })
-      );
+      expect(mockRequest).toHaveBeenCalledWith({
+        url: expect.stringContaining('?include_markets=true')
+      });
     });
   });
 });

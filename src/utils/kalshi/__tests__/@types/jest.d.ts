@@ -32,6 +32,7 @@ declare global {
       <T = any>(actual: T): Matchers<void, T>;
       objectContaining<T extends object>(expected: T): T;
       stringContaining(expected: string): string;
+      toMatchObject: <E = any>(expected: E) => any;
     }
     
     interface Mock<T = any, Y extends any[] = any[]> extends Function {
