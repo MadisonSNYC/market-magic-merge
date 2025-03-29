@@ -1,5 +1,4 @@
 
-import { CoreClientOptions } from './types';
 import { KalshiMarketClient } from './marketClient';
 import { KalshiUserClient } from './userClient';
 import { KalshiMetaClient } from './metaClient';
@@ -14,6 +13,14 @@ import { KalshiExchangeClient } from './exchangeClient';
 import { KalshiSeriesClient } from './seriesClient';
 
 /**
+ * Type for core client options
+ */
+export interface CoreClientOptions {
+  apiKey?: string;
+  baseUrl?: string;
+}
+
+/**
  * Factory class for creating Kalshi API clients
  */
 export class ClientFactory {
@@ -21,19 +28,22 @@ export class ClientFactory {
    * Create all Kalshi API clients
    */
   static createClients(options: CoreClientOptions) {
+    const apiKey = options.apiKey;
+    const baseUrl = options.baseUrl;
+    
     return {
-      marketClient: new KalshiMarketClient(options.apiKey),
-      userClient: new KalshiUserClient(options),
-      metaClient: new KalshiMetaClient(options.apiKey),
-      tradeClient: new KalshiTradeClient(options.apiKey),
-      eventClient: new KalshiEventClient(options.apiKey),
-      collectionClient: new KalshiCollectionClient(options.apiKey),
-      structuredTargetClient: new KalshiStructuredTargetClient(options.apiKey),
-      rfqClient: new KalshiRfqClient(options.apiKey),
-      quoteClient: new KalshiQuoteClient(options.apiKey),
-      communicationClient: new KalshiCommunicationClient(options.apiKey),
-      exchangeClient: new KalshiExchangeClient(options.apiKey),
-      seriesClient: new KalshiSeriesClient(options.apiKey)
+      marketClient: new KalshiMarketClient(apiKey),
+      userClient: new KalshiUserClient(apiKey),
+      metaClient: new KalshiMetaClient(apiKey),
+      tradeClient: new KalshiTradeClient(apiKey),
+      eventClient: new KalshiEventClient(apiKey),
+      collectionClient: new KalshiCollectionClient(apiKey),
+      structuredTargetClient: new KalshiStructuredTargetClient(apiKey),
+      rfqClient: new KalshiRfqClient(apiKey),
+      quoteClient: new KalshiQuoteClient(apiKey),
+      communicationClient: new KalshiCommunicationClient(apiKey),
+      exchangeClient: new KalshiExchangeClient(apiKey),
+      seriesClient: new KalshiSeriesClient(apiKey)
     };
   }
 }

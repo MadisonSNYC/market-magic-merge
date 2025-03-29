@@ -3,7 +3,7 @@
 export * from './common';
 export * from './markets';
 export * from './events';
-export type { KalshiPosition, KalshiPortfolioData, Position, KalshiBalanceResponse, KalshiTrade } from './portfolio';
+export type { KalshiPosition, KalshiPortfolioData, Position, KalshiBalanceResponse } from './portfolio';
 export * from './orders';
 export * from './meta';
 export * from './exchange';
@@ -15,7 +15,7 @@ export * from './quotes';
 
 // Re-export trades types explicitly to fix duplicate export error
 export type { 
-  KalshiTrade as KalshiTradeType, 
+  KalshiTrade, 
   KalshiApiTrade, 
   KalshiTradeResponse, 
   TradeParams 
@@ -24,6 +24,6 @@ export type {
 // Re-export recommendations but avoid duplicate export with portfolio's KalshiAiRecommendation
 export type {
   KalshiAiRecommendation as KalshiRecommendation,
-  KalshiAiRecommendationResponse as RecommendationResponse,
-  KalshiAiRecommendationParams as RecommendationParams
+  KalshiAiRecommendation as KalshiAiRecommendationResponse,
+  KalshiAiRecommendation as KalshiAiRecommendationParams
 } from './recommendations';

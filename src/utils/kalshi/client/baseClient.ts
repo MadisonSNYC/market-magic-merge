@@ -1,6 +1,6 @@
 
 import axios, { AxiosRequestConfig } from 'axios';
-import { KALSHI_API_URL } from '../config';
+import { config, KALSHI_API_URL, KALSHI_DEMO_API_URL } from '../config';
 
 /**
  * Base class for Kalshi API clients
@@ -10,7 +10,7 @@ export class BaseKalshiClient {
   protected readonly apiKey?: string;
   
   constructor(baseUrl: string = '', apiKey?: string) {
-    this.baseUrl = baseUrl || KALSHI_API_URL;
+    this.baseUrl = baseUrl || (config.DEMO_MODE ? KALSHI_DEMO_API_URL : KALSHI_API_URL);
     this.apiKey = apiKey;
   }
   

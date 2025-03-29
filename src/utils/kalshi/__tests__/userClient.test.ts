@@ -1,4 +1,3 @@
-
 import { KalshiUserClient } from '../client/userClient';
 import axios from 'axios';
 import { vi, expect, describe, it, beforeEach } from 'vitest';
@@ -14,8 +13,8 @@ describe('KalshiUserClient', () => {
     // Reset mocks
     vi.clearAllMocks();
     
-    // Create client instance
-    userClient = new KalshiUserClient({ apiKey: 'test_api_key' });
+    // Create a new client with an API key as a string
+    userClient = new KalshiUserClient('test-api-key');
   });
   
   describe('getPositions', () => {

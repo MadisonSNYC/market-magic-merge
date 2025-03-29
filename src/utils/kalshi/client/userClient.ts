@@ -2,7 +2,7 @@
 import { BaseKalshiClient } from './baseClient';
 import { PortfolioClient } from './user/portfolioClient';
 import { FillsClient } from './user/fillsClient';
-import { KalshiPosition, KalshiBalanceResponse } from '../types';
+import { Position, KalshiBalanceResponse } from '../types/portfolio';
 
 /**
  * Client for interacting with Kalshi user-related API endpoints
@@ -20,7 +20,7 @@ export class KalshiUserClient extends BaseKalshiClient {
   /**
    * Get the user's current positions
    */
-  async getPositions(): Promise<KalshiPosition[] | null> {
+  async getPositions(): Promise<Position[] | null> {
     return this.portfolioClient.getPositions();
   }
   
@@ -41,7 +41,7 @@ export class KalshiUserClient extends BaseKalshiClient {
   /**
    * Get the user's current balance
    */
-  async getBalance(): Promise<KalshiBalanceResponse | null> {
+  async getBalance(): Promise<KalshiBalanceResponse> {
     return this.portfolioClient.getBalance();
   }
   
