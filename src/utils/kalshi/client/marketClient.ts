@@ -55,4 +55,20 @@ export class KalshiMarketClient extends BaseKalshiClient {
       return null;
     }
   }
+  
+  /**
+   * Get a specific market by its ID
+   * @param marketId - The ID of the market to retrieve
+   * @returns The market data or null if not found
+   */
+  async getMarketById(marketId: string) {
+    try {
+      const url = `/markets/${marketId}`;
+      const response = await this.rateLimitedGet(url);
+      return response;
+    } catch (error) {
+      console.error(`Error fetching market ${marketId}:`, error);
+      return null;
+    }
+  }
 }

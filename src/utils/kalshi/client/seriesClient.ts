@@ -9,5 +9,34 @@ export class KalshiSeriesClient extends BaseKalshiClient {
     super('', apiKey);
   }
   
-  // Series methods can be implemented here
+  /**
+   * Get a series by ticker
+   * @param seriesTicker - The ticker of the series
+   * @returns The series data
+   */
+  async getSeries(seriesTicker: string) {
+    try {
+      const url = `/series/${seriesTicker}`;
+      const response = await this.rateLimitedGet(url);
+      return response.series;
+    } catch (error) {
+      console.error(`Error fetching series ${seriesTicker}:`, error);
+      return null;
+    }
+  }
+  
+  /**
+   * Get all series
+   * @returns List of all series
+   */
+  async getAllSeries() {
+    try {
+      const url = '/series';
+      const response = await this.rateLimitedGet(url);
+      return response.series || [];
+    } catch (error) {
+      console.error('Error fetching all series:', error);
+      return [];
+    }
+  }
 }

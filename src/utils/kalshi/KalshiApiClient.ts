@@ -1,74 +1,83 @@
 
-import { MarketClient } from './clients/MarketClient';
-import { EventClient } from './clients/EventClient';
-import { PortfolioClient } from './clients/PortfolioClient';
-import { ExchangeClient } from './clients/ExchangeClient';
-import { BaseClient } from './clients/BaseClient';
+import { KalshiMarketClient } from './client/marketClient';
+import { KalshiUserClient } from './client/userClient';
+import { KalshiMetaClient } from './client/metaClient';
 
 /**
- * Kalshi API client for v3
+ * Main Kalshi API client that combines functionality from multiple domain-specific clients
  */
 export class KalshiApiClient {
-  private readonly marketClient: MarketClient;
-  private readonly eventClient: EventClient;
-  private readonly portfolioClient: PortfolioClient;
-  private readonly exchangeClient: ExchangeClient;
-  private readonly baseClient: BaseClient;
+  private readonly marketClient: KalshiMarketClient;
+  private readonly userClient: KalshiUserClient;
+  private readonly metaClient: KalshiMetaClient;
+  private readonly mockMode: boolean;
   
   constructor(options: { apiKey?: string; mockMode?: boolean; baseUrl?: string } = {}) {
-    this.baseClient = new BaseClient(options);
-    this.marketClient = new MarketClient(options);
-    this.eventClient = new EventClient(options);
-    this.portfolioClient = new PortfolioClient(options);
-    this.exchangeClient = new ExchangeClient(options);
+    this.mockMode = options.mockMode || false;
+    
+    // Initialize domain-specific clients
+    this.marketClient = new KalshiMarketClient(options.apiKey);
+    this.userClient = new KalshiUserClient(options);
+    this.metaClient = new KalshiMetaClient(options.apiKey);
   }
-
-  // Market methods
-  async getMarkets(params?: any) {
-    return this.marketClient.getMarkets(params);
-  }
-
-  async getMarket(ticker: string) {
-    return this.marketClient.getMarket(ticker);
-  }
-
-  async getOrderbook(ticker: string) {
-    return this.marketClient.getOrderbook(ticker);
-  }
-
-  // Event methods
-  async getEvents(params?: any) {
-    return this.eventClient.getEvents(params);
-  }
-
-  async getEvent(eventTicker: string, includeMarkets: boolean = false) {
-    return this.eventClient.getEvent(eventTicker, includeMarkets);
-  }
-
-  // Portfolio methods
-  async getBalance() {
-    return this.portfolioClient.getBalance();
-  }
-
+  
+  /**
+   * Get user positions
+   */
   async getPositions() {
-    return this.portfolioClient.getPositions();
+    if (this.mockMode) {
+      return [
+        { market_id: 'MARKET-1', yes_amount: 10, no_amount: 0 },
+        { market_id: 'MARKET-2', yes_amount: 0, no_amount: 5 }
+      ];
+    }
+    return this.userClient.getPositions();
   }
-
-  // Exchange methods
-  async getExchangeStatus() {
-    return this.exchangeClient.getExchangeStatus();
+  
+  /**
+   * Get user trades
+   */
+  async getTrades(params?: any) {
+    if (this.mockMode) {
+      return {
+        trades: [
+          {
+            id: 'trade-1',
+            market_id: 'MARKET-1',
+            created_time: new Date().toISOString(),
+            yes_price: 65,
+            count: 10
+          },
+          {
+            id: 'trade-2',
+            market_id: 'MARKET-2',
+            created_time: new Date().toISOString(),
+            yes_price: 35,
+            count: 5
+          }
+        ]
+      };
+    }
+    return { trades: [] };
   }
-
-  // Check if the client is in demo/mock mode
-  isDemoMode(): boolean {
-    return this.baseClient.isDemoMode();
+  
+  /**
+   * Get API version
+   */
+  async getApiVersion(): Promise<string> {
+    if (this.mockMode) {
+      return '2.0.0';
+    }
+    return this.metaClient.getApiVersion();
   }
-
-  // Check if the client is properly connected with API key
-  isConnected(): boolean {
-    return this.baseClient.isConnected();
+  
+  /**
+   * Check if the client is in mock mode
+   */
+  isMockMode(): boolean {
+    return this.mockMode;
   }
 }
 
-// Create an instance for export
+// Create a default instance
 export const kalshiApi = new KalshiApiClient();

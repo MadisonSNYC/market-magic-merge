@@ -43,4 +43,35 @@ export class KalshiEventClient extends BaseKalshiClient {
       return null;
     }
   }
+  
+  /**
+   * Get a specific event
+   * @param eventTicker - The ticker of the event
+   * @param withNestedMarkets - Whether to include nested markets
+   * @returns The event data or null if not found
+   */
+  async getEvent(eventTicker: string, withNestedMarkets: boolean = true) {
+    try {
+      const response = await this.getEventByTicker(eventTicker, withNestedMarkets);
+      return response;
+    } catch (error) {
+      console.error(`Error fetching event ${eventTicker}:`, error);
+      return null;
+    }
+  }
+  
+  /**
+   * Get all events
+   * @param params - Optional parameters
+   * @returns Array of events
+   */
+  async getAllEvents(params?: Record<string, any>) {
+    try {
+      const response = await this.getEvents({ ...params, withNestedMarkets: true });
+      return response?.events || [];
+    } catch (error) {
+      console.error('Error fetching all events:', error);
+      return [];
+    }
+  }
 }

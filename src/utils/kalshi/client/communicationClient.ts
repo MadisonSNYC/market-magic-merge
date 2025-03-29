@@ -9,5 +9,18 @@ export class KalshiCommunicationClient extends BaseKalshiClient {
     super('', apiKey);
   }
   
-  // Communication methods can be implemented here
+  /**
+   * Get communications ID
+   * @returns Communications ID string
+   */
+  async getCommunicationsId() {
+    try {
+      const url = '/communications/id';
+      const response = await this.rateLimitedGet(url);
+      return response.communications_id;
+    } catch (error) {
+      console.error('Error fetching communications ID:', error);
+      return null;
+    }
+  }
 }

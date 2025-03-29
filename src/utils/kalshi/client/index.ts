@@ -1,19 +1,25 @@
 
-// Explicitly export types to avoid conflicts
-export type { CoreClientOptions, RateLimitTier, RateLimitUsage } from './types';
-
-// Export type-specific constants separately to avoid conflicts
-export { RATE_LIMIT_TIERS } from './types';
-
-// Export client implementations
-export * from './coreClient';
-export * from './httpClient';
-export * from './rateLimitedClient';
-export * from './clientFactory';
-export * from './userClient';
+// Re-export all client modules
+export * from './types';
 export * from './marketClient';
-export * from './eventClient';
+export * from './userClient';
+export * from './metaClient';
 export * from './tradeClient';
+export * from './eventClient';
+export * from './collectionClient';
+export * from './structuredTargetClient';
+export * from './rfqClient';
+export * from './quoteClient';
+export * from './communicationClient';
+export * from './exchangeClient';
+export * from './seriesClient';
 
-// Export types from userTypes for backward compatibility
-export type { KalshiPosition, KalshiBalanceResponse, KalshiPortfolioResponse, KalshiAiRecommendation } from './userTypes';
+// Re-export core client but rename duplicate exported classes
+export {
+  KalshiCoreClient,
+  RATE_LIMIT_TIERS,
+  RateLimitTier
+} from './coreClient';
+
+// Export types
+export type { RsaAuthOptions } from './auth/rsaAuth';

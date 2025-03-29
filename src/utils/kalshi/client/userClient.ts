@@ -1,91 +1,89 @@
 
 import { BaseKalshiClient } from './baseClient';
 import { CoreClientOptions } from './types';
-import { PortfolioClient } from './user/portfolioClient';
-import { OrderClient } from './user/orderClient';
-import { BatchClient } from './user/batchClient';
-import { FillsClient } from './user/fillsClient';
 
 /**
- * Kalshi User API client for accessing user data like balance, positions, and orders
- * Composes specialized clients for better separation of concerns
+ * Client for interacting with Kalshi user API endpoints
  */
 export class KalshiUserClient extends BaseKalshiClient {
-  private portfolioClient: PortfolioClient;
-  private orderClient: OrderClient;
-  private batchClient: BatchClient;
-  private fillsClient: FillsClient;
-  
-  constructor(options: CoreClientOptions | { apiKey?: string; mockMode?: boolean; baseUrl?: string } = {}) {
-    const apiKey = 'apiKey' in options ? options.apiKey : undefined;
+  constructor(options: CoreClientOptions | string) {
+    const apiKey = typeof options === 'string' ? options : options.apiKey;
     super('', apiKey);
-    
-    this.portfolioClient = new PortfolioClient(options);
-    this.orderClient = new OrderClient(options);
-    this.batchClient = new BatchClient(options);
-    this.fillsClient = new FillsClient(options);
   }
   
-  // Portfolio operations - delegated to PortfolioClient
+  /**
+   * Get user positions
+   * @returns List of user positions
+   */
   async getPositions() {
-    return this.portfolioClient.getPositions();
+    try {
+      const url = '/portfolio/positions';
+      const response = await this.rateLimitedGet(url);
+      return response.positions || null;
+    } catch (error) {
+      console.error('Error fetching positions:', error);
+      return null;
+    }
   }
   
+  /**
+   * Get user portfolio
+   * @returns User portfolio data
+   */
   async getPortfolio() {
-    return this.portfolioClient.getPortfolio();
+    try {
+      const url = '/portfolio';
+      const response = await this.rateLimitedGet(url);
+      return response;
+    } catch (error) {
+      console.error('Error fetching portfolio:', error);
+      return null;
+    }
   }
   
+  /**
+   * Get user balance
+   * @returns User balance information
+   */
   async getBalance() {
-    return this.portfolioClient.getBalance();
+    try {
+      const url = '/portfolio/balance';
+      const response = await this.rateLimitedGet(url);
+      return response;
+    } catch (error) {
+      console.error('Error fetching balance:', error);
+      return null;
+    }
   }
   
+  /**
+   * Get AI recommendations
+   * @returns List of recommendations
+   */
   async getAiRecommendations() {
-    return this.portfolioClient.getAiRecommendations();
+    try {
+      const url = '/ai/recommendations';
+      const response = await this.rateLimitedGet(url);
+      return response;
+    } catch (error) {
+      console.error('Error fetching AI recommendations:', error);
+      return [];
+    }
   }
   
-  // Order operations - delegated to OrderClient
+  /**
+   * Place an order
+   * @param order - Order details
+   * @returns Order response
+   */
   async placeOrder(order: any) {
-    return this.orderClient.placeOrder(order);
-  }
-  
-  async createOrder(order: any) {
-    return this.orderClient.createOrder(order);
-  }
-  
-  async getOrders(params?: any) {
-    return this.orderClient.getOrders(params);
-  }
-  
-  async getOrder(orderId: string) {
-    return this.orderClient.getOrder(orderId);
-  }
-  
-  async cancelOrder(orderId: string) {
-    return this.orderClient.cancelOrder(orderId);
-  }
-  
-  async amendOrder(orderId: string, amendRequest: any) {
-    return this.orderClient.amendOrder(orderId, amendRequest);
-  }
-  
-  async decreaseOrder(orderId: string, decreaseRequest: any) {
-    return this.orderClient.decreaseOrder(orderId, decreaseRequest);
-  }
-  
-  // Batch operations - delegated to BatchClient
-  async batchCreateOrders(batchRequest: any) {
-    return this.batchClient.batchCreateOrders(batchRequest);
-  }
-  
-  async batchCancelOrders(batchRequest: any) {
-    return this.batchClient.batchCancelOrders(batchRequest);
-  }
-  
-  // Fills operations - delegated to FillsClient
-  async getFills(params?: any) {
-    return this.fillsClient.getFills(params);
+    try {
+      const url = '/portfolio/orders';
+      const response = await this.rateLimitedPost(url, order);
+      return response;
+    } catch (error) {
+      console.error('Error placing order:', error);
+      return null;
+    }
   }
 }
-
-// Export types from userTypes
-export type { KalshiPosition, KalshiBalanceResponse, KalshiPortfolioResponse, KalshiAiRecommendation } from './userTypes';

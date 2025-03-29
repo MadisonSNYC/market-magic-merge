@@ -9,5 +9,19 @@ export class KalshiStructuredTargetClient extends BaseKalshiClient {
     super('', apiKey);
   }
   
-  // Structured target methods can be implemented here
+  /**
+   * Get a structured target by ID
+   * @param structuredTargetId - The ID of the structured target
+   * @returns The structured target data
+   */
+  async getStructuredTarget(structuredTargetId: string) {
+    try {
+      const url = `/structured_targets/${structuredTargetId}`;
+      const response = await this.rateLimitedGet(url);
+      return response;
+    } catch (error) {
+      console.error(`Error fetching structured target ${structuredTargetId}:`, error);
+      return null;
+    }
+  }
 }

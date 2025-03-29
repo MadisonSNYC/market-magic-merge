@@ -1,67 +1,74 @@
 
-import { KalshiAiRecommendation } from './types/recommendations';
+// Mock data for testing
 
-// Mock AI recommendations for testing
-export const mockAiRecommendations: KalshiAiRecommendation[] = [
-  {
-    marketId: 'DEM-PRES-24',
-    recommendation: 'BUY YES',
-    reason: 'Polling data suggests high probability of Democratic nominee being confirmed',
-    contractPrice: 70,
-    size: 10,
-    cost: 700,
-    potentialProfit: 300,
-    potentialPayout: 1000,
-    confidence: 85,
-    category: 'Politics'
-  },
-  {
-    marketId: 'BTC-40K-END-AUG',
-    recommendation: 'SELL NO',
-    reason: 'Technical analysis indicates resistance at $40K level',
-    contractPrice: 45,
-    size: 5,
-    cost: 225,
-    potentialProfit: 225,
-    potentialPayout: 500,
-    confidence: 65,
-    category: 'Crypto'
-  },
-  {
-    marketId: 'INFLATION-Q3',
-    recommendation: 'BUY YES',
-    reason: 'Economic indicators suggest inflation will remain above target',
-    contractPrice: 60,
-    size: 8,
-    cost: 480,
-    potentialProfit: 320,
-    potentialPayout: 800,
-    confidence: 75,
-    category: 'Economy'
-  },
-  {
-    marketId: 'META-STOCK-200',
-    recommendation: 'BUY NO',
-    reason: 'Recent earnings miss suggests downward pressure on stock',
-    contractPrice: 35,
-    size: 12,
-    cost: 420,
-    potentialProfit: 780,
-    potentialPayout: 1200,
-    confidence: 70,
-    category: 'Stocks'
-  }
+// Mock positions
+export const mockKalshiPositions = [
+  { market_id: 'MARKET-1', yes_amount: 10, no_amount: 0 },
+  { market_id: 'MARKET-2', yes_amount: 0, no_amount: 5 }
 ];
 
-// Market categories for filtering
-export const marketCategories: string[] = [
-  'All Categories',
-  'Politics',
-  'Crypto',
-  'Economy',
-  'Sports',
-  'Climate',
-  'Entertainment',
-  'Stocks',
-  'Technology'
-];
+// Mock trades
+export const mockKalshiTrades = {
+  trades: [
+    {
+      id: 'trade-1',
+      market_id: 'MARKET-1',
+      created_time: '2023-04-01T12:00:00Z',
+      yes_price: 65,
+      count: 10
+    },
+    {
+      id: 'trade-2',
+      market_id: 'MARKET-2',
+      created_time: '2023-04-02T12:00:00Z',
+      yes_price: 35,
+      count: 5
+    }
+  ]
+};
+
+// Mock events
+export const mockKalshiEvents = {
+  events: [
+    {
+      ticker: 'EVENT-1',
+      title: 'Sample Event 1',
+      category: 'Politics',
+      markets: []
+    },
+    {
+      ticker: 'EVENT-2',
+      title: 'Sample Event 2',
+      category: 'Economics',
+      markets: []
+    }
+  ]
+};
+
+// Mock markets
+export const mockKalshiMarkets = {
+  markets: [
+    {
+      ticker: 'MARKET-1',
+      title: 'Sample Market 1',
+      event_ticker: 'EVENT-1',
+      yes_price: 65,
+      no_price: 35
+    },
+    {
+      ticker: 'MARKET-2',
+      title: 'Sample Market 2',
+      event_ticker: 'EVENT-2',
+      yes_price: 35,
+      no_price: 65
+    }
+  ]
+};
+
+// Mock portfolio
+export const mockKalshiPortfolio = {
+  available_balance: 1000,
+  portfolio_value: 500,
+  total_value: 1500,
+  positions: mockKalshiPositions
+};

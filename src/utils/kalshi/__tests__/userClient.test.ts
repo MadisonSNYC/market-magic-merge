@@ -5,7 +5,7 @@ import { vi, expect, describe, it, beforeEach } from 'vitest';
 
 // Mock axios
 vi.mock('axios');
-const mockedAxios = axios as ReturnType<typeof vi.fn>;
+const mockedAxios = vi.mocked(axios, true);
 
 describe('KalshiUserClient', () => {
   let userClient: KalshiUserClient;
@@ -35,7 +35,8 @@ describe('KalshiUserClient', () => {
         }
       };
       
-      mockedAxios.request.mockResolvedValueOnce(Promise.resolve(mockResponse));
+      // Mock the axios.request method which is used by the client
+      mockedAxios.request.mockResolvedValueOnce(mockResponse);
       
       // Call method
       const result = await userClient.getPositions();
@@ -47,7 +48,7 @@ describe('KalshiUserClient', () => {
     it('should return null when API call fails', async () => {
       // Mock error
       const mockError = new Error('API error');
-      mockedAxios.request.mockRejectedValueOnce(Promise.reject(mockError));
+      mockedAxios.request.mockRejectedValueOnce(mockError);
       
       // Call method
       const result = await userClient.getPositions();
