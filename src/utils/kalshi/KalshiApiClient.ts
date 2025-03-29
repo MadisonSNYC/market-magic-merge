@@ -64,11 +64,33 @@ export class KalshiApiClient {
     }
 
     try {
-      const response = await this.market.makeRequest(`${this.baseUrl}/version`);
+      // Use the market client to make request
+      const response = await this.market.makeRequest(`${this.baseUrl}/version`, {});
       return response.version;
     } catch (error) {
       console.error('Error fetching API version:', error);
       return 'unknown';
     }
+  }
+
+  /**
+   * Get user positions - method for backward compatibility
+   */
+  async getPositions() {
+    return this.user.getPositions();
+  }
+
+  /**
+   * Get markets - method for backward compatibility
+   */
+  async getMarkets(params?: any) {
+    return this.market.getMarkets(params);
+  }
+
+  /**
+   * Get balance - method for backward compatibility
+   */
+  async getBalance() {
+    return this.user.getBalance();
   }
 }

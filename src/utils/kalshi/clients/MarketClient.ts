@@ -6,33 +6,24 @@ import { MockDataService } from './MockDataService';
  * Client for interacting with Kalshi market data
  */
 export class MarketClient extends BaseClient {
-  private mockMode: boolean;
-
   constructor(options: { apiKey?: string; mockMode?: boolean; baseUrl?: string } = {}) {
     super(options);
-    this.mockMode = options.mockMode || false;
   }
 
   /**
    * Get a list of all markets
    */
   async getMarkets(params: any = {}) {
-    if (this.mockMode) {
-      return { 
-        markets: MockDataService.getMarkets(),
-        cursor: ''
-      };
+    if (this.isMockMode()) {
+      return MockDataService.getMarkets();
     }
 
     try {
       const url = `${this.baseUrl}/markets`;
-      return this.get(url, { params });
+      return this.get(url, params);
     } catch (error) {
       console.error("Error fetching markets:", error);
-      return {
-        markets: [],
-        cursor: ''
-      };
+      return [];
     }
   }
 
@@ -40,10 +31,10 @@ export class MarketClient extends BaseClient {
    * Get a specific market by ticker
    */
   async getMarket(ticker: string) {
-    if (this.mockMode) {
+    if (this.isMockMode()) {
       const markets = MockDataService.getMarkets();
       const market = markets.find(m => m.ticker === ticker);
-      return { market: market || null };
+      return market || null;
     }
 
     try {
@@ -51,7 +42,7 @@ export class MarketClient extends BaseClient {
       return this.get(url);
     } catch (error) {
       console.error(`Error fetching market ${ticker}:`, error);
-      return { market: null };
+      return null;
     }
   }
 
@@ -59,7 +50,7 @@ export class MarketClient extends BaseClient {
    * Get orderbook for a specific market
    */
   async getOrderbook(ticker: string) {
-    if (this.mockMode) {
+    if (this.isMockMode()) {
       return MockDataService.getOrderbook();
     }
 
@@ -73,6 +64,23 @@ export class MarketClient extends BaseClient {
         bids: [],
         asks: []
       };
+    }
+  }
+
+  /**
+   * Get API version
+   */
+  async getVersion() {
+    try {
+      const url = `${this.baseUrl}/version`;
+      const response = await this.get(url);
+      if (response && typeof response === 'object' && 'version' in response) {
+        return response.version;
+      }
+      return 'unknown';
+    } catch (error) {
+      console.error("Error fetching API version:", error);
+      return 'unknown';
     }
   }
 }

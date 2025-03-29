@@ -1,74 +1,62 @@
 
 import { BaseClient } from './BaseClient';
-import { FillsClient } from '../client/user/fillsClient';
-import { PortfolioClient } from '../client/user/portfolioClient';
 import { MockDataService } from './MockDataService';
+import { KalshiPosition, KalshiBalanceResponse } from '../types/portfolio';
 
 /**
- * Unified Kalshi user client for accessing all user-related functionality
+ * Client for interacting with Kalshi user data
  */
 export class UserClient extends BaseClient {
-  private portfolioClient: PortfolioClient;
-  private fillsClient: FillsClient;
-  private _mockMode: boolean;
-
-  constructor(options: { apiKey?: string, mockMode?: boolean, baseUrl?: string } = {}) {
+  constructor(options: { apiKey?: string; mockMode?: boolean; baseUrl?: string } = {}) {
     super(options);
-    this._mockMode = options.mockMode || false;
-    
-    // Initialize sub-clients with the same API key
-    this.portfolioClient = new PortfolioClient(options.apiKey);
-    this.fillsClient = new FillsClient(options.apiKey);
   }
 
   /**
-   * Check if client is in mock mode
+   * Get user positions
    */
-  public isMockMode(): boolean {
-    return this._mockMode;
-  }
-
-  /**
-   * Get the user's positions
-   */
-  async getPositions() {
-    if (this._mockMode) {
+  async getPositions(): Promise<KalshiPosition[]> {
+    if (this.isMockMode()) {
       return MockDataService.getPositions();
     }
-    return this.portfolioClient.getPositions();
+
+    try {
+      const url = `${this.baseUrl}/portfolio/positions`;
+      const response = await this.get<{ positions: KalshiPosition[] }>(url);
+      return response.positions || [];
+    } catch (error) {
+      console.error("Error fetching positions:", error);
+      return [];
+    }
   }
 
   /**
-   * Get the user's balance
+   * Get user balance
    */
-  async getBalance() {
-    if (this._mockMode) {
+  async getBalance(): Promise<KalshiBalanceResponse> {
+    if (this.isMockMode()) {
       return MockDataService.getBalance();
     }
-    return this.portfolioClient.getBalance();
-  }
 
-  /**
-   * Get the user's fills (completed trades)
-   */
-  async getFills(params?: any) {
-    if (this._mockMode) {
+    try {
+      const url = `${this.baseUrl}/portfolio/balance`;
+      return await this.get<KalshiBalanceResponse>(url);
+    } catch (error) {
+      console.error("Error fetching balance:", error);
       return {
-        fills: MockDataService.getTrades(),
-        cursor: ''
+        available_balance: 0,
+        portfolio_value: 0,
+        total_value: 0,
+        pending_deposits: 0,
+        pending_withdrawals: 0,
+        bonuses: []
       };
     }
-    return this.fillsClient.getFills(params);
   }
 
   /**
    * Place an order
    */
-  async placeOrder(orderData: any) {
-    if (this._mockMode) {
-      return { order_id: `mock-order-${Date.now()}` };
-    }
-    
+  async placeOrder(orderData: any): Promise<any> {
     try {
       const url = `${this.baseUrl}/portfolio/orders`;
       return this.post(url, orderData);

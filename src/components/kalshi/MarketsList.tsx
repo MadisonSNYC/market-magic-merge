@@ -57,18 +57,21 @@ export function MarketsList() {
   const categoriesSet = new Set<string>();
   categoriesSet.add('all');
   
-  markets.forEach(market => {
-    if (market.category) {
-      categoriesSet.add(market.category);
-    } else {
-      categoriesSet.add('uncategorized');
-    }
-  });
+  // Safely iterate through markets
+  if (Array.isArray(markets)) {
+    markets.forEach(market => {
+      if (market.category) {
+        categoriesSet.add(market.category);
+      } else {
+        categoriesSet.add('uncategorized');
+      }
+    });
+  }
   
   const categories = Array.from(categoriesSet);
   
-  // Filter markets
-  const filteredMarkets = markets.filter(market => {
+  // Filter markets safely
+  const filteredMarkets = Array.isArray(markets) ? markets.filter(market => {
     const matchesSearch = 
       !searchTerm || 
       market.ticker.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -79,7 +82,7 @@ export function MarketsList() {
       (market.category || 'uncategorized') === categoryFilter;
     
     return matchesSearch && matchesCategory;
-  });
+  }) : [];
   
   return (
     <Card className="w-full">
@@ -196,7 +199,7 @@ export function MarketsList() {
           
           <div className="text-xs text-muted-foreground text-center pt-2">
             {isDemo ? 'Using demo environment' : 'Connected to production API'} • 
-            Showing {filteredMarkets.length} of {markets.length} markets
+            Showing {filteredMarkets.length} of {Array.isArray(markets) ? markets.length : 0} markets
           </div>
         </div>
       </CardContent>
