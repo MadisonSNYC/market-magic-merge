@@ -3,22 +3,28 @@
  * Types related to trade operations
  */
 
-export interface KalshiTrade {
+export interface KalshiFill {
   id: string;
   ticker: string;
   price: number;
   count: number;
-  side: string;
+  side: 'yes' | 'no';
   created_time: string;
-  // Additional fields as needed
+  market_fee: number;
+  order_id: string;
+  status: string;
+  type: string;
 }
+
+// Alias for backward compatibility
+export type KalshiTrade = KalshiFill;
 
 export interface KalshiApiTrade {
   id: string;
   ticker: string;
   price: number;
   count: number;
-  side: string;
+  side: 'yes' | 'no';
   created_time: string;
   // Additional fields that might be specific to the API
 }
@@ -33,4 +39,9 @@ export interface TradeParams {
   limit?: number;
   cursor?: string;
   // Additional filter parameters
+}
+
+export interface KalshiFillsResponse {
+  fills: KalshiFill[];
+  cursor?: string;
 }

@@ -1,109 +1,63 @@
 
 /**
- * Kalshi API portfolio-related types
- * These types represent the data structures used in the Kalshi API v3
+ * Portfolio related types (positions, balance, etc.)
  */
 
-/**
- * Position in a market as returned by the Kalshi API
- */
 export interface KalshiPosition {
-  market_id: string;
-  ticker?: string;
-  title?: string;  // Market title
-  market_title?: string; // Alternative market title
-  side?: "yes" | "no";  // Position outcome
-  contracts?: number;  // Positive number representing quantity
-  average_price?: number;  // Average entry price in cents
-  current_price?: number;  // Current market price
-  value: number;  // Current position value in cents
-  cost?: number;  // Total cost of position in cents
-  unrealized_pnl?: number;  // Unrealized profit/loss
-  expires_at?: string;  // Market expiration date
-  expiration?: string;  // Alternative expiration field
-  yes: number;  // Number of YES contracts held
-  no: number;   // Number of NO contracts held
-  payout?: number;  // Potential payout
-  price?: number;  // Price field
-  marketId?: string; // Alternative to market_id for compatibility
-}
-
-/**
- * Normalized position format for UI components
- */
-export interface Position {
-  marketId: string;
-  marketTitle: string;
-  ticker?: string;
-  contracts?: number;
-  avgPrice?: number;
-  cost?: number;
-  currentValue?: number;
-  potentialPayout?: number;
-  positionType?: string;
-  timeRemaining?: string;
-  yes: number;
-  no: number;
-  value: number;
-  icon?: string;
-  // Include API fields for compatibility
-  expires_at?: string;
-  expiration?: string;
-  price?: number;
-  payout?: number;
-  side?: "yes" | "no";
-  average_price?: number;
-  unrealized_pnl?: number;
-}
-
-/**
- * Portfolio data structure for UI components
- */
-export interface KalshiPortfolioData {
-  availableBalance: number;
-  totalPortfolioValue: number;
-  lastUpdated: string;
-}
-
-/**
- * Balance response model from Kalshi API v3
- */
-export interface KalshiBalanceResponse {
-  // Available balance in cents
-  available_balance: number;
-  
-  // Portfolio value in cents
-  portfolio_value: number;
-  
-  // Timestamp of the balance snapshot
-  timestamp?: string;
-  
-  // Legacy v2 fields
-  balance?: number;  
-  reserved_fees?: number;
-  bonus_balance?: number;
-  reserved_margin?: number;
-}
-
-/**
- * Settlement model for Kalshi API v3
- */
-export interface KalshiSettlement {
-  market_id: string;
   ticker: string;
-  settlement_time: string;
-  settlement_value: string;
-  position: {
-    side: "yes" | "no";
-    contracts: number;
-  };
-  pnl: number;  // Profit/loss in cents
+  yes_count: number;
+  no_count: number;
+  settlement_fee: number;
+  settlement_payout: number;
+  settlement_price: number;
+  settlement_type: string;
+  last_price: number;
+  average_price: number;
+  cost_basis: number;
+  unrealized_pnl: number;
+  realized_pnl: number;
+  market_name?: string;
+  total_matched: number;
+  total_fees: number;
+  outstanding_asks: number;
+  outstanding_bids: number;
+  expiration_time?: string;
+  created_time?: string;
+  status?: string;
 }
 
-/**
- * Settlements response from Kalshi API
- */
-export interface KalshiSettlementsResponse {
-  settlements: KalshiSettlement[];
-  cursor?: string;
+// Alias for backward compatibility
+export type Position = KalshiPosition;
+
+export interface KalshiBalanceResponse {
+  balance: number;
+  available_balance: number;
+  pending_deposits: number;
+  pending_withdrawals: number;
+  bonuses: KalshiBonus[];
+  total_bonuses: number;
+  weekly_deposit_volume: number;
+  weekly_withdrawal_volume: number;
+}
+
+export interface KalshiBonus {
+  id: string;
+  created_time: string;
+  expiration_time: string;
+  amount: number;
+  amount_used: number;
+  description: string;
+}
+
+export interface KalshiAiRecommendation {
+  marketId: string;
+  recommendation: string;
+  reason: string;
+  contractPrice: number;
+  size: number;
+  cost: number;
+  potentialProfit: number;
+  potentialPayout: number;
+  confidence: number;
+  category: string;
 }

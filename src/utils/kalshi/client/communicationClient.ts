@@ -1,6 +1,6 @@
 
 import { BaseKalshiClient } from './baseClient';
-import { KalshiCommunicationsIdResponse } from '../types/common';
+import { KalshiCommunicationsIdResponse } from '../types/meta';
 
 /**
  * Kalshi Communication API client for handling communication-related functionality

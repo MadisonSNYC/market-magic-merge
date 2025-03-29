@@ -1,12 +1,13 @@
 
 import { BaseUserClient } from './baseUserClient';
+import { KalshiFillsResponse } from '../../types/trades';
 
 /**
  * Kalshi Fills/Trades API client
  */
 export class FillsClient extends BaseUserClient {
   // Get user fills (trades)
-  async getFills(params?: any) {
+  async getFills(params?: any): Promise<KalshiFillsResponse> {
     try {
       const apiParams: Record<string, string | number | undefined> = {};
       

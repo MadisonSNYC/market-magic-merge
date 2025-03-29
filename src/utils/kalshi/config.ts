@@ -15,7 +15,8 @@ export const DEMO_API_URL = KALSHI_DEMO_API_URL;
 export const DEMO_MODE = false;
 
 // Authentication method (rsa or api_key)
-export const AUTH_METHOD = (import.meta.env.VITE_KALSHI_AUTH_METHOD ?? 'api_key') as 'api_key' | 'rsa' | 'none';
+export type AuthMethod = 'api_key' | 'rsa' | 'none';
+export const AUTH_METHOD: AuthMethod = (import.meta.env.VITE_KALSHI_AUTH_METHOD ?? 'api_key') as AuthMethod;
 
 // Authentication method enum for strict typing
 export enum AUTH_METHODS {
@@ -25,10 +26,10 @@ export enum AUTH_METHODS {
 }
 
 // For backwards compatibility with other imports
-export const USE_RSA_AUTH = false;
+export const USE_RSA_AUTH = AUTH_METHOD === 'rsa';
 export const KALSHI_API_KEY = '';
 export const CLIENT_ID = '';
-export const KALSHI_ENVIRONMENT = 'demo';
+export const KALSHI_ENVIRONMENT = DEMO_MODE ? 'demo' : 'production';
 
 // RSA Authentication settings (if using RSA auth)
 export const RSA_KEY_ID = '';
