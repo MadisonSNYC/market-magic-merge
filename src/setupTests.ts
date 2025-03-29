@@ -1,5 +1,11 @@
 
-import { expect } from 'vitest';
+import { expect, afterEach } from 'vitest';
+import { cleanup } from '@testing-library/react';
 
-// Set up any global test configuration here
-// If we add custom matchers from @testing-library/jest-dom in the future, they would be set up here
+// Automatically cleanup after each test
+afterEach(() => {
+  cleanup();
+});
+
+// Add any custom matchers or global test configuration here
+// We can expand this as needed for specific test requirements

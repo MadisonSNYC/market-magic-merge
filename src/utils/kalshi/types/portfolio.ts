@@ -24,6 +24,29 @@ export interface KalshiPosition {
   expiration_time?: string;
   created_time?: string;
   status?: string;
+  
+  // Additional properties for enhanced functionality
+  market_id?: string;
+  marketId?: string;
+  market_title?: string;
+  title?: string;
+  yes?: number;
+  no?: number;
+  value?: number;
+  price?: number;
+  cost?: number;
+  payout?: number;
+  expires_at?: string;
+  expiration?: string;
+  
+  // Properties for Position compatibility
+  contracts?: number;
+  avgPrice?: number;
+  currentValue?: number;
+  potentialPayout?: number;
+  positionType?: string;
+  timeRemaining?: string;
+  marketTitle?: string;
 }
 
 // Alias for backward compatibility
