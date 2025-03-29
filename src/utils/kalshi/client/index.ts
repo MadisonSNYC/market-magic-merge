@@ -10,3 +10,10 @@ export * from './coreClient';
 export * from './httpClient';
 export * from './rateLimitedClient';
 export * from './clientFactory';
+export * from './userClient';
+export * from './marketClient';
+export * from './eventClient';
+export * from './tradeClient';
+
+// Export types from userTypes for backward compatibility
+export { KalshiPosition, KalshiBalanceResponse, KalshiPortfolioResponse, KalshiAiRecommendation } from './userTypes';

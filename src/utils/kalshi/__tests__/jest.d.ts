@@ -36,6 +36,7 @@ declare global {
       mockImplementation(fn: (...args: Y) => T): SpyInstance<T, Y>;
       mockResolvedValue(value: T): SpyInstance<T, Y>;
       mockRejectedValue(error: any): SpyInstance<T, Y>;
+      mockRejectedValueOnce(error: any): SpyInstance<T, Y>;
     };
     
     function spyOn<T, M extends keyof T>(
@@ -50,6 +51,7 @@ declare global {
       mockImplementation(fn: (...args: Y) => T): Mock<T, Y>;
       mockRejectedValue(error: any): Mock<T, Y>;
       mockResolvedValueOnce(value: T): Mock<T, Y>;
+      mockRejectedValueOnce(error: any): Mock<T, Y>;
     };
     
     // Fix Mocked type
@@ -58,11 +60,11 @@ declare global {
         ? jest.Mock<ReturnType<T[P]>, Parameters<T[P]>>
         : T[P];
     } & T;
-    
-    // Add these matchers to the global namespace
-    const objectContaining: (expected: object) => any;
-    const stringContaining: (expected: string) => any;
   }
+  
+  // Add these matchers to the global namespace
+  const objectContaining: (expected: object) => any;
+  const stringContaining: (expected: string) => any;
 }
 
 export {};

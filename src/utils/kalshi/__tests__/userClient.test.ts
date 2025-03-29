@@ -1,3 +1,4 @@
+
 import { KalshiUserClient } from '../client/userClient';
 import axios from 'axios';
 
@@ -33,7 +34,7 @@ describe('KalshiUserClient', () => {
         }
       };
       
-      mockedAxios.request.mockResolvedValueOnce(mockResponse);
+      mockedAxios.request.mockResolvedValueOnce(Promise.resolve(mockResponse));
       
       // Call method
       const result = await userClient.getPositions();
@@ -45,7 +46,7 @@ describe('KalshiUserClient', () => {
     it('should return null when API call fails', async () => {
       // Mock error
       const mockError = new Error('API error');
-      mockedAxios.request.mockRejectedValueOnce(mockError);
+      mockedAxios.request.mockRejectedValueOnce(Promise.reject(mockError));
       
       // Call method
       const result = await userClient.getPositions();
