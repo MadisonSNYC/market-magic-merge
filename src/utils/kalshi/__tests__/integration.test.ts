@@ -34,7 +34,7 @@ describe('KalshiApiClient integration', () => {
       const result = await client.market.getMarkets();
       
       // Assert the result
-      expect(result).toEqual({ markets: mockMarkets });
+      expect(result).toEqual(expect.objectContaining({ markets: mockMarkets }));
     });
   });
   

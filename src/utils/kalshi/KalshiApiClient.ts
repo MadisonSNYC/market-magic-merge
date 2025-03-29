@@ -1,6 +1,8 @@
 
-import axios from 'axios';
-import { mockKalshiPositions, mockKalshiTrades } from './mockData';
+import { MarketClient } from './clients/MarketClient';
+import { UserClient } from './clients/userClient';
+import { EventClient } from './clients/EventClient';
+import { ExchangeClient } from './clients/ExchangeClient';
 
 interface KalshiApiClientOptions {
   apiKey?: string;
@@ -12,6 +14,12 @@ interface KalshiApiClientOptions {
  * Main client for the Kalshi API
  */
 export class KalshiApiClient {
+  // Make clients accessible as properties
+  public market: MarketClient;
+  public user: UserClient;
+  public event: EventClient;
+  public exchange: ExchangeClient;
+  
   private apiKey: string;
   private baseUrl: string;
   private mockMode: boolean;
@@ -20,105 +28,31 @@ export class KalshiApiClient {
     this.apiKey = options.apiKey || '';
     this.baseUrl = options.baseUrl || 'https://trading-api.kalshi.com/trade-api/v2';
     this.mockMode = options.mockMode || false;
-  }
-
-  /**
-   * Gets the user's current positions
-   */
-  async getPositions() {
-    if (this.mockMode) {
-      return mockKalshiPositions;
-    }
-
-    try {
-      const response = await axios.get(`${this.baseUrl}/portfolio/positions`, {
-        headers: this.getHeaders(),
-      });
-      return response.data.positions;
-    } catch (error) {
-      console.error('Error fetching positions:', error);
-      return [];
-    }
-  }
-
-  /**
-   * Gets the user's recent trades
-   */
-  async getTrades() {
-    if (this.mockMode) {
-      return mockKalshiTrades;
-    }
-
-    try {
-      const response = await axios.get(`${this.baseUrl}/portfolio/fills`, {
-        headers: this.getHeaders(),
-      });
-      return response.data.fills;
-    } catch (error) {
-      console.error('Error fetching trades:', error);
-      return [];
-    }
-  }
-
-  /**
-   * Gets available markets
-   */
-  async getMarkets() {
-    try {
-      const response = await axios.get(`${this.baseUrl}/markets`, {
-        headers: this.getHeaders(),
-      });
-      return response.data.markets;
-    } catch (error) {
-      console.error('Error fetching markets:', error);
-      return [];
-    }
-  }
-
-  /**
-   * Gets the user's current balance
-   */
-  async getBalance() {
-    if (this.mockMode) {
-      return {
-        available_balance: 10000,
-        portfolio_value: 2500,
-        total_value: 12500,
-      };
-    }
-
-    try {
-      const response = await axios.get(`${this.baseUrl}/portfolio/balance`, {
-        headers: this.getHeaders(),
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching balance:', error);
-      return {
-        available_balance: 0,
-        portfolio_value: 0,
-        total_value: 0,
-      };
-    }
-  }
-
-  /**
-   * Places an order
-   */
-  async placeOrder(orderData: any) {
-    if (this.mockMode) {
-      return { order_id: `mock-order-${Date.now()}` };
-    }
-
-    try {
-      const response = await axios.post(`${this.baseUrl}/portfolio/orders`, orderData, {
-        headers: this.getHeaders(),
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Error placing order:', error);
-      throw error;
-    }
+    
+    // Initialize all client instances with the same configuration
+    this.market = new MarketClient({ 
+      apiKey: this.apiKey, 
+      baseUrl: this.baseUrl, 
+      mockMode: this.mockMode 
+    });
+    
+    this.user = new UserClient({ 
+      apiKey: this.apiKey, 
+      mockMode: this.mockMode,
+      baseUrl: this.baseUrl
+    });
+    
+    this.event = new EventClient({ 
+      apiKey: this.apiKey, 
+      baseUrl: this.baseUrl, 
+      mockMode: this.mockMode 
+    });
+    
+    this.exchange = new ExchangeClient({ 
+      apiKey: this.apiKey, 
+      baseUrl: this.baseUrl, 
+      mockMode: this.mockMode 
+    });
   }
 
   /**
@@ -130,23 +64,11 @@ export class KalshiApiClient {
     }
 
     try {
-      const response = await axios.get(`${this.baseUrl}/version`, {
-        headers: this.getHeaders(),
-      });
-      return response.data.version;
+      const response = await this.market.makeRequest(`${this.baseUrl}/version`);
+      return response.version;
     } catch (error) {
       console.error('Error fetching API version:', error);
       return 'unknown';
     }
-  }
-
-  /**
-   * Helper to get headers with authentication
-   */
-  private getHeaders() {
-    return {
-      'Content-Type': 'application/json',
-      ...(this.apiKey && { Authorization: `Bearer ${this.apiKey}` }),
-    };
   }
 }

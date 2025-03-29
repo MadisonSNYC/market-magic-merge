@@ -1,83 +1,67 @@
 
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
-import { API_BASE_URL } from '../config';
-
-interface BaseClientOptions {
-  apiKey?: string;
-  mockMode?: boolean;
-  baseUrl?: string;
-}
 
 /**
- * Base client for Kalshi API interactions
+ * Base client for all Kalshi API clients
  */
 export class BaseClient {
   protected baseUrl: string;
-  protected client: AxiosInstance;
   protected apiKey?: string;
+  protected mockMode: boolean;
+  protected client: AxiosInstance;
 
-  constructor(options: BaseClientOptions = {}) {
-    this.baseUrl = options.baseUrl || API_BASE_URL;
+  constructor(options: { apiKey?: string; mockMode?: boolean; baseUrl?: string } = {}) {
     this.apiKey = options.apiKey;
-
+    this.baseUrl = options.baseUrl || 'https://trading-api.kalshi.com/trade-api/v2';
+    this.mockMode = options.mockMode || false;
+    
     this.client = axios.create({
       baseURL: this.baseUrl,
       headers: {
         'Content-Type': 'application/json',
-        ...(this.apiKey ? { 'Authorization': `Bearer ${this.apiKey}` } : {})
+        ...(this.apiKey && { Authorization: `Bearer ${this.apiKey}` }),
       }
     });
   }
 
   /**
-   * Make a GET request to the API
+   * Make an HTTP request with proper error handling
    */
-  protected async get<T = any>(url: string, config?: AxiosRequestConfig): Promise<T> {
+  protected async makeRequest<T>(
+    url: string, 
+    options: AxiosRequestConfig = {}
+  ): Promise<T> {
     try {
-      const response = await this.client.get<T>(url, config);
+      const response = await this.client.request<T>({
+        url,
+        ...options,
+      });
+      
       return response.data;
     } catch (error) {
-      console.error(`GET request failed: ${url}`, error);
+      console.error(`Error making request to ${url}:`, error);
       throw error;
     }
   }
 
   /**
-   * Make a POST request to the API
+   * Make a GET request
    */
-  protected async post<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-    try {
-      const response = await this.client.post<T>(url, data, config);
-      return response.data;
-    } catch (error) {
-      console.error(`POST request failed: ${url}`, error);
-      throw error;
-    }
+  protected async get<T>(url: string, params?: any): Promise<T> {
+    return this.makeRequest<T>(url, { method: 'GET', params });
   }
 
   /**
-   * Make a PUT request to the API
+   * Make a POST request
    */
-  protected async put<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-    try {
-      const response = await this.client.put<T>(url, data, config);
-      return response.data;
-    } catch (error) {
-      console.error(`PUT request failed: ${url}`, error);
-      throw error;
-    }
+  protected async post<T>(url: string, data: any): Promise<T> {
+    return this.makeRequest<T>(url, { method: 'POST', data });
   }
-
+  
   /**
-   * Make a DELETE request to the API
+   * Check if client is in mock mode
    */
-  protected async delete<T = any>(url: string, config?: AxiosRequestConfig): Promise<T> {
-    try {
-      const response = await this.client.delete<T>(url, config);
-      return response.data;
-    } catch (error) {
-      console.error(`DELETE request failed: ${url}`, error);
-      throw error;
-    }
+  public isMockMode(): boolean {
+    return this.mockMode;
   }
 }

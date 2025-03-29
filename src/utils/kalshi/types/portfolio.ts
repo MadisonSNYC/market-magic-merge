@@ -22,6 +22,7 @@ export interface KalshiPosition {
   yes?: number;
   no?: number;
   price?: number;
+  average_price?: number; // Adding this property
   cost?: number;
   value?: number;
   payout?: number;
@@ -80,3 +81,6 @@ export interface KalshiFill {
   side: 'yes' | 'no';
   created_time: string;
 }
+
+// Add KalshiTrade export for use in fillsClient.ts
+export type KalshiTrade = KalshiFill;

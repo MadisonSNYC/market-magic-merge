@@ -6,11 +6,8 @@ import { MockDataService } from './MockDataService';
  * Client for interacting with Kalshi events
  */
 export class EventClient extends BaseClient {
-  private mockMode: boolean;
-
   constructor(options: { apiKey?: string; mockMode?: boolean; baseUrl?: string } = {}) {
     super(options);
-    this.mockMode = options.mockMode || false;
   }
 
   /**
@@ -61,7 +58,7 @@ export class EventClient extends BaseClient {
   async getEventMarkets(eventTicker: string, params: any = {}) {
     if (this.mockMode) {
       const markets = MockDataService.getMarkets().filter(
-        m => m.event_ticker === eventTicker
+        m => m.event_ticker === eventTicker || m.ticker.includes(eventTicker)
       );
       return { 
         markets, 
