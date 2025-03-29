@@ -2,13 +2,17 @@
 import { BaseUserClient } from './baseUserClient';
 
 /**
- * Kalshi Batch API client for bulk operations
+ * Client for batch operations on Kalshi orders
  */
 export class BatchClient extends BaseUserClient {
-  // Batch create orders
+  constructor(apiKey?: string) {
+    super('', apiKey);
+  }
+
+  // Create multiple orders in a single request
   async batchCreateOrders(batchRequest: any) {
     try {
-      const url = `${this.baseUrl}/portfolio/orders/batch`;
+      const url = `${this.baseUrl}/portfolio/batch_orders`;
       return this.rateLimitedPost(url, batchRequest);
     } catch (error) {
       console.error("Error batch creating orders:", error);
@@ -16,10 +20,10 @@ export class BatchClient extends BaseUserClient {
     }
   }
 
-  // Batch cancel orders
+  // Cancel multiple orders in a single request
   async batchCancelOrders(batchRequest: any) {
     try {
-      const url = `${this.baseUrl}/portfolio/orders/cancel/batch`;
+      const url = `${this.baseUrl}/portfolio/batch_cancel`;
       return this.rateLimitedPost(url, batchRequest);
     } catch (error) {
       console.error("Error batch canceling orders:", error);
@@ -27,34 +31,14 @@ export class BatchClient extends BaseUserClient {
     }
   }
 
-  // Get total resting order value
-  async getTotalRestingOrderValue(): Promise<number> {
+  // Get the total value of all resting orders
+  async getTotalRestingOrderValue() {
     try {
-      const orders = await this.getOrders({ status: 'resting' });
-      
-      // Calculate total value
-      let total = 0;
-      if (orders && orders.orders) {
-        orders.orders.forEach((order: any) => {
-          total += (order.price * order.count);
-        });
-      }
-      
-      return total;
+      const url = `${this.baseUrl}/portfolio/resting_value`;
+      return this.rateLimitedGet(url);
     } catch (error) {
-      console.error("Error calculating total resting order value:", error);
-      return 0;
-    }
-  }
-  
-  // Get orders helper method
-  private async getOrders(params: any) {
-    try {
-      const url = `${this.baseUrl}/portfolio/orders`;
-      return this.rateLimitedGet(url, params);
-    } catch (error) {
-      console.error("Error fetching orders:", error);
-      return { orders: [] };
+      console.error("Error getting total resting order value:", error);
+      return { value: 0 };
     }
   }
 }

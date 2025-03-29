@@ -1,16 +1,31 @@
 
 /**
- * Options for creating core clients
+ * Core client options type
  */
 export interface CoreClientOptions {
   apiKey?: string;
   mockMode?: boolean;
   baseUrl?: string;
-  authMethod?: 'api_key' | 'rsa' | 'none';
-  rateLimitTier?: string;
+  authMethod?: AuthMethod;
 }
 
 /**
- * Auth method type
+ * Authentication method for Kalshi API
  */
 export type AuthMethod = 'api_key' | 'rsa' | 'none';
+
+/**
+ * Rate limiter options
+ */
+export interface RateLimiterOptions {
+  tokensPerInterval: number;
+  interval: number;
+}
+
+/**
+ * HTTP client options
+ */
+export interface HttpClientOptions {
+  apiKey?: string;
+  authMethod?: AuthMethod;
+}

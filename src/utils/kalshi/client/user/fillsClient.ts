@@ -1,13 +1,16 @@
 
 import { BaseUserClient } from './baseUserClient';
-import { KalshiFillsResponse } from '../../types/trades';
 
 /**
- * Kalshi Fills/Trades API client
+ * Client for managing Kalshi fills (trades)
  */
 export class FillsClient extends BaseUserClient {
-  // Get user fills (trades)
-  async getFills(params?: any): Promise<KalshiFillsResponse> {
+  constructor(apiKey?: string) {
+    super('', apiKey);
+  }
+
+  // Get user fills (trades) with optional filtering
+  async getFills(params?: any) {
     try {
       const apiParams: Record<string, string | number | undefined> = {};
       
@@ -27,7 +30,7 @@ export class FillsClient extends BaseUserClient {
       return this.rateLimitedGet(url, apiParams);
     } catch (error) {
       console.error("Error fetching fills from Kalshi API:", error);
-      // Return mock data for now
+      // Return empty data for graceful error handling
       return {
         cursor: "",
         fills: []

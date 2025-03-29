@@ -1,6 +1,6 @@
 
 import { BaseKalshiClient } from '../baseClient';
-import { KalshiPosition, KalshiBalanceResponse } from '../../types/portfolio';
+import { KalshiPosition, KalshiBalanceResponse } from '../../types';
 
 /**
  * Base class for Kalshi user-related API clients

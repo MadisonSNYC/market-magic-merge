@@ -3,6 +3,8 @@ import { BaseUserClient } from './user/baseUserClient';
 import { OrderClient } from './user/orderClient';
 import { BatchClient } from './user/batchClient';
 import { FillsClient } from './user/fillsClient';
+import { PortfolioClient } from './user/portfolioClient';
+import { CoreClientOptions } from './types';
 
 /**
  * Kalshi User-related API client (portfolio, positions, orders)
@@ -12,22 +14,35 @@ export class KalshiUserClient extends BaseUserClient {
   private orderClient: OrderClient;
   private batchClient: BatchClient;
   private fillsClient: FillsClient;
+  private portfolioClient: PortfolioClient;
 
-  constructor(options?: { apiKey?: string; mockMode?: boolean; baseUrl?: string }) {
-    super(options);
-    this.orderClient = new OrderClient(options);
-    this.batchClient = new BatchClient(options);
-    this.fillsClient = new FillsClient(options);
+  constructor(options: CoreClientOptions | string = {}) {
+    // Handle both string (apiKey) and object params for backward compatibility
+    const apiKey = typeof options === 'string' ? options : options.apiKey;
+    const baseUrl = typeof options === 'string' ? undefined : options.baseUrl;
+    
+    super(baseUrl || '', apiKey);
+    
+    // Initialize with the same parameters
+    this.orderClient = new OrderClient(apiKey || '');
+    this.batchClient = new BatchClient(apiKey || '');
+    this.fillsClient = new FillsClient(apiKey || '');
+    this.portfolioClient = new PortfolioClient(apiKey || '');
   }
 
   // Base User methods (from BaseUserClient)
   // getPositions, getPortfolio, getAiRecommendations, getBalance are inherited
 
-  // Order methods (delegated to OrderClient)
-  async placeOrder(order: any) {
-    return this.orderClient.placeOrder(order);
+  // Portfolio methods (delegated to PortfolioClient)
+  async getPortfolio() {
+    return this.portfolioClient.getPortfolio();
   }
 
+  async getAiRecommendations() {
+    return this.portfolioClient.getAiRecommendations();
+  }
+
+  // Order methods (delegated to OrderClient)
   async getOrders(params?: any) {
     return this.orderClient.getOrders(params);
   }
@@ -62,23 +77,11 @@ export class KalshiUserClient extends BaseUserClient {
   }
 
   async getTotalRestingOrderValue() {
-    // This method should be available in BatchClient
-    return this.batchClient.getTotalRestingOrderValue ? 
-      this.batchClient.getTotalRestingOrderValue() : 
-      Promise.resolve(0);
+    return this.batchClient.getTotalRestingOrderValue();
   }
 
   // Fills methods (delegated to FillsClient)
   async getFills(params?: any) {
     return this.fillsClient.getFills(params);
-  }
-  
-  // Add the getPositions and getBalance methods explicitly for test compatibility
-  async getPositions() {
-    return super.getPositions ? super.getPositions() : Promise.resolve([]);
-  }
-  
-  async getBalance() {
-    return super.getBalance ? super.getBalance() : Promise.resolve(null);
   }
 }

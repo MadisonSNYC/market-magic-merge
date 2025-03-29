@@ -38,6 +38,7 @@ export interface KalshiPosition {
   payout?: number;
   expires_at?: string;
   expiration?: string;
+  icon?: string;
   
   // Properties for Position compatibility
   contracts?: number;

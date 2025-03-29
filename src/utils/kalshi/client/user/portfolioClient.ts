@@ -1,90 +1,71 @@
 
 import { BaseUserClient } from './baseUserClient';
-import { 
-  KalshiPosition, 
-  KalshiPortfolioResponse, 
-  KalshiBalanceResponse,
-  KalshiAiRecommendation 
-} from '../userTypes';
-import { CoreClientOptions } from '../types';
+import { KalshiPosition, KalshiAiRecommendation } from '../../types';
 
 /**
  * Client for portfolio-related operations
  */
 export class PortfolioClient extends BaseUserClient {
-  constructor(options: CoreClientOptions | { apiKey?: string; mockMode?: boolean; baseUrl?: string } = {}) {
-    super(options);
+  constructor(apiKey?: string) {
+    super('', apiKey);
   }
-  
+
   /**
-   * Get a user's current positions
+   * Get the user's portfolio positions
    */
-  async getPositions(): Promise<KalshiPosition[] | null> {
+  async getPositions(): Promise<KalshiPosition[]> {
     try {
-      const response = await this.rateLimitedGet<KalshiPortfolioResponse>(
-        `${this.baseUrl}/portfolio`
-      );
+      const url = `${this.baseUrl}/portfolio/positions`;
+      const response = await this.rateLimitedGet(url);
       
-      return response.positions;
-    } catch (error) {
-      console.error('Error fetching positions:', error);
-      return null;
-    }
-  }
-  
-  /**
-   * Get a user's current portfolio
-   */
-  async getPortfolio(): Promise<KalshiPortfolioResponse | null> {
-    try {
-      const response = await this.rateLimitedGet<KalshiPortfolioResponse>(
-        `${this.baseUrl}/portfolio`
-      );
+      if (response && response.positions) {
+        return response.positions as KalshiPosition[];
+      }
       
-      return response;
+      return [];
     } catch (error) {
-      console.error('Error fetching portfolio:', error);
-      return null;
+      console.error("Error fetching portfolio positions:", error);
+      return [];
     }
   }
-  
+
   /**
-   * Get a user's current balance
+   * Get the user's full portfolio
    */
-  async getBalance(): Promise<KalshiBalanceResponse | null> {
+  async getPortfolio() {
     try {
-      const response = await this.rateLimitedGet<KalshiBalanceResponse>(
-        `${this.baseUrl}/portfolio/balance`
-      );
+      const [positions, balance] = await Promise.all([
+        this.getPositions(),
+        this.getBalance()
+      ]);
       
-      return response;
+      return { positions, balance };
     } catch (error) {
-      console.error('Error fetching balance:', error);
-      return null;
+      console.error("Error fetching portfolio:", error);
+      return { positions: [], balance: null };
     }
   }
-  
+
   /**
-   * Get AI-generated trade recommendations for the user
+   * Get AI recommendations for trading
    */
-  async getAiRecommendations(): Promise<KalshiAiRecommendation[] | null> {
-    try {
-      // In a real implementation, this would call the Kalshi AI recommendations endpoint
-      // For now, we'll return mock data
-      return [
-        {
-          id: 'rec-1',
-          marketId: 'BTC-PRICE-24H',
-          side: 'yes',
-          confidence: 0.85,
-          price: 60,
-          reasoning: 'Strong buying pressure and technical indicators suggest upward movement',
-          marketTitle: 'Bitcoin Price Above $40K'
-        }
-      ];
-    } catch (error) {
-      console.error('Error fetching AI recommendations:', error);
-      return null;
-    }
+  async getAiRecommendations(): Promise<KalshiAiRecommendation[]> {
+    // This is a stub implementation - in a real system, this would call an AI service
+    console.log("Getting AI recommendations (mock implementation)");
+    
+    return [
+      {
+        marketId: "EXAMPLE-MARKET",
+        recommendation: "BUY",
+        reason: "Positive momentum detected",
+        contractPrice: 0.65,
+        size: 10,
+        cost: 6.50,
+        potentialProfit: 3.50,
+        potentialPayout: 10.00,
+        confidence: 0.75,
+        category: "POLITICS"
+      }
+    ];
   }
 }

@@ -1,47 +1,61 @@
 
 /**
- * Types related to trade operations
+ * Trade related types
  */
 
-export interface KalshiFill {
+export interface KalshiTrade {
   id: string;
   ticker: string;
-  price: number;
-  count: number;
   side: 'yes' | 'no';
+  count: number;
+  price: number;
   created_time: string;
-  market_fee: number;
   order_id: string;
-  status: string;
-  type: string;
+  
+  // Extra properties from various implementations
+  executed_size?: number;
+  executed_price?: number;
+  market_ticker?: string;
+  market_title?: string;
+  yes_price?: number;
+  no_price?: number;
+  cost_basis?: number;
+  position_delta?: number;
+  price_improvement?: number;
+  fee_amount?: number;
+  is_taker?: boolean;
+  time?: string; // Alias for created_time
+  date?: string; // Formatted date
+  marketId?: string;
+  size?: number;
 }
-
-// Alias for backward compatibility
-export type KalshiTrade = KalshiFill;
 
 export interface KalshiApiTrade {
   id: string;
   ticker: string;
-  price: number;
+  side: string;
   count: number;
-  side: 'yes' | 'no';
+  price: number;
   created_time: string;
-  // Additional fields that might be specific to the API
+  order_id: string;
 }
 
 export interface KalshiTradeResponse {
-  trades: KalshiTrade[];
+  trades: KalshiApiTrade[];
   cursor?: string;
 }
 
 export interface TradeParams {
-  ticker?: string;
-  limit?: number;
   cursor?: string;
-  // Additional filter parameters
+  limit?: number;
+  market_ticker?: string;
+  event_ticker?: string;
+  min_ts?: number;
+  max_ts?: number;
+  order_id?: string;
 }
 
 export interface KalshiFillsResponse {
-  fills: KalshiFill[];
+  fills: KalshiTrade[];
   cursor?: string;
 }
