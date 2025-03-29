@@ -4,6 +4,7 @@
 // Export from individual type files explicitly
 export * from './common';
 export * from './markets';
+export * from './portfolio';
 export * from './events';
 export * from './series';
 export * from './quotes';
@@ -14,12 +15,12 @@ export * from './collections';
 export * from './exchange';
 export * from './orders';
 export * from './meta';
-export * from './portfolio';
 export * from './recommendations';
 
 // Re-export specific types as type to fix isolated modules issues
 export type { KalshiMarket } from './markets';
-export type { KalshiPosition, Position } from './portfolio';
+export type { KalshiPosition } from './portfolio';
+export type { Position } from './portfolio';
 export type { KalshiEvent, KalshiApiEvent } from './events';
 export type { KalshiApiEventsResponse } from './events';
 export type { KalshiSeries, KalshiApiSeries } from './series';
@@ -31,6 +32,7 @@ export type { KalshiApiVersionResponse } from './meta';
 export type { KalshiCommunicationsIdResponse } from './meta';
 export type { StructuredTarget } from './structured_targets';
 export type { KalshiTrade, KalshiApiTrade, KalshiTradeResponse, TradeParams } from './trades';
+export type { KalshiAiRecommendation } from './recommendations';
 export type { 
   KalshiQuote, 
   KalshiQuotesResponse, 
@@ -63,6 +65,4 @@ export type {
 export type {
   KalshiMilestoneParams
 } from './exchange';
-export type {
-  KalshiAiRecommendation
-} from './recommendations';
+export type { AuthMethod } from './common';

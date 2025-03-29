@@ -1,38 +1,36 @@
 
-// Trade related interfaces
+/**
+ * Types related to trade operations
+ */
 
 export interface KalshiTrade {
   id: string;
-  market_id?: string;
-  ticker?: string;
-  timestamp: string;
-  price: number;
-  count: number;
-  side: 'yes' | 'no';
-  type: string;
-  strikePrice?: number;
-}
-
-export interface KalshiApiTrade {
-  trade_id: string;
   ticker: string;
-  ts: string;
   price: number;
   count: number;
   side: string;
-  type: string;
-  strike_price?: number;
+  created_time: string;
+  // Additional fields as needed
+}
+
+export interface KalshiApiTrade {
+  id: string;
+  ticker: string;
+  price: number;
+  count: number;
+  side: string;
+  created_time: string;
+  // Additional fields that might be specific to the API
 }
 
 export interface KalshiTradeResponse {
-  cursor: string;
-  trades: KalshiApiTrade[];
+  trades: KalshiTrade[];
+  cursor?: string;
 }
 
 export interface TradeParams {
   ticker?: string;
-  min_ts?: number;
-  max_ts?: number;
   limit?: number;
   cursor?: string;
+  // Additional filter parameters
 }
