@@ -1,74 +1,86 @@
 
-// Mock data for testing
-
-// Mock positions
+// Mock data for Kalshi API
 export const mockKalshiPositions = [
-  { market_id: 'MARKET-1', yes_amount: 10, no_amount: 0 },
-  { market_id: 'MARKET-2', yes_amount: 0, no_amount: 5 }
+  {
+    market_id: 'BTC-PRICE-24H',
+    yes_amount: 10,
+    no_amount: 0,
+    average_yes_price: 65,
+    average_no_price: 0
+  },
+  {
+    market_id: 'ETH-PRICE-24H',
+    yes_amount: 0,
+    no_amount: 5,
+    average_yes_price: 0,
+    average_no_price: 30
+  }
 ];
 
-// Mock trades
-export const mockKalshiTrades = {
-  trades: [
-    {
-      id: 'trade-1',
-      market_id: 'MARKET-1',
-      created_time: '2023-04-01T12:00:00Z',
-      yes_price: 65,
-      count: 10
-    },
-    {
-      id: 'trade-2',
-      market_id: 'MARKET-2',
-      created_time: '2023-04-02T12:00:00Z',
-      yes_price: 35,
-      count: 5
-    }
-  ]
-};
+export const mockKalshiTrades = [
+  {
+    id: 'trade_1',
+    ticker: 'BTC-PRICE-24H',
+    price: 65,
+    count: 10,
+    side: 'yes',
+    created_time: '2023-01-01T12:00:00Z'
+  },
+  {
+    id: 'trade_2',
+    ticker: 'ETH-PRICE-24H',
+    price: 30,
+    count: 5,
+    side: 'no',
+    created_time: '2023-01-02T12:00:00Z'
+  }
+];
 
-// Mock events
-export const mockKalshiEvents = {
-  events: [
-    {
-      ticker: 'EVENT-1',
-      title: 'Sample Event 1',
-      category: 'Politics',
-      markets: []
-    },
-    {
-      ticker: 'EVENT-2',
-      title: 'Sample Event 2',
-      category: 'Economics',
-      markets: []
-    }
-  ]
-};
+export const mockKalshiMarkets = [
+  {
+    ticker: 'BTC-PRICE-24H',
+    title: 'Bitcoin Price Above $40K',
+    status: 'open',
+    category: 'Crypto'
+  },
+  {
+    ticker: 'ETH-PRICE-24H',
+    title: 'Ethereum Price Above $2K',
+    status: 'open',
+    category: 'Crypto'
+  }
+];
 
-// Mock markets
-export const mockKalshiMarkets = {
-  markets: [
-    {
-      ticker: 'MARKET-1',
-      title: 'Sample Market 1',
-      event_ticker: 'EVENT-1',
-      yes_price: 65,
-      no_price: 35
-    },
-    {
-      ticker: 'MARKET-2',
-      title: 'Sample Market 2',
-      event_ticker: 'EVENT-2',
-      yes_price: 35,
-      no_price: 65
-    }
-  ]
-};
+export const mockKalshiEvents = [
+  {
+    ticker: 'US-ELECTION-2024',
+    title: 'US Presidential Election 2024',
+    category: 'Politics'
+  },
+  {
+    ticker: 'CRYPTO-PRICES',
+    title: 'Cryptocurrency Price Events',
+    category: 'Crypto'
+  }
+];
 
-// Mock portfolio
-export const mockKalshiPortfolio = {
-  available_balance: 1000,
-  portfolio_value: 500,
-  total_value: 1500,
-  positions: mockKalshiPositions
-};
+export const mockAiRecommendations = [
+  {
+    id: 'rec_1',
+    market_id: 'BTC-PRICE-24H',
+    title: 'Bitcoin Price Above $40K',
+    confidence: 85,
+    side: 'yes',
+    recommendation: 'Buy YES contracts on Bitcoin exceeding $40K by end of week',
+    reasoning: 'Technical indicators suggest an upward trend and market sentiment is positive'
+  },
+  {
+    id: 'rec_2',
+    market_id: 'ETH-PRICE-24H',
+    title: 'Ethereum Price Above $2K',
+    confidence: 75,
+    side: 'no',
+    recommendation: 'Buy NO contracts on Ethereum exceeding $2K by end of week',
+    reasoning: 'Recent volatility and technical resistance at the $2K level'
+  }
+];

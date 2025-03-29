@@ -1,83 +1,104 @@
 
-import { KalshiMarketClient } from './client/marketClient';
-import { KalshiUserClient } from './client/userClient';
-import { KalshiMetaClient } from './client/metaClient';
+import { ClientFactory } from './client/clientFactory';
 
 /**
- * Main Kalshi API client that combines functionality from multiple domain-specific clients
+ * Main Kalshi API client that provides access to all Kalshi API endpoints
  */
 export class KalshiApiClient {
-  private readonly marketClient: KalshiMarketClient;
-  private readonly userClient: KalshiUserClient;
-  private readonly metaClient: KalshiMetaClient;
-  private readonly mockMode: boolean;
-  
-  constructor(options: { apiKey?: string; mockMode?: boolean; baseUrl?: string } = {}) {
+  private marketClient;
+  private userClient;
+  private metaClient;
+  private tradeClient;
+  private eventClient;
+  private collectionClient;
+  private structuredTargetClient;
+  private rfqClient;
+  private quoteClient;
+  private communicationClient;
+  private exchangeClient;
+  private seriesClient;
+  private mockMode: boolean;
+
+  /**
+   * Create a new KalshiApiClient
+   */
+  constructor(apiKey?: string, options: { mockMode?: boolean } = {}) {
     this.mockMode = options.mockMode || false;
     
-    // Initialize domain-specific clients
-    this.marketClient = new KalshiMarketClient(options.apiKey);
-    this.userClient = new KalshiUserClient(options);
-    this.metaClient = new KalshiMetaClient(options.apiKey);
+    // Create all client instances
+    const clients = ClientFactory.createClients({
+      apiKey,
+      mockMode: this.mockMode
+    });
+    
+    // Store client instances
+    this.marketClient = clients.marketClient;
+    this.userClient = clients.userClient;
+    this.metaClient = clients.metaClient;
+    this.tradeClient = clients.tradeClient;
+    this.eventClient = clients.eventClient;
+    this.collectionClient = clients.collectionClient;
+    this.structuredTargetClient = clients.structuredTargetClient;
+    this.rfqClient = clients.rfqClient;
+    this.quoteClient = clients.quoteClient;
+    this.communicationClient = clients.communicationClient;
+    this.exchangeClient = clients.exchangeClient;
+    this.seriesClient = clients.seriesClient;
   }
-  
+
   /**
    * Get user positions
    */
   async getPositions() {
-    if (this.mockMode) {
-      return [
-        { market_id: 'MARKET-1', yes_amount: 10, no_amount: 0 },
-        { market_id: 'MARKET-2', yes_amount: 0, no_amount: 5 }
-      ];
-    }
     return this.userClient.getPositions();
   }
-  
+
   /**
-   * Get user trades
+   * Get trading history
    */
-  async getTrades(params?: any) {
-    if (this.mockMode) {
-      return {
-        trades: [
-          {
-            id: 'trade-1',
-            market_id: 'MARKET-1',
-            created_time: new Date().toISOString(),
-            yes_price: 65,
-            count: 10
-          },
-          {
-            id: 'trade-2',
-            market_id: 'MARKET-2',
-            created_time: new Date().toISOString(),
-            yes_price: 35,
-            count: 5
-          }
-        ]
-      };
-    }
-    return { trades: [] };
+  async getTrades(options?: any) {
+    return this.tradeClient.getTrades(options);
   }
-  
+
   /**
    * Get API version
    */
-  async getApiVersion(): Promise<string> {
-    if (this.mockMode) {
-      return '2.0.0';
-    }
+  async getApiVersion() {
     return this.metaClient.getApiVersion();
   }
-  
+
   /**
-   * Check if the client is in mock mode
+   * Get markets list
    */
-  isMockMode(): boolean {
+  async getMarkets(options?: any) {
+    return this.marketClient.getMarkets(options);
+  }
+
+  /**
+   * Get user balance
+   */
+  async getBalance() {
+    return this.userClient.getBalance();
+  }
+
+  /**
+   * Check if client is connected to Kalshi API
+   */
+  isConnected() {
+    return !!this.metaClient;
+  }
+
+  /**
+   * Check if client is in mock mode
+   */
+  isMockMode() {
     return this.mockMode;
   }
-}
 
-// Create a default instance
-export const kalshiApi = new KalshiApiClient();
+  /**
+   * Get isDemoMode for backward compatibility
+   */
+  get isDemoMode() {
+    return this.isMockMode();
+  }
+}
