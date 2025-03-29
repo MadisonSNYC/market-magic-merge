@@ -12,5 +12,14 @@ declare global {
       objectContaining: (expected: object) => any;
       stringContaining: (expected: string) => any;
     }
+    
+    // Add missing Mocked type
+    type Mocked<T> = {
+      [P in keyof T]: T[P] extends (...args: any[]) => any
+        ? jest.Mock<ReturnType<T[P]>, Parameters<T[P]>>
+        : T[P];
+    } & T;
   }
 }
+
+export {};

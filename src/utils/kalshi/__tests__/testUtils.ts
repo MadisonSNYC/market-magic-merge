@@ -80,6 +80,32 @@ export const mockKalshiData = {
         markets: []
       }
     ]
+  }),
+  // Add missing test data for testing files
+  orderbook: () => ({
+    ticker: 'BTC-PRICE-24H',
+    yes_bids: [{ price: 0.65, count: 10 }],
+    yes_asks: [{ price: 0.67, count: 5 }],
+    no_bids: [{ price: 0.33, count: 8 }],
+    no_asks: [{ price: 0.35, count: 12 }]
+  }),
+  portfolio: () => ({
+    available_balance_cents: 10000,
+    portfolio_value_cents: 5000,
+    total_value_cents: 15000,
+    user_id: 'test-user'
+  }),
+  trades: () => ({
+    trades: [
+      { 
+        trade_id: 'trade-1',
+        ticker: 'BTC-PRICE-24H',
+        count: 10,
+        yes_price: 0.65,
+        created_time: '2023-01-01T00:00:00Z',
+        side: 'yes'
+      }
+    ]
   })
 };
 
@@ -94,17 +120,4 @@ export function setupTestEnvironment() {
   afterEach(() => {
     jest.restoreAllMocks();
   });
-}
-
-// Add Jest matchers for TypeScript type compatibility
-declare global {
-  namespace jest {
-    interface Matchers<R> {
-      toHaveBeenCalledWith: (...args: any[]) => R;
-    }
-    interface Expect {
-      objectContaining: (expected: object) => any;
-      stringContaining: (expected: string) => any;
-    }
-  }
 }

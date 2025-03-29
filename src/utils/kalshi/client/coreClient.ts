@@ -20,27 +20,7 @@ import { KalshiQuoteClient } from './quoteClient';
 import { KalshiCommunicationClient } from './communicationClient';
 import { KalshiExchangeClient } from './exchangeClient';
 import { KalshiSeriesClient } from './seriesClient';
-import { CoreClientOptions } from './types';
-
-/**
- * Rate limit tiers definitions
- */
-export const RATE_LIMIT_TIERS = {
-  standard: {
-    reads: 100,
-    writes: 50
-  },
-  pro: {
-    reads: 500,
-    writes: 250
-  },
-  enterprise: {
-    reads: 2000,
-    writes: 1000
-  }
-};
-
-export type RateLimitTier = keyof typeof RATE_LIMIT_TIERS;
+import { CoreClientOptions, RateLimitTier, RATE_LIMIT_TIERS } from './types';
 
 /**
  * Core Kalshi API client
@@ -112,7 +92,7 @@ export class KalshiCoreClient {
         }
         
         // Add authentication headers
-        if (AUTH_METHOD === 'rsa' && this.rsaOptions) {
+        if (AUTH_METHOD === "rsa" && this.rsaOptions) {
           const path = config.url || '';
           const method = config.method?.toUpperCase() || 'GET';
           const authHeaders = generateKalshiAuthHeaders(this.rsaOptions, method, path);
