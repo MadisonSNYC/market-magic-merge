@@ -35,13 +35,17 @@ export function createMockErrorResponse(status = 500, message = 'Internal Server
  */
 export function mockAxios(responseData: any, status = 200) {
   const mockResponse = createMockResponse(responseData, status);
-  jest.spyOn(global, 'fetch').mockImplementation(() => 
-    Promise.resolve({
-      json: () => Promise.resolve(responseData),
-      ok: status < 400,
-      status
-    } as Response)
-  );
+  // Use mock implementation that allows for Jest type checking
+  if (typeof global.fetch === 'function') {
+    // @ts-ignore - Jest mock handling
+    jest.spyOn(global, 'fetch').mockImplementation(() => 
+      Promise.resolve({
+        json: () => Promise.resolve(responseData),
+        ok: status < 400,
+        status
+      } as Response)
+    );
+  }
   return mockResponse;
 }
 
@@ -113,11 +117,27 @@ export const mockKalshiData = {
  * Setup test environment
  */
 export function setupTestEnvironment() {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
+  // @ts-ignore - Jest functions
+  if (typeof beforeEach === 'function') {
+    // @ts-ignore - Jest function
+    beforeEach(() => {
+      // @ts-ignore - Jest function
+      if (typeof jest !== 'undefined') {
+        // @ts-ignore - Jest function
+        jest.clearAllMocks();
+      }
+    });
+  }
   
-  afterEach(() => {
-    jest.restoreAllMocks();
-  });
+  // @ts-ignore - Jest function
+  if (typeof afterEach === 'function') {
+    // @ts-ignore - Jest function
+    afterEach(() => {
+      // @ts-ignore - Jest function
+      if (typeof jest !== 'undefined') {
+        // @ts-ignore - Jest function
+        jest.restoreAllMocks();
+      }
+    });
+  }
 }

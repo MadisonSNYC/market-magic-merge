@@ -1,3 +1,4 @@
+
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosHeaders } from 'axios';
 import { 
   KALSHI_API_URL, 
@@ -91,8 +92,9 @@ export class KalshiCoreClient {
           config.headers = new AxiosHeaders();
         }
         
-        // Add authentication headers
-        if (AUTH_METHOD === "rsa" && this.rsaOptions) {
+        // Add authentication headers - Fix AUTH_METHOD comparison
+        if ((typeof AUTH_METHOD === 'string' && AUTH_METHOD === "rsa") || 
+            (typeof AUTH_METHOD === 'object' && AUTH_METHOD.RSA === "rsa")) {
           const path = config.url || '';
           const method = config.method?.toUpperCase() || 'GET';
           const authHeaders = generateKalshiAuthHeaders(this.rsaOptions, method, path);

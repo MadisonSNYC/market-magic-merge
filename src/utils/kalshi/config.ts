@@ -28,15 +28,15 @@ export const DEFAULT_RATE_LIMIT_TIER = 'standard';
 
 // Rate limit tiers
 export const RATE_LIMIT_TIERS = {
-  DEFAULT: {
+  standard: {
     requestsPerMinute: 60,
     requestsPerHour: 1000
   },
-  PREMIUM: {
+  premium: {
     requestsPerMinute: 120,
     requestsPerHour: 2000
   },
-  ENTERPRISE: {
+  enterprise: {
     requestsPerMinute: 300,
     requestsPerHour: 5000
   }
