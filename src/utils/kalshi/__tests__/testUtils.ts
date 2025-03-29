@@ -33,8 +33,11 @@ export function createMockErrorResponse(status = 500, message = 'Internal Server
 /**
  * Mock Axios request for testing
  */
-export function mockAxios(responseData: any, status = 200) {
+export function mockAxios(responseData: any, status = 200): jest.Mock {
   const mockResponse = createMockResponse(responseData, status);
+  // Create a Jest mock function that returns the response
+  const mockFn = jest.fn().mockReturnValue(mockResponse);
+  
   // Use mock implementation that allows for Jest type checking
   if (typeof global.fetch === 'function') {
     // @ts-ignore - Jest mock handling
@@ -46,7 +49,8 @@ export function mockAxios(responseData: any, status = 200) {
       } as Response)
     );
   }
-  return mockResponse;
+  
+  return mockFn;
 }
 
 /**
@@ -66,12 +70,12 @@ export const mockKalshiData = {
     markets: [
       {
         ticker: 'BTC-PRICE-24H',
-        title: 'Bitcoin Price Above $40K in 24h',
+        title: 'Bitcoin Price Above $40K',
         event_ticker: 'CRYPTO-PRICES'
       },
       {
         ticker: 'ETH-PRICE-24H',
-        title: 'Ethereum Price Above $2K in 24h',
+        title: 'Ethereum Price Above $2K',
         event_ticker: 'CRYPTO-PRICES'
       }
     ]
@@ -79,13 +83,13 @@ export const mockKalshiData = {
   events: () => ({
     events: [
       {
-        ticker: 'CRYPTO-PRICES',
-        title: 'Cryptocurrency Price Movements',
+        ticker: 'US-ELECTION-2024',
+        title: 'US Presidential Election 2024',
+        category: 'Politics',
         markets: []
       }
     ]
   }),
-  // Add missing test data for testing files
   orderbook: () => ({
     ticker: 'BTC-PRICE-24H',
     yes_bids: [{ price: 0.65, count: 10 }],
@@ -102,14 +106,14 @@ export const mockKalshiData = {
   trades: () => ({
     trades: [
       { 
-        trade_id: 'trade-1',
+        id: 'trade-1',
         ticker: 'BTC-PRICE-24H',
         count: 10,
-        yes_price: 0.65,
-        created_time: '2023-01-01T00:00:00Z',
-        side: 'yes'
+        price: 0.65,
+        created_time: '2023-01-01T00:00:00Z'
       }
-    ]
+    ],
+    cursor: 'next-page-cursor'
   })
 };
 

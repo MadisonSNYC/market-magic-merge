@@ -35,7 +35,7 @@ describe('RateLimitedClient', () => {
       // Verify the mock was called correctly
       expect(httpClient.get).toHaveBeenCalledWith(
         url,
-        expect.objectContaining({ params })
+        expect.toMatchObject({ params })
       );
       
       // Verify the result
@@ -60,7 +60,7 @@ describe('RateLimitedClient', () => {
       }
       
       // Verify the mock was called correctly
-      expect(httpClient.get).toHaveBeenCalledWith(url, expect.objectContaining({}));
+      expect(httpClient.get).toHaveBeenCalledWith(url, expect.toMatchObject({}));
     });
   });
   

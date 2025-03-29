@@ -48,8 +48,8 @@ describe('EventClient', () => {
 
       // Assert that the parameters were passed correctly
       expect(mockRequest).toHaveBeenCalledWith(
-        expect.objectContaining({
-          params: expect.objectContaining({
+        expect.toMatchObject({
+          params: expect.toMatchObject({
             category: 'Politics',
             status: 'active',
             series_ticker: 'US-POLITICS'
@@ -101,7 +101,7 @@ describe('EventClient', () => {
 
       // Assert the API was called with the right URL
       expect(mockRequest).toHaveBeenCalledWith(
-        expect.objectContaining({
+        expect.toMatchObject({
           url: expect.stringContaining('?include_markets=true')
         })
       );

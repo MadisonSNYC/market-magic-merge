@@ -48,8 +48,8 @@ describe('KalshiTradeClient', () => {
 
       // Assert that the parameters were passed correctly
       expect(mockRequest).toHaveBeenCalledWith(
-        expect.objectContaining({
-          params: expect.objectContaining({
+        expect.toMatchObject({
+          params: expect.toMatchObject({
             ticker: 'BTC-PRICE-24H',
             limit: 10
           })
@@ -69,8 +69,8 @@ describe('KalshiTradeClient', () => {
 
       // Assert that the correct parameters were passed
       expect(mockRequest).toHaveBeenCalledWith(
-        expect.objectContaining({
-          params: expect.objectContaining({
+        expect.toMatchObject({
+          params: expect.toMatchObject({
             ticker: 'BTC-PRICE-24H',
             limit: 5
           })

@@ -43,8 +43,8 @@ describe('MarketClient', () => {
 
       // Assert that the parameters were passed correctly
       expect(mockRequest).toHaveBeenCalledWith(
-        expect.objectContaining({
-          params: expect.objectContaining({
+        expect.toMatchObject({
+          params: expect.toMatchObject({
             category: 'Crypto',
             status: 'open'
           })

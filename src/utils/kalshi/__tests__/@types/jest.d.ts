@@ -25,6 +25,7 @@ declare global {
       toHaveProperty: (property: string, value?: any) => R;
       toBeTruthy: () => R;
       toBeUndefined: () => R;
+      toMatchObject: (expected: any) => R;
     }
     
     interface Expect {
