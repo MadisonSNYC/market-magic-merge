@@ -1,6 +1,8 @@
 
 import { ClientFactory } from '../client/clientFactory';
 
+// No explicit import of expect needed - it's available globally via jest.d.ts
+
 describe('ClientFactory', () => {
   describe('createClients', () => {
     it('should create all client instances with API key', () => {

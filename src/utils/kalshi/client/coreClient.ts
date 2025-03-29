@@ -1,204 +1,144 @@
 
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosHeaders } from 'axios';
-import { 
-  KALSHI_API_URL, 
-  KALSHI_DEMO_API_URL, 
-  DEMO_MODE, 
-  AUTH_METHOD, 
-  RSA_KEY_ID, 
-  RSA_PRIVATE_KEY 
-} from '../config';
-import { generateKalshiAuthHeaders, RsaAuthOptions } from './auth/rsaAuth';
-import { KalshiMarketClient } from './marketClient';
-import { KalshiUserClient } from './userClient';
-import { KalshiMetaClient } from './metaClient';
-import { KalshiTradeClient } from './tradeClient';
-import { KalshiEventClient } from './eventClient';
-import { KalshiCollectionClient } from './collectionClient';
-import { KalshiStructuredTargetClient } from './structuredTargetClient';
-import { KalshiRfqClient } from './rfqClient';
-import { KalshiQuoteClient } from './quoteClient';
-import { KalshiCommunicationClient } from './communicationClient';
-import { KalshiExchangeClient } from './exchangeClient';
-import { KalshiSeriesClient } from './seriesClient';
+import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
+import { DEMO_MODE, KALSHI_API_URL, KALSHI_DEMO_API_URL, AUTH_METHOD } from '../config';
 import { CoreClientOptions, RateLimitTier, RATE_LIMIT_TIERS } from './types';
 
 /**
- * Core Kalshi API client
+ * Core Kalshi client with shared methods
  */
-export class KalshiCoreClient {
-  private readonly baseUrl: string;
-  private readonly apiKey?: string;
-  private readonly rsaOptions?: RsaAuthOptions;
-  private readonly client: AxiosInstance;
-  
-  // Add client properties
-  public readonly marketClient: KalshiMarketClient;
-  public readonly userClient: KalshiUserClient;
-  public readonly metaClient: KalshiMetaClient;
-  public readonly tradeClient: KalshiTradeClient;
-  public readonly eventClient: KalshiEventClient;
-  public readonly collectionClient: KalshiCollectionClient;
-  public readonly structuredTargetClient: KalshiStructuredTargetClient;
-  public readonly rfqClient: KalshiRfqClient;
-  public readonly quoteClient: KalshiQuoteClient;
-  public readonly communicationClient: KalshiCommunicationClient;
-  public readonly exchangeClient: KalshiExchangeClient;
-  public readonly seriesClient: KalshiSeriesClient;
-  
-  constructor(baseUrl?: string, apiKeyOrRsaOptions?: string | RsaAuthOptions) {
-    // Determine if we're using API key or RSA options
-    if (typeof apiKeyOrRsaOptions === 'string') {
-      this.apiKey = apiKeyOrRsaOptions;
-      this.rsaOptions = undefined;
-    } else if (apiKeyOrRsaOptions && typeof apiKeyOrRsaOptions === 'object') {
-      this.apiKey = undefined;
-      this.rsaOptions = apiKeyOrRsaOptions;
+export class CoreClient {
+  protected apiKey?: string;
+  protected mockMode: boolean;
+  protected baseUrl: string;
+  protected axiosInstance: AxiosInstance;
+  protected rateLimitTier: RateLimitTier;
+
+  constructor(options: CoreClientOptions = {}) {
+    this.apiKey = options.apiKey;
+    this.mockMode = options.mockMode || false;
+
+    // Determine API URL based on configuration
+    if (options.baseUrl) {
+      // Explicit base URL takes precedence
+      this.baseUrl = options.baseUrl;
+    } else if (DEMO_MODE) {
+      // Use demo API if in demo mode
+      this.baseUrl = KALSHI_DEMO_API_URL;
     } else {
-      this.apiKey = '';
-      this.rsaOptions = undefined;
+      // Default to production API
+      this.baseUrl = KALSHI_API_URL;
     }
-    
-    this.baseUrl = baseUrl || (DEMO_MODE ? KALSHI_DEMO_API_URL : KALSHI_API_URL);
-    
-    this.client = axios.create({
+
+    // Set rate limit tier
+    this.rateLimitTier = options.rateLimitTier || 'standard';
+
+    // Create axios instance with default configuration
+    this.axiosInstance = axios.create({
       baseURL: this.baseUrl,
-      headers: {
-        'Content-Type': 'application/json'
-      }
+      headers: this.getDefaultHeaders()
     });
-    
-    // Initialize all client instances with proper options
-    const clientOptions: CoreClientOptions = { apiKey: this.apiKey };
-    
-    this.marketClient = new KalshiMarketClient(this.apiKey);
-    this.userClient = new KalshiUserClient(clientOptions);
-    this.metaClient = new KalshiMetaClient(this.apiKey);
-    this.tradeClient = new KalshiTradeClient(this.apiKey);
-    this.eventClient = new KalshiEventClient(this.apiKey);
-    this.collectionClient = new KalshiCollectionClient(this.apiKey);
-    this.structuredTargetClient = new KalshiStructuredTargetClient(this.apiKey);
-    this.rfqClient = new KalshiRfqClient(this.apiKey);
-    this.quoteClient = new KalshiQuoteClient(this.apiKey);
-    this.communicationClient = new KalshiCommunicationClient(this.apiKey);
-    this.exchangeClient = new KalshiExchangeClient(this.apiKey);
-    this.seriesClient = new KalshiSeriesClient(this.apiKey);
-    
-    // Add request interceptor to handle authentication
-    this.client.interceptors.request.use(
-      (config) => {
-        // Ensure headers object exists
-        if (!config.headers) {
-          config.headers = new AxiosHeaders();
-        }
-        
-        // Add authentication headers - Fix AUTH_METHOD comparison
-        if ((typeof AUTH_METHOD === 'string' && AUTH_METHOD === "rsa") || 
-            (typeof AUTH_METHOD === 'object' && AUTH_METHOD.RSA === "rsa")) {
-          const path = config.url || '';
-          const method = config.method?.toUpperCase() || 'GET';
-          const authHeaders = generateKalshiAuthHeaders(this.rsaOptions, method, path);
-          
-          // Add each header individually
-          Object.entries(authHeaders).forEach(([key, value]) => {
-            if (config.headers && value) {
-              config.headers.set(key, value);
-            }
-          });
-        } else if (this.apiKey) {
-          config.headers.set('Authorization', `Bearer ${this.apiKey}`);
-        }
-        
-        return config;
-      },
-      (error) => {
-        return Promise.reject(error);
-      }
-    );
-    
-    // Add response interceptor for error handling
-    this.client.interceptors.response.use(
-      (response) => response,
-      (error) => {
-        console.error('API request failed:', error.message);
-        return Promise.reject(error);
-      }
-    );
-  }
-  
-  /**
-   * Get the base URL
-   */
-  getBaseUrl(): string {
-    return this.baseUrl;
-  }
-  
-  /**
-   * Make a GET request
-   */
-  async get<T = any>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
-    return this.client.get<T>(url, config);
-  }
-  
-  /**
-   * Make a rate-limited GET request
-   */
-  async rateLimitedGet<T = any>(
-    url: string, 
-    params?: Record<string, any>
-  ): Promise<T> {
-    // In a real implementation, this would handle rate limiting logic
-    const config: AxiosRequestConfig = params ? { params } : {};
-    const response = await this.get<T>(url, config);
-    return response.data;
-  }
-  
-  /**
-   * Make a POST request
-   */
-  async post<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
-    return this.client.post<T>(url, data, config);
-  }
-  
-  /**
-   * Make a rate-limited POST request
-   */
-  async rateLimitedPost<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-    // In a real implementation, this would handle rate limiting logic
-    const response = await this.post<T>(url, data, config);
-    return response.data;
-  }
-  
-  /**
-   * Make a PUT request
-   */
-  async put<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
-    return this.client.put<T>(url, data, config);
   }
 
   /**
-   * Make a rate-limited PUT request
+   * Get default HTTP headers for requests
    */
-  async rateLimitedPut<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-    // In a real implementation, this would handle rate limiting logic
-    const response = await this.put<T>(url, data, config);
-    return response.data;
-  }
-  
-  /**
-   * Make a DELETE request
-   */
-  async delete<T = any>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
-    return this.client.delete<T>(url, config);
+  protected getDefaultHeaders(): Record<string, string> {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    };
+
+    // Add authorization header if API key is provided
+    if (this.apiKey) {
+      headers['Authorization'] = `Bearer ${this.apiKey}`;
+    }
+
+    return headers;
   }
 
   /**
-   * Make a rate-limited DELETE request
+   * Get rate limit for current tier
    */
-  async rateLimitedDelete<T = any>(url: string, data?: any): Promise<T> {
-    // In a real implementation, this would handle rate limiting logic
-    const config: AxiosRequestConfig = data ? { data } : {};
-    const response = await this.delete<T>(url, config);
-    return response.data;
+  protected getRateLimit(): { reads: number; writes: number } {
+    return RATE_LIMIT_TIERS[this.rateLimitTier];
+  }
+
+  /**
+   * Check if authentication is configured
+   */
+  protected isAuthenticated(): boolean {
+    if (!this.apiKey) {
+      return false;
+    }
+
+    // If AUTH_METHOD is defined, check if it's the expected type
+    if (AUTH_METHOD) {
+      // Use string equality comparison instead of type equality
+      if (AUTH_METHOD === 'rsa') {
+        // RSA authentication requires additional configuration
+        // not implemented in this example
+        return false;
+      }
+      
+      if (AUTH_METHOD === 'api_key') {
+        // API key authentication
+        return !!this.apiKey;
+      }
+    }
+
+    // Default case: just check if API key is present
+    return !!this.apiKey;
+  }
+
+  /**
+   * Make a GET request to the API
+   */
+  protected async get<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
+    try {
+      const response = await this.axiosInstance.get<T>(url, config);
+      return response.data;
+    } catch (error) {
+      console.error(`Error in GET request to ${url}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Make a POST request to the API
+   */
+  protected async post<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+    try {
+      const response = await this.axiosInstance.post<T>(url, data, config);
+      return response.data;
+    } catch (error) {
+      console.error(`Error in POST request to ${url}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Make a PUT request to the API
+   */
+  protected async put<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+    try {
+      const response = await this.axiosInstance.put<T>(url, data, config);
+      return response.data;
+    } catch (error) {
+      console.error(`Error in PUT request to ${url}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Make a DELETE request to the API
+   */
+  protected async delete<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
+    try {
+      const response = await this.axiosInstance.delete<T>(url, config);
+      return response.data;
+    } catch (error) {
+      console.error(`Error in DELETE request to ${url}:`, error);
+      throw error;
+    }
   }
 }

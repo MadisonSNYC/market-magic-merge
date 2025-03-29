@@ -1,7 +1,6 @@
 
 import { PortfolioClient } from '../clients/PortfolioClient';
 import { mockAxios, mockKalshiData, setupTestEnvironment } from './testUtils';
-import { KalshiBalanceResponse } from '../types/portfolio';
 
 // Set up test environment
 setupTestEnvironment();
@@ -38,8 +37,10 @@ describe('PortfolioClient', () => {
 
   describe('getPositions', () => {
     it('should return user positions', async () => {
-      // Mock the API response
-      const mockData = mockKalshiData.portfolio();
+      // Mock the API response with positions
+      const mockData = {
+        positions: mockKalshiData.positions()
+      };
       mockAxios(mockData);
 
       // Call the method
