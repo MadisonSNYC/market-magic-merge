@@ -89,7 +89,35 @@ export const mockKalshiData = {
     yes_asks: [{ price: 70, count: 5 }],
     no_bids: [{ price: 30, count: 15 }],
     no_asks: [{ price: 35, count: 8 }]
-  })
+  }),
+  recommendations: () => [
+    {
+      id: 'rec_1',
+      market_id: 'BTC-PRICE-24H',
+      marketId: 'BTC-PRICE-24H',
+      title: 'Bitcoin Price Above $40K',
+      confidence: 85,
+      side: 'yes',
+      recommendation: 'BUY YES',
+      reasoning: 'Strong upward trend',
+      reason: 'Strong upward trend',
+      cost: 10,
+      potentialProfit: 20
+    },
+    {
+      id: 'rec_2',
+      market_id: 'ETH-PRICE-24H',
+      marketId: 'ETH-PRICE-24H',
+      title: 'Ethereum Price Above $2K',
+      confidence: 70,
+      side: 'no',
+      recommendation: 'BUY NO',
+      reasoning: 'Resistance at $2K',
+      reason: 'Resistance at $2K',
+      cost: 5,
+      potentialProfit: 15
+    }
+  ]
 };
 
 // Mock the axios module

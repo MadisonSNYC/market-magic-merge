@@ -5,8 +5,8 @@
 
 import { KalshiClient } from '../client';
 import { mockKalshiPositions, mockKalshiTrades } from '../mockData';
+import { describe, it, expect, beforeEach } from 'vitest';
 
-// We're using Jest/Vitest globals, just need to implement test logic
 describe('KalshiClient', () => {
   let client: KalshiClient;
 
